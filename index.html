@@ -1132,17 +1132,38 @@ function loadMatrixFromExcel(input) {
       const data = XLSX.utils.sheet_to_json(sheet, {header:1});
       showUploadToast('Building tasks…', 70);
       const newTasks = [];
+      // Detect column layout from header row
+      const hdr = (data[0] || []).map(h => String(h||'').toLowerCase());
+      const has7Col = hdr.length >= 7 && (hdr[2] === 'h (mm)' || !isNaN(parseInt(data[1]&&data[1][2])));
+      // Map numeric category to stage; map numeric clearance mm to code
+      const catToStage = {0:'T2',1:'T1',2:'T2',3:'T3',4:'T4'};
+      const mmToCode = v => v===0?'HC':v<=50?'C50':v<=100?'C100V':v<=150?'C150V':v<=600?'C600V':v<=1500?'C1500':'CUSTOM';
       for(let i = 1; i < data.length; i++) {
         const row = data[i];
-        if(!row || !row[0]) continue;
-        const stage = String(row[0]||'').trim();
-        const clearance = String(row[1]||'').trim();
-        const clrH = parseInt(row[2]) || 0;
-        const clrV = parseInt(row[3]) || 0;
-        const selA = String(row[4]||'').trim();
-        const selB = String(row[5]||'').trim();
-        const taskName = String(row[6]||'').trim() || (stage + '-' + clearance + '-' + selA + ' vs ' + selB);
-        if(stage && selA && selB) newTasks.push([stage, clearance, clrH, clrV, selA, selB, taskName]);
+        if(!row || row.length < 3) continue;
+        let stage, clearance, clrH, clrV, selA, selB, taskName;
+        if(has7Col) {
+          // Original 7-column format: Stage | Clearance | H | V | SelA | SelB | TaskName
+          stage = String(row[0]||'').trim();
+          clearance = String(row[1]||'').trim();
+          clrH = parseInt(row[2]) || 0;
+          clrV = parseInt(row[3]) || 0;
+          selA = String(row[4]||'').trim();
+          selB = String(row[5]||'').trim();
+          taskName = String(row[6]||'').trim();
+        } else {
+          // 5-column format: Category | Clearance(mm) | SelA | SelB | TaskName
+          const cat = row[0];
+          const clrMm = parseInt(row[1]) || 0;
+          stage = catToStage[cat] || (String(cat).match(/^T[1-4]$/) ? String(cat) : 'T2');
+          clearance = mmToCode(clrMm);
+          clrH = clrMm;
+          clrV = clrMm;
+          selA = String(row[2]||'').trim();
+          selB = String(row[3]||'').trim();
+          taskName = String(row[4]||'').trim() || (clearance + '-' + selA + ' vs ' + selB);
+        }
+        if(selA && selB) newTasks.push([stage, clearance, clrH, clrV, selA, selB, taskName]);
       }
       BASE_TASKS = newTasks;
       showUploadToast('✅ Loaded ' + newTasks.length + ' tasks from ' + file.name, 100);
@@ -1301,28 +1322,4 @@ function saveState() {
 
 function loadState() {
   try {
-    const savedBase = localStorage.getItem('bimBaseTasks');
-    if(savedBase) BASE_TASKS = JSON.parse(savedBase);
-    else BASE_TASKS = TASKS.slice();
-    overrides = JSON.parse(localStorage.getItem('bimOverrides') || '{}');
-    customTasks = JSON.parse(localStorage.getItem('bimCustomTasks') || '[]');
-    loaded = JSON.parse(localStorage.getItem('bimLoaded') || '{}');
-    logEntries = JSON.parse(localStorage.getItem('bimLog') || '[]');
-    const rules = localStorage.getItem('projectRules');
-    if(rules) document.getElementById('projectRules').value = rules;
-    const info = JSON.parse(localStorage.getItem('projInfo') || '{}');
-    if(info.name) document.getElementById('projName').value = info.name;
-    if(info.lead) document.getElementById('projLead').value = info.lead;
-  } catch(e) { console.warn('Load state error:', e); }
-  renderLog();
-  ['T1','T2','T3','T4'].forEach(s => loadGateState(s));
-  if(BASE_TASKS.length) {
-    document.getElementById('matrixStatus').textContent = '✅ ' + BASE_TASKS.length + ' tasks loaded from last session';
-  }
-}
-
-document.addEventListener('DOMContentLoaded', init);
-
-</script>
-</body>
-</html>
+    const savedBase = localSto
