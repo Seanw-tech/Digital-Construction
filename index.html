@@ -1135,9 +1135,19 @@ function loadMatrixFromExcel(input) {
       // Detect column layout from header row
       const hdr = (data[0] || []).map(h => String(h||'').toLowerCase());
       const has7Col = hdr.length >= 7 && (hdr[2] === 'h (mm)' || !isNaN(parseInt(data[1]&&data[1][2])));
-      // Map numeric category to stage; map numeric clearance mm to code
+      // Map numeric category to stage; map clearance value to code
       const catToStage = {0:'T2',1:'T1',2:'T2',3:'T3',4:'T4'};
-      const mmToCode = v => v===0?'HC':v<=50?'C50':v<=100?'C100V':v<=150?'C150V':v<=600?'C600V':v<=1500?'C1500':'CUSTOM';
+      const toCode = v => {
+        if(String(v).toUpperCase()==='HC') return 'HC';
+        const n = parseInt(v);
+        if(isNaN(n) || n===0) return null; // 0 = not a clash, skip
+        if(n<=50) return 'C50';
+        if(n<=100) return 'C100V';
+        if(n<=150) return 'C150V';
+        if(n<=600) return 'C600V';
+        if(n<=1500) return 'C1500';
+        return 'CUSTOM';
+      };
       for(let i = 1; i < data.length; i++) {
         const row = data[i];
         if(!row || row.length < 3) continue;
@@ -1152,11 +1162,13 @@ function loadMatrixFromExcel(input) {
           selB = String(row[5]||'').trim();
           taskName = String(row[6]||'').trim();
         } else {
-          // 5-column format: Category | Clearance(mm) | SelA | SelB | TaskName
+          // 5-column format: Category | Clearance(mm or "HC") | SelA | SelB | TaskName
           const cat = row[0];
-          const clrMm = parseInt(row[1]) || 0;
+          const rawClr = row[1];
+          clearance = toCode(rawClr);
+          if(!clearance) continue; // skip 0 = not a clash
+          const clrMm = String(rawClr).toUpperCase()==='HC' ? 0 : (parseInt(rawClr)||0);
           stage = catToStage[cat] || (String(cat).match(/^T[1-4]$/) ? String(cat) : 'T2');
-          clearance = mmToCode(clrMm);
           clrH = clrMm;
           clrV = clrMm;
           selA = String(row[2]||'').trim();
@@ -1312,14 +1324,4 @@ function hideToast() { document.getElementById('uploadToast').style.display = 'n
 
 function saveState() {
   try {
-    localStorage.setItem('bimOverrides', JSON.stringify(overrides));
-    localStorage.setItem('bimCustomTasks', JSON.stringify(customTasks));
-    localStorage.setItem('bimLoaded', JSON.stringify(loaded));
-    localStorage.setItem('bimLog', JSON.stringify(logEntries));
-    localStorage.setItem('bimBaseTasks', JSON.stringify(BASE_TASKS));
-  } catch(e) { console.warn('Save state error:', e); }
-}
-
-function loadState() {
-  try {
-    const savedBase = localSto
+    localStorage.setItem('bimOverrides', JSON.stringif
