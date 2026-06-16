@@ -175,11 +175,20 @@ footer{padding:20px 32px;border-top:1px solid #2d3748;text-align:center;font-siz
     </div>
     <span class="badge-live">LIVE</span>
     <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
-      <label id="uploadLabel" style="background:#1e3a5f;border:1px solid #1d4ed8;color:#93c5fd;padding:7px 14px;border-radius:6px;font-size:.78rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px">
-        📂 Upload Updated Matrix
-        <input type="file" id="matrixUpload" accept=".xlsx" style="display:none" onchange="loadMatrixFromExcel(this)">
-      </label>
-      <div id="matrixStatus" style="font-size:.68rem;color:#64748b;text-align:right"></div>
+      <div style="display:flex;gap:8px">
+        <label id="uploadLabel" style="background:#1e3a5f;border:1px solid #1d4ed8;color:#93c5fd;padding:7px 14px;border-radius:6px;font-size:.78rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px">
+          📂 Upload Updated Matrix
+          <input type="file" id="matrixUpload" accept=".xlsx" style="display:none" onchange="loadMatrixFromExcel(this)">
+        </label>
+        <label id="claudeUploadLabel" style="background:#0e4429;border:1px solid #166534;color:#34d399;padding:7px 14px;border-radius:6px;font-size:.78rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px">
+          📤 Upload Claude Output
+          <input type="file" id="claudeUpload" accept=".txt,.json" style="display:none" onchange="loadClaudeOutput(this)">
+        </label>
+      </div>
+      <div style="display:flex;gap:16px">
+        <div id="matrixStatus" style="font-size:.68rem;color:#64748b;text-align:right"></div>
+        <div id="claudeStatus" style="font-size:.68rem;color:#34d399;text-align:right"></div>
+      </div>
     </div>
   </div>
 </header>
@@ -748,77 +757,572 @@ footer{padding:20px 32px;border-top:1px solid #2d3748;text-align:center;font-siz
 </div>
 
 </main>
-<!-- ════ EDIT / ADD TASK MODAL ════ -->
-<div class="modal-overlay" id="taskModal" onclick="if(event.target===this)closeModal()">
-  <div class="modal">
-    <h3 id="modalTitle">Edit Clash Task</h3>
-    <div class="modal-sub" id="modalSub">Adjust clearance factors or priority for this task. Changes are project-specific and saved locally.</div>
-    <input type="hidden" id="modalMode"> <!-- 'edit' or 'add' -->
-    <input type="hidden" id="modalTaskKey">
-    <input type="hidden" id="modalStage">
-    <div class="form-row full">
-      <div class="form-group">
-        <label>Task Name</label>
-        <input id="modalTaskName" placeholder="e.g. NL-C50-MEC_Duct vs STR_Beam" style="font-family:monospace">
-      </div>
-    </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label>Selection Set A</label>
-        <input id="modalSelA" placeholder="e.g. MEC_Uninsulated Duct and Acc">
-      </div>
-      <div class="form-group">
-        <label>Selection Set B</label>
-        <input id="modalSelB" placeholder="e.g. STR_Steelwork (Bracing and Columns)">
-      </div>
-    </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label>Clearance Code</label>
-        <select id="modalClrCode" onchange="autofillClearance()">
-          <option value="HC">HC — Hard Clash (0mm)</option>
-          <option value="C50">C50 — 50mm all directions</option>
-          <option value="C100V">C100V — 100mm vertical / 50mm horizontal</option>
-          <option value="C150V">C150V — 150mm vertical / 50mm horizontal</option>
-          <option value="C600V">C600V — 600mm vertical / 50mm horizontal</option>
-          <option value="CUSTOM">CUSTOM — enter manually below</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Revizto Priority</label>
-        <select id="modalPriority">
-          <option value="Critical">Critical</option>
-          <option value="Major">Major</option>
-          <option value="Minor">Minor</option>
-        </select>
-      </div>
-    </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label>Horizontal Clearance (mm)</label>
-        <input id="modalClrH" type="number" min="0" placeholder="e.g. 50">
-      </div>
-      <div class="form-group">
-        <label>Vertical Clearance (mm)</label>
-        <input id="modalClrV" type="number" min="0" placeholder="e.g. 100">
-      </div>
-    </div>
-    <div class="form-row full">
-      <div class="form-group">
-        <label>Reason / Note (optional)</label>
-        <input id="modalNote" placeholder="e.g. Structural engineer requires 75mm per site RFI-042">
-      </div>
-    </div>
-    <span class="reset-link" id="resetLink" onclick="resetOverride()" style="display:none">↩ Reset to original G05 values</span>
-    <div class="modal-actions">
-      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
-      <button class="btn btn-danger" id="deleteBtn" onclick="deleteItem()" style="display:none">🗑 Delete</button>
-      <button class="btn btn-primary" onclick="saveModal()">💾 Save Task</button>
-    </div>
-  </div>
-</div>
-
-<footer>BIM Clash Coordination Platform · BIM Clash Coordination Toolkit · Upload your project matrix to begin &nbsp;|&nbsp; Demo data loaded — upload your project matrix to replace</footer>
+<footer>BIM Clash Coordination Platform &nbsp;·&nbsp; BIM Clash Coordination Toolkit &nbsp;·&nbsp; <span id="footer-status">Upload your G05 matrix to load tasks</span></footer>
 
 <script>
-const TASKS = [["T2","HC",0,0,"ARC_Ceiling","ARC_Doors*","NL-HC-ARC_Ceiling vs ARC_Doors*"],["T2","HC",0,0,"ARC_Ceiling","ARC_Fire & Acoustic Wall","NL-HC-ARC_Ceiling vs ARC_Fire & Acoustic Wall"],["T2","C100V",50,100,"ARC_Ceiling","HYD_Uninsulated Pipes and Acc","NL-C100V-ARC_Ceiling vs HYD_Uninsulated Pipes and Acc"],["T2","C100V",50,100,"ARC_Ceiling","HYD_Pipe Insulation","NL-C100V-ARC_Ceiling vs HYD_Pipe Insulation"],["T2","C100V",50,100,"ARC_Ceiling","HYD_Uninsulated Hot and Cold Pipes and Acc","NL-C100V-ARC_Ceiling vs HYD_Uninsulated Hot and Cold Pipes and Acc"],["T2","C100V",50,100,"ARC_Ceiling","HYD_Hot and Cold Insulation","NL-C100V-ARC_Ceiling vs HYD_Hot and Cold Insulation"],["T2","C100V",50,100,"ARC_Ceiling","HYD_Plumbing Fixture","NL-C100V-ARC_Ceiling vs HYD_Plumbing Fixture"],["T2","C100V",50,100,"ARC_Ceiling","MEC_Uninsulated Duct and Acc","NL-C100V-ARC_Ceiling vs MEC_Uninsulated Duct and Acc"],["T2","C100V",50,100,"ARC_Ceiling","MEC_Duct Insulation","NL-C100V-ARC_Ceiling vs MEC_Duct Insulation"],["T2","C100V",50,100,"ARC_Ceiling","MEC_Pipe Insulation","NL-C100V-ARC_Ceiling vs MEC_Pipe Insulation"],["T2","C100V",50,100,"ARC_Ceiling","MEC_Uninsulated Pipes and Acc","NL-C100V-ARC_Ceiling vs MEC_Uninsulated Pipes and Acc"],["T2","C100V",50,100,"ARC_Ceiling","MEC_Uninulated Flexi duct","NL-C100V-ARC_Ceiling vs MEC_Uninulated Flexi duct"],["T2","C100V",50,100,"ARC_Ceiling","MEC_Equipment","NL-C100V-ARC_Ceiling vs MEC_Equipment"],["T2","C100V",50,100,"ARC_Ceiling","ELE_Cable Tray and Fittings","NL-C100V-ARC_Ceiling vs ELE_Cable Tray and Fittings"],["T2","C100V",50,100,"ARC_Ceiling","ELE_Conduit*","NL-C100V-ARC_Ceiling vs ELE_Conduit*"],["T2","C100V",50,100,"ARC_Ceiling","ELE_Electrical Equip.","NL-C100V-ARC_Ceiling vs ELE_Electrical Equip."],["T2","C100V",50,100,"ARC_Ceiling","ELE_Small Devices","NL-C100V-ARC_Ceiling vs ELE_Small Devices"],["T2","C100V",50,100,"ARC_Ceiling","FIR_Fire Pipes","NL-C100V-ARC_Ceiling vs FIR_Fire Pipes"],["T3","HC",0,0,"ARC_Doors*","ARC_Services Walkway","NL-HC-ARC_Doors* vs ARC_Services Walkway"],["T2","HC",0,0,"ARC_Doors*","STR_Conc work Excl Floor Slab","NL-HC-ARC_Doors* vs STR_Conc work Excl Floor Slab"],["T2","HC",0,0,"ARC_Doors*","STR_Steelwork (Bracing and Columns)","NL-HC-ARC_Doors* vs STR_Steelwork (Bracing and Columns)"],["T2","HC",0,0,"ARC_Doors*","STR Floor","NL-HC-ARC_Doors* vs STR Floor"],["T2","C50",50,50,"ARC_Doors*","MEC_Air Terminals","NL-C50-ARC_Doors* vs MEC_Air Terminals"],["T2","C50",50,50,"ARC_Doors*","MEC_Equipment","NL-C50-ARC_Doors* vs MEC_Equipment"],["T3","HC",0,0,"ARC_Doors*","ELE_Electrical Equip.","NL-HC-ARC_Doors* vs ELE_Electrical Equip."],["T4","HC",0,0,"ARC_Gen Model & Casework*","ARC_Fire & Acoustic Wall","NL-HC-ARC_Gen Model & Casework* vs ARC_Fire & Acoustic Wall"],["T4","HC",0,0,"ARC_Gen Model & Casework*","ARC_Windows","NL-HC-ARC_Gen Model & Casework* vs ARC_Windows"],["T4","HC",0,0,"ARC_Gen Model & Casework*","ARC_Services Walkway","NL-HC-ARC_Gen Model & Casework* vs ARC_Services Walkway"],["T4","HC",0,0,"ARC_Gen Model & Casework*","SRV_Access Panel","NL-HC-ARC_Gen Model & Casework* vs SRV_Access Panel"],["T4","HC",0,0,"ARC_Gen Model & Casework*","ARC_Plumbing Fixtures","NL-HC-ARC_Gen Model & Casework* vs ARC_Plumbing Fixtures"],["T4","HC",0,0,"ARC_Gen Model & Casework*","STR_Seismic Elements","NL-HC-ARC_Gen Model & Casework* vs STR_Seismic Elements"],["T4","HC",0,0,"ARC_Gen Model & Casework*","STR_Conc work Excl Floor Slab","NL-HC-ARC_Gen Model & Casework* vs STR_Conc work Excl Floor Slab"],["T4","HC",0,0,"ARC_Gen Model & Casework*","STR_Steelwork (Bracing and Columns)","NL-HC-ARC_Gen Model & Casework* vs STR_Steelwork (Bracing and Columns)"],["T4","HC",0,0,"ARC_Gen Model & Casework*","STR Floor","NL-HC-ARC_Gen Model & Casework* vs STR Floor"],["T4","HC",0,0,"ARC_Gen Model & Casework*","HYD_Uninsulated Pipes and Acc","NL-HC-ARC_Gen Model & Casework* vs HYD_Uninsulated Pipes and Acc"],["T4","HC",0,0,"ARC_Gen Model & Casework*","HYD_Pipe Insulation","NL-HC-ARC_Gen Model & Casework* vs HYD_Pipe Insulation"],["T4","HC",0,0,"ARC_Gen Model & Casework*","HYD_Uninsulated Hot and Cold Pipes and Acc","NL-HC-ARC_Gen Model & Casework* vs HYD_Uninsulated Hot and Cold Pipes and Acc"],["T4","HC",0,0,"ARC_Gen Model & Casework*","HYD_Hot and Cold Insulation","NL-HC-ARC_Gen Model & Casework* vs HYD_Hot and Cold Insulation"],["T4","HC",0,0,"ARC_Gen Model & Casework*","HYD_Plumbing Fixture","NL-HC-ARC_Gen Model & Casework* vs HYD_Plumbing Fixture"],["T4","HC",0,0,"ARC_Gen Model & Casework*","MEC_Air Terminals","NL-HC-ARC_Gen Model & Casework* vs MEC_Air Terminals"],["T4","HC",0,0,"ARC_Gen Model & Casework*","MEC_Uninsulated Duct and Acc","NL-HC-ARC_Gen Model & Casework* vs MEC_Uninsulated Duct and Acc"],["T4","HC",0,0,"ARC_Gen Model & Casework*","MEC_Duct Insulation","NL-HC-ARC_Gen Model & Casework* vs MEC_Duct Insulation"],["T4","HC",0,0,"ARC_Gen Model & Casework*","MEC_Pipe Insulation","NL-HC-ARC_Gen Model & Casework* vs MEC_Pipe Insulation"],["T4","HC",0,0,"ARC_Gen Model & Casework*","MEC_Uninsulated Pipes and Acc","NL-HC-ARC_Gen Model & Casework* vs MEC_Uninsulated Pipes and Acc"],["T4","HC",0,0,"ARC_Gen Model & Casework*","MEC_Uninulated Flexi duct","NL-HC-ARC_Gen Model & Casework* vs MEC_Uninulated Flexi duct"],["T4","HC",0,0,"ARC_Gen Model & Casework*","MEC_Equipment","NL-HC-ARC_Gen Model & Casework* vs MEC_Equipment"],["T4","HC",0,0,"ARC_Gen Model & Casework*","ELE_Cable Tray and Fittings","NL-HC-ARC_Gen Model & Casework* vs ELE_Cable Tray and Fittings"],["T4","HC",0,0,"ARC_Gen Model & Casework*","ELE_Conduit*","NL-HC-ARC_Gen Model & Casework* vs ELE_Conduit*"],["T4","HC",0,0,"ARC_Gen Model & Casework*","ELE_Electrical Equip.","NL-HC-ARC_Gen Model & Casework* vs ELE_Electrical Equip."],["T4","HC",0,0,"ARC_Gen Model & Casework*","ELE_Small Devices","NL-HC-ARC_Gen Model & Casework* vs ELE_Small Devices"],["T4","HC",0,0,"ARC_Gen Model & Casework*","ELE_Services Lighting Fixtures","NL-HC-ARC_Gen Model & Casework* vs ELE_Services Lighting Fixtures"],["T4","HC",0,0,"ARC_Gen Model & Casework*","FIR_Fire Pipes","NL-HC-ARC_Gen Model & Casework* vs FIR_Fire Pipes"],["T2","C50",50,50,"ARC_Fire & Acoustic Wall","SRV_Access Panel","NL-C50-ARC_Fire & Acoustic Wall vs SRV_Access Panel"],["T2","HC",0,0,"ARC_Fire & Acoustic Wall","STR_Seismic Elements","NL-HC-ARC_Fire & Acoustic Wall vs STR_Seismic Elements"],["T2","HC",0,0,"ARC_Fire & Acoustic Wall","STR_Conc work Excl Floor Slab","NL-HC-ARC_Fire & Acoustic Wall vs STR_Conc work Excl Floor Slab"],["T2","HC",0,0,"ARC_Fire & Acoustic Wall","STR_Steelwork (Bracing and Columns)","NL-HC-ARC_Fire & Acoustic Wall vs STR_Steelwork (Bracing and Columns)"],["T2","HC",0,0,"ARC_Fire & Acoustic Wall","STR Floor","NL-HC-ARC_Fire & Acoustic Wall vs STR Floor"],["T2","C50",50,50,"ARC_Fire & Acoustic Wall","HYD_Uninsulated Pipes and Acc","NL-C50-ARC_Fire & Acoustic Wall vs HYD_Uninsulated Pipes and Acc"],["T2","C50",50,50,"ARC_Fire & Acoustic Wall","HYD_Pipe Insulation","NL-C50-ARC_Fire & Acoustic Wall vs HYD_Pipe Insulation"],["T2","C50",50,50,"ARC_Fire & Acoustic Wall","HYD_Uninsulated Hot and Cold Pipes and Acc","NL-C50-ARC_Fire & Acoustic Wall vs HYD_Uninsulated Hot and Cold Pipes and Acc"],["T2","C50",50,50,"ARC_Fire & Acoustic Wall","HYD_Hot and Cold Insulation","NL-C50-ARC_Fire & Acoustic Wall vs HYD_Hot and Cold Insulation"],["T2","C50",50,50,"ARC_Fire & Acoustic Wall","HYD_Plumbing Fixture","NL-C50-ARC_Fire & Acoustic Wall vs HYD_Plumbing Fixture"],["T2","C50",50,50,"ARC_Fire & Acoustic Wall","MEC_Uninsulated Duct and Acc","NL-C50-ARC_Fire & Acoustic Wall vs MEC_Uninsulated Duct and Acc"],["T2","C50",50,50,"ARC_Fire & Acoustic Wall","MEC_Duct Insulation","NL-C50-ARC_Fire & Acoustic Wall vs MEC_Duct Insulation"],["T2","C50",50,50,"ARC_Fire & Acoustic Wall","MEC_Pipe Insulation","NL-C50-ARC_Fire & Acoustic Wall vs MEC_Pipe Insulation"],["T2","C50",50,50,"ARC_Fire & Acoustic Wall","MEC_Uninsulated Pipes and Acc","NL-C50-ARC_Fire & Acoustic Wall vs MEC_Uninsulated Pipes and Acc"],["T2","C50",50,50,"ARC_Fire & Acoustic Wall","MEC_Uninulated Flexi duct","NL-C50-ARC_Fire & Acoustic Wall vs MEC_Uninulated Flexi duct"],["T2","C50",50,50,"ARC_Fire & Acoustic Wall","MEC_Equipment","NL-C50-ARC_Fire & Acoustic Wall vs MEC_Equipment"],["T2","C50",50,50,"ARC_Fire & Acoustic Wall","ELE_Cable Tray and Fittings","NL-C50-ARC_Fire & Acoustic Wall vs ELE_Cable Tray and Fittings"],["T2","C50",50,50,"ARC_Fire & Acoustic Wall","ELE_Conduit*","NL-C50-ARC_Fire & Acoustic Wall vs ELE_Conduit*"],["T2","C50",50,50,"ARC_Fire & Acoustic Wall","ELE_Electrical Equip.","NL-C50-ARC_Fire & Acoustic Wall vs ELE_Electrical Equip."],["T2","C50",50,50,"ARC_Fire & Acoustic Wall","ELE_Services Lighting Fixtures","NL-C50-ARC_Fire & Acoustic Wall vs ELE_Services Lighting Fixtures"],["T2","C50",50,50,"ARC_Fire & Acoustic Wall","FIR_Fire Pipes","NL-C50-ARC_Fire & Acoustic Wall vs FIR_Fire Pipes"],["T2","HC",0,0,"ARC_Windows","STR_Conc work Excl Floor Slab","NL-HC-ARC_Windows vs STR_Conc work Excl Floor Slab"],["T2","HC",0,0,"ARC_Windows","STR_Steelwork (Bracing and Columns)","NL-HC-ARC_Windows vs STR_Steelwork (Bracing and Columns)"],["T2","HC",0,0,"ARC_Windows","STR Floor","NL-HC-ARC_Windows vs STR Floor"],["T3","HC",0,0,"ARC_Services Walkway","SRV_Access Panel","NL-HC-ARC_Services Walkway vs SRV_Access Panel"],["T3","HC",0,0,"ARC_Services Walkway","ARC_Plumbing Fixtures","NL-HC-ARC_Services Walkway vs ARC_Plumbing Fixtures"],["T3","HC",0,0,"ARC_Services Walkway","ARC_SOG Floor Insulation","NL-HC-ARC_Services Walkway vs ARC_SOG Floor Insulation"],["T3","HC",0,0,"ARC_Services Walkway","STR_Seismic Elements","NL-HC-ARC_Services Walkway vs STR_Seismic Elements"],["T3","HC",0,0,"ARC_Services Walkway","STR_Conc work Excl Floor Slab","NL-HC-ARC_Services Walkway vs STR_Conc work Excl Floor Slab"],["T3","HC",0,0,"ARC_Services Walkway","STR_Steelwork (Bracing and Columns)","NL-HC-ARC_Services Walkway vs STR_Steelwork (Bracing and Columns)"],["T3","HC",0,0,"ARC_Services Walkway","STR Floor","NL-HC-ARC_Services Walkway vs STR Floor"],["T3","HC",0,0,"ARC_Services Walkway","HYD_Uninsulated Pipes and Acc","NL-HC-ARC_Services Walkway vs HYD_Uninsulated Pipes and Acc"],["T3","HC",0,0,"ARC_Services Walkway","HYD_Pipe Insulation","NL-HC-ARC_Services Walkway vs HYD_Pipe Insulation"],["T3","HC",0,0,"ARC_Services Walkway","HYD_Uninsulated Hot and Cold Pipes and Acc","NL-HC-ARC_Services Walkway vs HYD_Uninsulated Hot and Cold Pipes and Acc"],["T3","HC",0,0,"ARC_Services Walkway","HYD_Hot and Cold Insulation","NL-HC-ARC_Services Walkway vs HYD_Hot and Cold Insulation"],["T3","HC",0,0,"ARC_Services Walkway","HYD_Plumbing Fixture","NL-HC-ARC_Services Walkway vs HYD_Plumbing Fixture"],["T3","HC",0,0,"ARC_Services Walkway","MEC_Air Terminals","NL-HC-ARC_Services Walkway vs MEC_Air Terminals"],["T3","HC",0,0,"ARC_Services Walkway","MEC_Uninsulated Duct and Acc","NL-HC-ARC_Services Walkway vs MEC_Uninsulated Duct and Acc"],["T3","HC",0,0,"ARC_Services Walkway","MEC_Duct Insulation","NL-HC-ARC_Services Walkway vs MEC_Duct Insulation"],["T3","HC",0,0,"ARC_Services Walkway","MEC_Pipe Insulation","NL-HC-ARC_Services Walkway vs MEC_Pipe Insulation"],["T3","HC",0,0,"ARC_Services Walkway","MEC_Uninsulated Pipes and Acc","NL-HC-ARC_Services Walkway vs MEC_Uninsulated Pipes and Acc"],["T3","HC",0,0,"ARC_Services Walkway","MEC_Uninulated Flexi duct","NL-HC-ARC_Services Walkway vs MEC_Uninulated Flexi duct"],["T3","HC",0,0,"ARC_Services Walkway","MEC_Equipment","NL-HC-ARC_Services Walkway vs MEC_Equipment"],["T3","HC",0,0,"ARC_Services Walkway","ELE_Cable Tray and Fittings","NL-HC-ARC_Services Walkway vs ELE_Cable Tray and Fittings"],["T3","HC",0,0,"ARC_Services Walkway","ELE_Conduit*","NL-HC-ARC_Services Walkway vs ELE_Conduit*"],["T3","HC",0,0,"ARC_Services Walkway","ELE_Electrical Equip.","NL-HC-ARC_Services Walkway vs ELE_Electrical Equip."],["T3","HC",0,0,"ARC_Services Walkway","ELE_Small Devices","NL-HC-ARC_Services Walkway vs ELE_Small Devices"],["T3","HC",0,0,"ARC_Services Walkway","ELE_Services Lighting Fixtures","NL-HC-ARC_Services Walkway vs ELE_Services Lighting Fixtures"],["T3","HC",0,0,"ARC_Services Walkway","FIR_Fire Pipes","NL-HC-ARC_Services Walkway vs FIR_Fire Pipes"],["T3","HC",0,0,"ARC_Services Walkway","FIR_Sprinklers Heads","NL-HC-ARC_Services Walkway vs FIR_Sprinklers Heads"],["T3","HC",0,0,"ARC_Services Walkway","FIR_Heat or Smoke Detectors","NL-HC-ARC_Services Walkway vs FIR_Heat or Smoke Detectors"],["T3","C600V",50,600,"SRV_Access Panel","ARC_Plumbing Fixtures","NL-C600V-SRV_Access Panel vs ARC_Plumbing Fixtures"],["T3","C600V",50,600,"SRV_Access Panel","STR_Seismic Elements","NL-C600V-SRV_Access Panel vs STR_Seismic Elements"],["T3","C600V",50,600,"SRV_Access Panel","STR_Steelwork (Bracing and Columns)","NL-C600V-SRV_Access Panel vs STR_Steelwork (Bracing and Columns)"],["T3","C600V",50,600,"SRV_Access Panel","HYD_Uninsulated Pipes and Acc","NL-C600V-SRV_Access Panel vs HYD_Uninsulated Pipes and Acc"],["T3","C600V",50,600,"SRV_Access Panel","HYD_Pipe Insulation","NL-C600V-SRV_Access Panel vs HYD_Pipe Insulation"],["T3","C600V",50,600,"SRV_Access Panel","HYD_Uninsulated Hot and Cold Pipes and Acc","NL-C600V-SRV_Access Panel vs HYD_Uninsulated Hot and Cold Pipes and Acc"],["T3","C600V",50,600,"SRV_Access Panel","HYD_Hot and Cold Insulation","NL-C600V-SRV_Access Panel vs HYD_Hot and Cold Insulation"],["T3","C600V",50,600,"SRV_Access Panel","MEC_Air Terminals","NL-C600V-SRV_Access Panel vs MEC_Air Terminals"],["T3","C600V",50,600,"SRV_Access Panel","MEC_Uninsulated Duct and Acc","NL-C600V-SRV_Access Panel vs MEC_Uninsulated Duct and Acc"],["T3","C600V",50,600,"SRV_Access Panel","MEC_Duct Insulation","NL-C600V-SRV_Access Panel vs MEC_Duct Insulation"],["T3","C600V",50,600,"SRV_Access Panel","MEC_Pipe Insulation","NL-C600V-SRV_Access Panel vs MEC_Pipe Insulation"],["T3","C600V",50,600,"SRV_Access Panel","MEC_Uninsulated Pipes and Acc","NL-C600V-SRV_Access Panel vs MEC_Uninsulated Pipes and Acc"],["T3","C600V",50,600,"SRV_Access Panel","MEC_Uninulated Flexi duct","NL-C600V-SRV_Access Panel vs MEC_Uninulated Flexi duct"],["T3","C600V",50,600,"SRV_Access Panel","MEC_Equipment","NL-C600V-SRV_Access Panel vs MEC_Equipment"],["T3","C600V",50,600,"SRV_Access Panel","ELE_Cable Tray and Fittings","NL-C600V-SRV_Access Panel vs ELE_Cable Tray and Fittings"],["T3","C600V",50,600,"SRV_Access Panel","ELE_Conduit*","NL-C600V-SRV_Access Panel vs ELE_Conduit*"],["T3","C600V",50,600,"SRV_Access Panel","ELE_Electrical Equip.","NL-C600V-SRV_Access Panel vs ELE_Electrical Equip."],["T3","C600V",50,600,"SRV_Access Panel","ELE_Small Devices","NL-C600V-SRV_Access Panel vs ELE_Small Devices"],["T3","C600V",50,600,"SRV_Access Panel","ELE_Services Lighting Fixtures","NL-C600V-SRV_Access Panel vs ELE_Services Lighting Fixtures"],["T3","C600V",50,600,"SRV_Access Panel","FIR_Fire Pipes","NL-C600V-SRV_Access Panel vs FIR_Fire Pipes"],["T3","HC",0,0,"ARC_Lighting Fixtures","ELE_Services Lighting Fixtures","NL-HC-ARC_Lighting Fixtures vs ELE_Services Lighting Fixtures"],["T3","C50",50,50,"ARC_Plumbing Fixtures","STR_Seismic Elements","NL-C50-ARC_Plumbing Fixtures vs STR_Seismic Elements"],["T3","C50",50,50,"ARC_Plumbing Fixtures","STR_Conc work Excl Floor Slab","NL-C50-ARC_Plumbing Fixtures vs STR_Conc work Excl Floor Slab"],["T3","C50",50,50,"ARC_Plumbing Fixtures","STR_Steelwork (Bracing and Columns)","NL-C50-ARC_Plumbing Fixtures vs STR_Steelwork (Bracing and Columns)"],["T3","C50",50,50,"ARC_Plumbing Fixtures","HYD_Uninsulated Pipes and Acc","NL-C50-ARC_Plumbing Fixtures vs HYD_Uninsulated Pipes and Acc"],["T3","C50",50,50,"ARC_Plumbing Fixtures","HYD_Pipe Insulation","NL-C50-ARC_Plumbing Fixtures vs HYD_Pipe Insulation"],["T3","C50",50,50,"ARC_Plumbing Fixtures","HYD_Uninsulated Hot and Cold Pipes and Acc","NL-C50-ARC_Plumbing Fixtures vs HYD_Uninsulated Hot and Cold Pipes and Acc"],["T3","C50",50,50,"ARC_Plumbing Fixtures","HYD_Hot and Cold Insulation","NL-C50-ARC_Plumbing Fixtures vs HYD_Hot and Cold Insulation"],["T3","C50",50,50,"ARC_Plumbing Fixtures","HYD_Plumbing Fixture","NL-C50-ARC_Plumbing Fixtures vs HYD_Plumbing Fixture"],["T3","C50",50,50,"ARC_Plumbing Fixtures","MEC_Air Terminals","NL-C50-ARC_Plumbing Fixtures vs MEC_Air Terminals"],["T3","C50",50,50,"ARC_Plumbing Fixtures","MEC_Uninsulated Duct and Acc","NL-C50-ARC_Plumbing Fixtures vs MEC_Uninsulated Duct and Acc"],["T3","C50",50,50,"ARC_Plumbing Fixtures","MEC_Duct Insulation","NL-C50-ARC_Plumbing Fixtures vs MEC_Duct Insulation"],["T3","C50",50,50,"ARC_Plumbing Fixtures","MEC_Pipe Insulation","NL-C50-ARC_Plumbing Fixtures vs MEC_Pipe Insulation"],["T3","C50",50,50,"ARC_Plumbing Fixtures","MEC_Uninsulated Pipes and Acc","NL-C50-ARC_Plumbing Fixtures vs MEC_Uninsulated Pipes and Acc"],["T3","C50",50,50,"ARC_Plumbing Fixtures","MEC_Uninulated Flexi duct","NL-C50-ARC_Plumbing Fixtures vs MEC_Uninulated Flexi duct"],["T3","C50",50,50,"ARC_Plumbing Fixtures","MEC_Equipment","NL-C50-ARC_Plumbing Fixtures vs MEC_Equipment"],["T3","C50",50,50,"ARC_Plumbing Fixtures","ELE_Cable Tray and Fittings","NL-C50-ARC_Plumbing Fixtures vs ELE_Cable Tray and Fittings"],["T3","C50",50,50,"ARC_Plumbing Fixtures","ELE_Conduit*","NL-C50-ARC_Plumbing Fixtures vs ELE_Conduit*"],["T3","C50",50,50,"ARC_Plumbing Fixtures","ELE_Electrical Equip.","NL-C50-ARC_Plumbing Fixtures vs ELE_Electrical Equip."],["T3","C50",50,50,"ARC_Plumbing Fixtures","ELE_Small Devices","NL-C50-ARC_Plumbing Fixtures vs ELE_Small Devices"],["T3","C50",50,50,"ARC_Plumbing Fixtures","ELE_Services Lighting Fixtures","NL-C50-ARC_Plumbing Fixtures vs ELE_Services Lighting Fixtures"],["T1","HC",0,0,"ARC_SOG Floor Insulation","HYD_Uninsulated Pipes and Acc","NL-HC-ARC_SOG Floor Insulation vs HYD_Uninsulated Pipes and Acc"],["T1","HC",0,0,"ARC_SOG Floor Insulation","HYD_Pipe Insulation","NL-HC-ARC_SOG Floor Insulation vs HYD_Pipe Insulation"],["T1","HC",0,0,"ARC_SOG Floor Insulation","HYD_Uninsulated Hot and Cold Pipes and Acc","NL-HC-ARC_SOG Floor Insulation vs HYD_Uninsulated Hot and Cold Pipes and Acc"],["T1","HC",0,0,"ARC_SOG Floor Insulation","HYD_Hot and Cold Insulation","NL-HC-ARC_SOG Floor Insulation vs HYD_Hot and Cold Insulation"],["T1","HC",0,0,"ARC_SOG Floor Insulation","HYD_Plumbing Fixture","NL-HC-ARC_SOG Floor Insulation vs HYD_Plumbing Fixture"],["T1","HC",0,0,"ARC_SOG Floor Insulation","MEC_Air Terminals","NL-HC-ARC_SOG Floor Insulation vs MEC_Air Terminals"],["T1","HC",0,0,"ARC_SOG Floor Insulation","MEC_Uninsulated Duct and Acc","NL-HC-ARC_SOG Floor Insulation vs MEC_Uninsulated Duct and Acc"],["T1","HC",0,0,"ARC_SOG Floor Insulation","MEC_Duct Insulation","NL-HC-ARC_SOG Floor Insulation vs MEC_Duct Insulation"],["T1","HC",0,0,"ARC_SOG Floor Insulation","MEC_Pipe Insulation","NL-HC-ARC_SOG Floor Insulation vs MEC_Pipe Insulation"],["T1","HC",0,0,"ARC_SOG Floor Insulation","MEC_Uninsulated Pipes and Acc","NL-HC-ARC_SOG Floor Insulation vs MEC_Uninsulated Pipes and Acc"],["T1","HC",0,0,"ARC_SOG Floor Insulation","MEC_Uninulated Flexi duct","NL-HC-ARC_SOG Floor Insulation vs MEC_Uninulated Flexi duct"],["T1","HC",0,0,"ARC_SOG Floor Insulation","MEC_Equipment","NL-HC-ARC_SOG Floor Insulation vs MEC_Equipment"],["T1","HC",0,0,"ARC_SOG Floor Insulation","ELE_Cable Tray and Fittings","NL-HC-ARC_SOG Floor Insulation vs ELE_Cable Tray and Fittings"],["T1","HC",0,0,"ARC_SOG Floor Insulation","ELE_Conduit*","NL-HC-ARC_SOG Floor Insulation vs ELE_Conduit*"],["T1","HC",0,0,"ARC_SOG Floor Insulation","ELE_Electrical Equip.","NL-HC-ARC_SOG Floor Insulation vs ELE_Electrical Equip."],["T1","HC",0,0,"ARC_SOG Floor Insulation","FIR_Fire Pipes","NL-HC-ARC_SOG Floor Insulation vs FIR_Fire Pipes"],["T2","C50",50,50,"STR_Seismic Elements","STR_Conc work Excl Floor Slab","NL-C50-STR_Seismic Elements vs STR_Conc work Excl Floor Slab"],["T2","C50",50,50,"STR_Seismic Elements","STR_Steelwork (Bracing and Columns)","NL-C50-STR_Seismic Elements vs STR_Steelwork (Bracing and Columns)"],["T2","C50",50,50,"STR_Seismic Elements","STR Floor","NL-C50-STR_Seismic Elements vs STR Floor"],["T2","C50",50,50,"STR_Seismic Elements","HYD_Uninsulated Pipes and Acc","NL-C50-STR_Seismic Elements vs HYD_Uninsulated Pipes and Acc"],["T2","C50",50,50,"STR_Seismic Elements","HYD_Pipe Insulation","NL-C50-STR_Seismic Elements vs HYD_Pipe Insulation"],["T2","C50",50,50,"STR_Seismic Elements","HYD_Uninsulated Hot and Cold Pipes and Acc","NL-C50-STR_Seismic Elements vs HYD_Uninsulated Hot and Cold Pipes and Acc"],["T2","C50",50,50,"STR_Seismic Elements","HYD_Hot and Cold Insulation","NL-C50-STR_Seismic Elements vs HYD_Hot and Cold Insulation"],["T2","C50",50,50,"STR_Seismic Elements","HYD_Plumbing Fixture","NL-C50-STR_Seismic Elements vs HYD_Plumbing Fixture"],["T2","C50",50,50,"STR_Seismic Elements","MEC_Air Terminals","NL-C50-STR_Seismic Elements vs MEC_Air Terminals"],["T2","C50",50,50,"STR_Seismic Elements","MEC_Uninsulated Duct and Acc","NL-C50-STR_Seismic Elements vs MEC_Uninsulated Duct and Acc"],["T2","C50",50,50,"STR_Seismic Elements","MEC_Duct Insulation","NL-C50-STR_Seismic Elements vs MEC_Duct Insulation"],["T2","C50",50,50,"STR_Seismic Elements","MEC_Pipe Insulation","NL-C50-STR_Seismic Elements vs MEC_Pipe Insulation"],["T2","C50",50,50,"STR_Seismic Elements","MEC_Uninsulated Pipes and Acc","NL-C50-STR_Seismic Elements vs MEC_Uninsulated Pipes and Acc"],["T2","C50",50,50,"STR_Seismic Elements","MEC_Uninulated Flexi duct","NL-C50-STR_Seismic Elements vs MEC_Uninulated Flexi duct"],["T2","C50",50,50,"STR_Seismic Elements","MEC_Equipment","NL-C50-STR_Seismic Elements vs MEC_Equipment"],["T2","C50",50,50,"STR_Seismic Elements","ELE_Cable Tray and Fittings","NL-C50-STR_Seismic Elements vs ELE_Cable Tray and Fittings"],["T2","C50",50,50,"STR_Seismic Elements","ELE_Conduit*","NL-C50-STR_Seismic Elements vs ELE_Conduit*"],["T2","C50",50,50,"STR_Seismic Elements","ELE_Electrical Equip.","NL-C50-STR_Seismic Elements vs ELE_Electrical Equip."],["T2","C50",50,50,"STR_Seismic Elements","ELE_Small Devices","NL-C50-STR_Seismic Elements vs ELE_Small Devices"],["T2","C50",50,50,"STR_Seismic Elements","ELE_Services Lighting Fixtures","NL-C50-STR_Seismic Elements vs ELE_Services Lighting Fixtures"],["T2","C50",50,50,"STR_Seismic Elements","FIR_Fire Pipes","NL-C50-STR_Seismic Elements vs FIR_Fire Pipes"],["T1","C50",50,50,"STR_Conc work Excl Floor Slab","HYD_Uninsulated Pipes and Acc","NL-C50-STR_Conc work Excl Floor Slab vs HYD_Uninsulated Pipes and Acc"],["T1","C50",50,50,"STR_Conc work Excl Floor Slab","HYD_Pipe Insulation","NL-C50-STR_Conc work Excl Floor Slab vs HYD_Pipe Insulation"],["T1","C50",50,50,"STR_Conc work Excl Floor Slab","HYD_Uninsulated Hot and Cold Pipes and Acc","NL-C50-STR_Conc work Excl Floor Slab vs HYD_Uninsulated Hot and Cold Pipes and Acc"],["T1","C50",50,50,"STR_Conc work Excl Floor Slab","HYD_Hot and Cold Insulation","NL-C50-STR_Conc work Excl Floor Slab vs HYD_Hot and Cold Insulation"],["T1","C50",50,50,"STR_Conc work Excl Floor Slab","HYD_Plumbing Fixture","NL-C50-STR_Conc work Excl Floor Slab vs HYD_Plumbing Fixture"],["T1","C50",50,50,"STR_Conc work Excl Floor Slab","MEC_Air Terminals","NL-C50-STR_Conc work Excl Floor Slab vs MEC_Air Terminals"],["T1","C50",50,50,"STR_Conc work Excl Floor Slab","MEC_Uninsulated Duct and Acc","NL-C50-STR_Conc work Excl Floor Slab vs MEC_Uninsulated Duct and Acc"],["T1","C50",50,50,"STR_Conc work Excl Floor Slab","MEC_Duct Insulation","NL-C50-STR_Conc work Excl Floor Slab vs MEC_Duct Insulation"],["T1","C50",50,50,"STR_Conc work Excl Floor Slab","MEC_Pipe Insulation","NL-C50-STR_Conc work Excl Floor Slab vs MEC_Pipe Insulation"],["T1","C50",50,50,"STR_Conc work Excl Floor Slab","MEC_Uninsulated Pipes and Acc","NL-C50-STR_Conc work Excl Floor Slab vs MEC_Uninsulated Pipes and Acc"],["T1","C50",50,50,"STR_Conc work Excl Floor Slab","MEC_Uninulated Flexi duct","NL-C50-STR_Conc work Excl Floor Slab vs MEC_Uninulated Flexi duct"],["T1","C50",50,50,"STR_Conc work Excl Floor Slab","MEC_Equipment","NL-C50-STR_Conc work Excl Floor Slab vs MEC_Equipment"],["T1","C50",50,50,"STR_Conc work Excl Floor Slab","ELE_Cable Tray and Fittings","NL-C50-STR_Conc work Excl Floor Slab vs ELE_Cable Tray and Fittings"],["T1","C50",50,50,"STR_Conc work Excl Floor Slab","ELE_Conduit*","NL-C50-STR_Conc work Excl Floor Slab vs ELE_Conduit*"],["T1","C50",50,50,"STR_Conc work Excl Floor Slab","ELE_Electrical Equip.","NL-C50-STR_Conc work Excl Floor Slab vs ELE_Electrical Equip."],["T1","C50",50,50,"STR_Conc work Excl Floor Slab","ELE_Small Devices","NL-C50-STR_Conc work Excl Floor Slab vs ELE_Small Devices"],["T1","C50",50,50,"STR_Conc work Excl Floor Slab","ELE_Services Lighting Fixtures","NL-C50-STR_Conc work Excl Floor Slab vs ELE_Services Lighting Fixtures"],["T1","C50",50,50,"STR_Conc work Excl Floor Slab","FIR_Fire Pipes","NL-C50-STR_Conc work Excl Floor Slab vs FIR_Fire Pipes"],["T1","C50",50,50,"STR_Steelwork (Bracing and Columns)","HYD_Uninsulated Pipes and Acc","NL-C50-STR_Steelwork (Bracing and Columns) vs HYD_Uninsulated Pipes and Acc"],["T1","C50",50,50,"STR_Steelwork (Bracing and Columns)","HYD_Pipe Insulation","NL-C50-STR_Steelwork (Bracing and Columns) vs HYD_Pipe Insulation"],["T1","C50",50,50,"STR_Steelwork (Bracing and Columns)","HYD_Uninsulated Hot and Cold Pipes and Acc","NL-C50-STR_Steelwork (Bracing and Columns) vs HYD_Uninsulated Hot and Cold Pipes and Acc"],["T1","C50",50,50,"STR_Steelwork (Bracing and Columns)","HYD_Hot and Cold Insulation","NL-C50-STR_Steelwork (Bracing and Columns) vs HYD_Hot and Cold Insulation"],["T1","C50",50,50,"STR_Steelwork (Bracing and Columns)","MEC_Air Terminals","NL-C50-STR_Steelwork (Bracing and Columns) vs MEC_Air Terminals"],["T1","C50",50,50,"STR_Steelwork (Bracing and Columns)","MEC_Uninsulated Duct and Acc","NL-C50-STR_Steelwork (Bracing and Columns) vs MEC_Uninsulated Duct and Acc"],["T1","C50",50,50,"STR_Steelwork (Bracing and Columns)","MEC_Duct Insulation","NL-C50-STR_Steelwork (Bracing and Columns) vs MEC_Duct Insulation"],["T1","C50",50,50,"STR_Steelwork (Bracing and Columns)","MEC_Pipe Insulation","NL-C50-STR_Steelwork (Bracing and Columns) vs MEC_Pipe Insulation"],["T1","C50",50,50,"STR_Steelwork (Bracing and Columns)","MEC_Uninsulated Pipes and Acc","NL-C50-STR_Steelwork (Bracing and Columns) vs MEC_Uninsulated Pipes and Acc"],["T1","C50",50,50,"STR_Steelwork (Bracing and Columns)","MEC_Uninulated Flexi duct","NL-C50-STR_Steelwork (Bracing and Columns) vs MEC_Uninulated Flexi duct"],["T1","C50",50,50,"STR_Steelwork (Bracing and Columns)","MEC_Equipment","NL-C50-STR_Steelwork (Bracing and Columns) vs MEC_Equipment"],["T1","C50",50,50,"STR_Steelwork (Bracing and Columns)","ELE_Cable Tray and Fittings","NL-C50-STR_Steelwork (Bracing and Columns) vs ELE_Cable Tray and Fittings"],["T1","C50",50,50,"STR_Steelwork (Bracing and Columns)","ELE_Conduit*","NL-C50-STR_Steelwork (Bracing and Columns) vs ELE_Conduit*"],["T1","C50",50,50,"STR_Steelwork (Bracing and Columns)","ELE_Electrical Equip.","NL-C50-STR_Steelwork (Bracing and Columns) vs ELE_Electrical Equip."],["T1","C50",50,50,"STR_Steelwork (Bracing and Columns)","ELE_Small Devices","NL-C50-STR_Steelwork (Bracing and Columns) vs ELE_Small Devices"],["T1","C50",50,50,"STR_Steelwork (Bracing and Columns)","ELE_Services Lighting Fixtures","NL-C50-STR_Steelwork (Bracing and Columns) vs ELE_Services Lighting Fixtures"],["T1","C50",50,50,"STR Floor","HYD_Uninsulated Pipes and Acc","NL-C50-STR Floor vs HYD_Uninsulated Pipes and Acc"],["T1","C50",50,50,"STR Floor","HYD_Pipe Insulation","NL-C50-STR Floor vs HYD_Pipe Insulation"],["T1","C50",50,50,"STR Floor","HYD_Uninsulated Hot and Cold Pipes and Acc","NL-C50-STR Floor vs HYD_Uninsulated Hot and Cold Pipes and Acc"],["T1","C50",50,50,"STR Floor","HYD_Hot and Cold Insulation","NL-C50-STR Floor vs HYD_Hot and Cold Insulation"],["T1","C50",50,50,"STR Floor","MEC_Air Terminals","NL-C50-STR Floor vs MEC_Air Terminals"],["T1","C50",50,50,"STR Floor","MEC_Uninsulated Duct and Acc","NL-C50-STR Floor vs MEC_Uninsulated Duct and Acc"],["T1","C50",50,50,"STR Floor","MEC_Duct Insulation","NL-C50-STR Floor vs MEC_Duct Insulation"],["T1","C50",50,50,"STR Floor","MEC_Pipe Insulation","NL-C50-STR Floor vs MEC_Pipe Insulation"],["T1","C50",50,50,"STR Floor","MEC_Uninsulated Pipes and Acc","NL-C50-STR Floor vs MEC_Uninsulated Pipes and Acc"],["T1","C50",50,50,"STR Floor","MEC_Uninulated Flexi duct","NL-C50-STR Floor vs MEC_Uninulated Flexi duct"],["T1","C50",50,50,"STR Floor","MEC_Equipment","NL-C50-STR Floor vs MEC_Equipment"],["T1","C50",50,50,"STR Floor","ELE_Cable Tray and Fittings","NL-C50-STR Floor vs ELE_Cable Tray and Fittings"],["T1","C50",50,50,"STR Floor","ELE_Conduit*","NL-C50-STR Floor vs ELE_Conduit*"],["T1","C50",50,50,"STR Floor","ELE_Electrical Equip.","NL-C50-STR Floor vs ELE_Electrical Equip."],["T1","C50",50,50,"STR Floor","ELE_Small Devices","NL-C50-STR Floor vs ELE_Small Devices"],["T1","C50",50,50,"STR Floor","ELE_Services Lighting Fixtures","NL-C50-STR Floor vs ELE_Services Lighting Fixtures"],["T1","C50",50,50,"STR Floor","FIR_Fire Pipes","NL-C50-STR Floor vs FIR_Fire Pipes"],["T2","C50",50,50,"HYD_Uninsulated Pipes","HYD_Pipe Insulation","NL-C50-HYD_Uninsulated Pipes vs HYD_Pipe Insulation"],["T2","C50",50,50,"HYD_Uninsulated Pipes","HYD_Uninsulated Hot and Cold Pipes and Acc","NL-C50-HYD_Uninsulated Pipes vs HYD_Uninsulated Hot and Cold Pipes and Acc"],["T2","C50",50,50,"HYD_Uninsulated Pipes","HYD_Hot and Cold Insulation","NL-C50-HYD_Uninsulated Pipes vs HYD_Hot and Cold Insulation"],["T2","C50",50,50,"HYD_Uninsulated Pipes","HYD_Plumbing Fixture","NL-C50-HYD_Uninsulated Pipes vs HYD_Plumbing Fixture"],["T2","C50",50,50,"HYD_Uninsulated Pipes","MEC_Air Terminals","NL-C50-HYD_Uninsulated Pipes vs MEC_Air Terminals"],["T2","C50",50,50,"HYD_Uninsulated Pipes","MEC_Uninsulated Duct and Acc","NL-C50-HYD_Uninsulated Pipes vs MEC_Uninsulated Duct and Acc"],["T2","C50",50,50,"HYD_Uninsulated Pipes","MEC_Duct Insulation","NL-C50-HYD_Uninsulated Pipes vs MEC_Duct Insulation"],["T2","C50",50,50,"HYD_Uninsulated Pipes","MEC_Pipe Insulation","NL-C50-HYD_Uninsulated Pipes vs MEC_Pipe Insulation"],["T2","C50",50,50,"HYD_Uninsulated Pipes","MEC_Uninsulated Pipes and Acc","NL-C50-HYD_Uninsulated Pipes vs MEC_Uninsulated Pipes and Acc"],["T2","C50",50,50,"HYD_Uninsulated Pipes","MEC_Uninulated Flexi duct","NL-C50-HYD_Uninsulated Pipes vs MEC_Uninulated Flexi duct"],["T2","C50",50,50,"HYD_Uninsulated Pipes","MEC_Equipment","NL-C50-HYD_Uninsulated Pipes vs MEC_Equipment"],["T2","C50",50,50,"HYD_Uninsulated Pipes","ELE_Cable Tray and Fittings","NL-C50-HYD_Uninsulated Pipes vs ELE_Cable Tray and Fittings"],["T2","C50",50,50,"HYD_Uninsulated Pipes","ELE_Conduit*","NL-C50-HYD_Uninsulated Pipes vs ELE_Conduit*"],["T2","C50",50,50,"HYD_Uninsulated Pipes","ELE_Electrical Equip.","NL-C50-HYD_Uninsulated Pipes vs ELE_Electrical Equip."],["T2","C50",50,50,"HYD_Uninsulated Pipes","ELE_Small Devices","NL-C50-HYD_Uninsulated Pipes vs ELE_Small Devices"],["T2","C50",50,50,"HYD_Uninsulated Pipes","ELE_Services Lighting Fixtures","NL-C50-HYD_Uninsulated Pipes vs ELE_Services Lighting Fixtures"],["T2","C50",50,50,"HYD_Uninsulated Pipes","FIR_Fire Pipes","NL-C50-HYD_Uninsulated Pipes vs FIR_Fire Pipes"],["T2","C50",50,50,"HYD_Uninsulated Pipes","FIR_Sprinklers Heads","NL-C50-HYD_Uninsulated Pipes vs FIR_Sprinklers Heads"],["T2","C50",50,50,"HYD_Uninsulated Pipes","FIR_Heat or Smoke Detectors","NL-C50-HYD_Uninsulated Pipes vs FIR_Heat or Smoke Detectors"],["T2","C50",50,50,"HYD_Pipe Insulation","HYD_Uninsulated Hot and Cold Pipes and Acc","NL-C50-HYD_Pipe Insulation vs HYD_Uninsulated Hot and Cold Pipes and Acc"],["T2","C50",50,50,"HYD_Pipe Insulation","HYD_Hot and Cold Insulation","NL-C50-HYD_Pipe Insulation vs HYD_Hot and Cold Insulation"],["T2","C50",50,50,"HYD_Pipe Insulation","HYD_Plumbing Fixture","NL-C50-HYD_Pipe Insulation vs HYD_Plumbing Fixture"],["T2","C50",50,50,"HYD_Pipe Insulation","MEC_Air Terminals","NL-C50-HYD_Pipe Insulation vs MEC_Air Terminals"],["T2","C50",50,50,"HYD_Pipe Insulation","MEC_Uninsulated Duct and Acc","NL-C50-HYD_Pipe Insulation vs MEC_Uninsulated Duct and Acc"],["T2","C50",50,50,"HYD_Pipe Insulation","MEC_Duct Insulation","NL-C50-HYD_Pipe Insulation vs MEC_Duct Insulation"],["T2","C50",50,50,"HYD_Pipe Insulation","MEC_Pipe Insulation","NL-C50-HYD_Pipe Insulation vs MEC_Pipe Insulation"],["T2","C50",50,50,"HYD_Pipe Insulation","MEC_Uninsulated Pipes and Acc","NL-C50-HYD_Pipe Insulation vs MEC_Uninsulated Pipes and Acc"],["T2","C50",50,50,"HYD_Pipe Insulation","MEC_Uninulated Flexi duct","NL-C50-HYD_Pipe Insulation vs MEC_Uninulated Flexi duct"],["T2","C50",50,50,"HYD_Pipe Insulation","MEC_Equipment","NL-C50-HYD_Pipe Insulation vs MEC_Equipment"],["T2","C50",50,50,"HYD_Pipe Insulation","ELE_Cable Tray and Fittings","NL-C50-HYD_Pipe Insulation vs ELE_Cable Tray and Fittings"],["T2","C50",50,50,"HYD_Pipe Insulation","ELE_Conduit*","NL-C50-HYD_Pipe Insulation vs ELE_Conduit*"],["T2","C50",50,50,"HYD_Pipe Insulation","ELE_Electrical Equip.","NL-C50-HYD_Pipe Insulation vs ELE_Electrical Equip."],["T2","C50",50,50,"HYD_Pipe Insulation","ELE_Small Devices","NL-C50-HYD_Pipe Insulation vs ELE_Small Devices"],["T2","C50",50,50,"HYD_Pipe Insulation","ELE_Services Lighting Fixtures","NL-C50-HYD_Pipe Insulation vs ELE_Services Lighting Fixtures"],["T2","C50",50,50,"HYD_Pipe Insulation","FIR_Fire Pipes","NL-C50-HYD_Pipe Insulation vs FIR_Fire Pipes"],["T2","C50",50,50,"HYD_Pipe Insulation","FIR_Sprinklers Heads","NL-C50-HYD_Pipe Insulation vs FIR_Sprinklers Heads"],["T2","C50",50,50,"HYD_Pipe Insulation","FIR_Heat or Smoke Detectors","NL-C50-HYD_Pipe Insulation vs FIR_Heat or Smoke Detectors"],["T2","C50",50,50,"HYD_Uninsulated Hot and Cold Pipes and Acc","HYD_Hot and Cold Insulation","NL-C50-HYD_Uninsulated Hot and Cold Pipes and Acc vs HYD_Hot and Cold Insulation"],["T2","C50",50,50,"HYD_Uninsulated Hot and Cold Pipes and Acc","HYD_Plumbing Fixture","NL-C50-HYD_Uninsulated Hot and Cold Pipes and Acc vs HYD_Plumbing Fixture"],["T2","C50",50,50,"HYD_Uninsulated Hot and Cold Pipes and Acc","MEC_Air Terminals","NL-C50-HYD_Uninsulated Hot and Cold Pipes and Acc vs MEC_Air Terminals"],["T2","C50",50,50,"HYD_Uninsulated Hot and Cold Pipes and Acc","MEC_Uninsulated Duct and Acc","NL-C50-HYD_Uninsulated Hot and Cold Pipes and Acc vs MEC_Uninsulated Duct and Acc"],["T2","C50",50,50,"HYD_Uninsulated Hot and Cold Pipes and Acc","MEC_Duct Insulation","NL-C50-HYD_Uninsulated Hot and Cold Pipes and Acc vs MEC_Duct Insulation"],["T2","C50",50,50,"HYD_Uninsulated Hot and Cold Pipes and Acc","MEC_Pipe Insulation","NL-C50-HYD_Uninsulated Hot and Cold Pipes and Acc vs MEC_Pipe Insulation"],["T2","C50",50,50,"HYD_Uninsulated Hot and Cold Pipes and Acc","MEC_Uninsulated Pipes and Acc","NL-C50-HYD_Uninsulated Hot and Cold Pipes and Acc vs MEC_Uninsulated Pipes and Acc"],["T2","C50",50,50,"HYD_Uninsulated Hot and Cold Pipes and Acc","MEC_Uninulated Flexi duct","NL-C50-HYD_Uninsulated Hot and Cold Pipes and Acc vs MEC_Uninulated Flexi duct"],["T2","C50",50,50,"HYD_Uninsulated Hot and Cold Pipes and Acc","MEC_Equipment","NL-C50-HYD_Uninsulated Hot and Cold Pipes and Acc vs MEC_Equipment"],["T2","C50",50,50,"HYD_Uninsulated Hot and Cold Pipes and Acc","ELE_Cable Tray and Fittings","NL-C50-HYD_Uninsulated Hot and Cold Pipes and Acc vs ELE_Cable Tray and Fittings"],["T2","C50",50,50,"HYD_Uninsulated Hot and Cold Pipes and Acc","ELE_Conduit*","NL-C50-HYD_Uninsulated Hot and Cold Pipes and Acc vs ELE_Conduit*"],["T2","C50",50,50,"HYD_Uninsulated Hot and Cold Pipes and Acc","ELE_Electrical Equip.","NL-C50-HYD_Uninsulated Hot and Cold Pipes and Acc vs ELE_Electrical Equip."],["T2","C50",50,50,"HYD_Uninsulated Hot and Cold Pipes and Acc","ELE_Small Devices","NL-C50-HYD_Uninsulated Hot and Cold Pipes and Acc vs ELE_Small Devices"],["T2","C50",50,50,"HYD_Uninsulated Hot and Cold Pipes and Acc","ELE_Services Lighting Fixtures","NL-C50-HYD_Uninsulated Hot and Cold Pipes and Acc vs ELE_Services Lighting Fixtures"],["T2","C50",50,50,"HYD_Uninsulated Hot and Cold Pipes and Acc","FIR_Fire Pipes","NL-C50-HYD_Uninsulated Hot and Cold Pipes and Acc vs FIR_Fire Pipes"],["T2","C50",50,50,"HYD_Uninsulated Hot and Cold Pipes and Acc","FIR_Sprinklers Heads","NL-C50-HYD_Uninsulated Hot and Cold Pipes and Acc vs FIR_Sprinklers Heads"],["T2","C50",50,50,"HYD_Uninsulated Hot and Cold Pipes and Acc","FIR_Heat or Smoke Detectors","NL-C50-HYD_Uninsulated Hot and Cold Pipes and Acc vs FIR_Heat or Smoke Detectors"],["T2","C50",50,50,"HYD_Hot and Cold Insulation","HYD_Plumbing Fixture","NL-C50-HYD_Hot and Cold Insulation vs HYD_Plumbing Fixture"],["T2","C50",50,50,"HYD_Hot and Cold Insulation","MEC_Air Terminals","NL-C50-HYD_Hot and Cold Insulation vs MEC_Air Terminals"],["T2","C50",50,50,"HYD_Hot and Cold Insulation","MEC_Uninsulated Duct and Acc","NL-C50-HYD_Hot and Cold Insulation vs MEC_Uninsulated Duct and Acc"],["T2","C50",50,50,"HYD_Hot and Cold Insulation","MEC_Duct Insulation","NL-C50-HYD_Hot and Cold Insulation vs MEC_Duct Insulation"],["T2","C50",50,50,"HYD_Hot and Cold Insulation","MEC_Pipe Insulation","NL-C50-HYD_Hot and Cold Insulation vs MEC_Pipe Insulation"],["T2","C50",50,50,"HYD_Hot and Cold Insulation","MEC_Uninsulated Pipes and Acc","NL-C50-HYD_Hot and Cold Insulation vs MEC_Uninsulated Pipes and Acc"],["T2","C50",50,50,"HYD_Hot and Cold Insulation","MEC_Uninulated Flexi duct","NL-C50-HYD_Hot and Cold Insulation vs MEC_Uninulated Flexi duct"],["T2","C50",50,50,"HYD_Hot and Cold Insulation","MEC_Equipment","NL-C50-HYD_Hot and Cold Insulation vs MEC_Equipment"],["T2","C50",50,50,"HYD_Hot and Cold Insulation","ELE_Cable Tray and Fittings","NL-C50-HYD_Hot and Cold Insulation vs ELE_Cable Tray and Fittings"],["T2","C50",50,50,"HYD_Hot and Cold Insulation","ELE_Conduit*","NL-C50-HYD_Hot and Cold Insulation vs ELE_Conduit*"],["T2","C50",50,50,"HYD_Hot and Cold Insulation","ELE_Electrical Equip.","NL-C50-HYD_Hot and Cold Insulation vs ELE_Electrical Equip."],["T2","C50",50,50,"HYD_Hot and Cold Insulation","ELE_Small Devices","NL-C50-HYD_Hot and Cold Insulation vs ELE_Small Devices"],["T2","C50",50,50,"HYD_Hot and Cold Insulation","ELE_Services Lighting Fixtures","NL-C50-HYD_Hot and Cold Insulation vs ELE_Services Lighting Fixtures"],["T2","C50",50,50,"HYD_Hot and Cold Insulation","FIR_Fire Pipes","NL-C50-HYD_Hot and Cold Insulation vs FIR_Fire Pipes"],["T2","C50",50,50,"HYD_Hot and Cold Insulation","FIR_Sprinklers Heads","NL-C50-HYD_Hot and Cold Insulation vs FIR_Sprinklers Heads"],["T2","C50",50,50,"HYD_Hot and Cold Insulation","FIR_Heat or Smoke Detectors","NL-C50-HYD_Hot and Cold Insulation vs FIR_Heat or Smoke Detectors"],["T2","C50",50,50,"HYD_ Plumbing Fixture","MEC_Air Terminals","NL-C50-HYD_ Plumbing Fixture vs MEC_Air Terminals"],["T2","C50",50,50,"HYD_ Plumbing Fixture","MEC_Uninsulated Duct and Acc","NL-C50-HYD_ Plumbing Fixture vs MEC_Uninsulated Duct and Acc"],["T2","C50",50,50,"HYD_ Plumbing Fi
+
+const TASKS = []; // Tasks loaded via Excel upload or from previous session
+let BASE_TASKS = [];
+let overrides = {};
+let customTasks = [];
+let loaded = {};
+let logEntries = [];
+let activeFilters = {};
+
+const CLR_MAP = {HC:{h:0,v:0},C50:{h:50,v:50},C100V:{h:50,v:100},C150V:{h:50,v:150},C600V:{h:50,v:600},C1500:{h:50,v:1500}};
+
+function priorityFor(selA, selB, clr) {
+  const ab = (selA+selB).toUpperCase();
+  if(clr==='HC' && (ab.includes('STR') || ab.includes('FIR'))) return 'Critical';
+  if(clr==='HC') return 'Critical';
+  if(ab.includes('HYD') || ab.includes('MEC_UNINSULATED') || ab.includes('MEC_DUCT')) return 'Major';
+  if(ab.includes('HYD') || ab.includes('MEC') || ab.includes('FIR')) return 'Major';
+  return 'Minor';
+}
+
+function init() {
+  BASE_TASKS = TASKS.slice();
+  loadState();
+  ['T1','T2','T3','T4'].forEach(s => { renderTable(s); updateGate(s); });
+  renderGapMatrix();
+  document.getElementById('projDate').value = new Date().toISOString().split('T')[0];
+  ['projName','projLead'].forEach(id => {
+    document.getElementById(id).addEventListener('change', () => {
+      localStorage.setItem('projInfo', JSON.stringify({
+        name: document.getElementById('projName').value,
+        lead: document.getElementById('projLead').value
+      }));
+    });
+  });
+}
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+  document.querySelectorAll('.stage-panel').forEach(p => p.classList.toggle('active', p.id === 'panel-' + tab));
+}
+
+function getAllTasksForStage(stage) {
+  const base = BASE_TASKS.filter(t => t[0] === stage).map(t => ({
+    key: t[6], stage: t[0], clearance: t[1], clr_h: t[2], clr_v: t[3], selA: t[4], selB: t[5], task: t[6], isCustom: false
+  }));
+  const custom = customTasks.filter(t => t.stage === stage);
+  return [...base, ...custom];
+}
+
+function getEffective(task) {
+  if(task.isCustom) return task;
+  const ov = overrides[task.key];
+  if(ov) return Object.assign({}, task, ov, {isEdited: true});
+  return task;
+}
+
+function renderTable(stage) {
+  const tbody = document.getElementById('tbody-' + stage);
+  if(!tbody) return;
+  const all = getAllTasksForStage(stage);
+  const f = activeFilters[stage] || {q:'',disc:'',clr:''};
+
+  const filtered = all.filter(t => {
+    const eff = getEffective(t);
+    const searchStr = (eff.task + ' ' + eff.selA + ' ' + eff.selB).toLowerCase();
+    if(f.q && !searchStr.includes(f.q.toLowerCase())) return false;
+    if(f.disc && !eff.selA.startsWith(f.disc) && !eff.selB.startsWith(f.disc)) return false;
+    if(f.clr && eff.clearance !== f.clr) return false;
+    return true;
+  });
+
+  const countEl = document.getElementById('count-' + stage);
+  if(countEl) countEl.textContent = 'Showing ' + filtered.length + ' tasks';
+
+  if(!filtered.length) {
+    tbody.innerHTML = BASE_TASKS.length === 0
+      ? '<tr><td colspan="10"><div class="no-tasks"><div class="icon">📂</div><div>No tasks loaded. Upload your G05 Matrix to begin.</div></div></td></tr>'
+      : '<tr><td colspan="10"><div class="no-tasks"><div class="icon">🔍</div><div>No tasks match this filter.</div></div></td></tr>';
+  } else {
+    tbody.innerHTML = filtered.map(t => {
+      const eff = getEffective(t);
+      const key = t.key || t.id;
+      const isLoaded = loaded[key];
+      const priority = eff.priority || priorityFor(eff.selA, eff.selB, eff.clearance);
+      const editedBadge = eff.isEdited ? '<span class="badge-edited">EDITED</span>' : '';
+      const customBadge = t.isCustom ? '<span class="badge-custom">CUSTOM</span>' : '';
+      const noteHtml = eff.note ? '<div style="font-size:.68rem;color:#64748b;margin-top:2px">\u{1F4DD} ' + eff.note + '</div>' : '';
+      return '<tr class="' + (eff.isEdited ? 'row-edited' : '') + ' ' + (t.isCustom ? 'row-custom' : '') + '">' +
+        '<td class="chk-col"><input type="checkbox" class="row-cb" data-stage="' + stage + '" data-key="' + key.replace(/"/g,'&quot;') + '"></td>' +
+        '<td><span class="task-name">' + editedBadge + customBadge + eff.task + '</span>' + noteHtml + '</td>' +
+        '<td style="font-size:.75rem">' + eff.selA + '</td>' +
+        '<td style="font-size:.75rem">' + eff.selB + '</td>' +
+        '<td><span class="clr-badge clr-' + eff.clearance + '">' + eff.clearance + '</span></td>' +
+        '<td class="mm-val">' + eff.clr_h + '</td>' +
+        '<td class="mm-val">' + eff.clr_v + '</td>' +
+        '<td><span class="priority-badge p-' + priority + '">' + priority + '</span></td>' +
+        '<td><span class="loaded-badge loaded-' + (isLoaded ? 'Y' : 'N') + '">' + (isLoaded ? '✓' : '—') + '</span></td>' +
+        '<td><button class="btn-edit" onclick="editTask(\'' + key.replace(/'/g,"\\'").replace(/\\/g,'\\\\') + '\',' + t.isCustom + ')">&#9998;&#65039; Edit</button></td>' +
+        '</tr>';
+    }).join('');
+  }
+
+  const totalCount = all.length;
+  document.querySelectorAll('.count[data-tab="' + stage + '"]').forEach(el => el.textContent = totalCount);
+  const statTotal = document.getElementById('stat-' + stage + '-total');
+  if(statTotal) statTotal.textContent = totalCount;
+  const loadedCount = all.filter(t => loaded[t.key || t.id]).length;
+  const statLoaded = document.getElementById('stat-' + stage + '-loaded');
+  if(statLoaded) statLoaded.textContent = loadedCount;
+}
+
+function updateGate(stage) {
+  const checks = document.querySelectorAll('#cl-' + stage + ' input[type=checkbox]');
+  const total = checks.length;
+  const done = Array.from(checks).filter(c => c.checked).length;
+  const pct = total ? Math.round(done / total * 100) : 0;
+  const pbEl = document.getElementById('pb-' + stage);
+  if(pbEl) pbEl.style.width = pct + '%';
+  const pctEl = document.getElementById('pct-' + stage);
+  if(pctEl) pctEl.textContent = pct + '%';
+  const statGate = document.getElementById('stat-' + stage + '-gate');
+  if(statGate) statGate.textContent = done + '/' + total;
+  const statusEl = document.getElementById('gate-status-' + stage);
+  if(statusEl) {
+    if(done === 0) { statusEl.className = 'gate-status gate-locked'; statusEl.textContent = '\u{1F512} Gate Locked'; }
+    else if(done < total) { statusEl.className = 'gate-status gate-partial'; statusEl.textContent = '⚠️ Partial ' + done + '/' + total; }
+    else { statusEl.className = 'gate-status gate-open'; statusEl.textContent = '✅ Gate Open'; }
+  }
+  const state = Array.from(checks).map(c => c.checked);
+  localStorage.setItem('gate-' + stage, JSON.stringify(state));
+}
+
+function loadGateState(stage) {
+  const state = JSON.parse(localStorage.getItem('gate-' + stage) || '[]');
+  const checks = document.querySelectorAll('#cl-' + stage + ' input[type=checkbox]');
+  checks.forEach((c, i) => { if(state[i]) c.checked = true; });
+  updateGate(stage);
+}
+
+function filterTable(stage, q) {
+  if(!activeFilters[stage]) activeFilters[stage] = {q:'',disc:'',clr:''};
+  activeFilters[stage].q = q;
+  renderTable(stage);
+}
+
+function filterByDisc(stage, disc) {
+  if(!activeFilters[stage]) activeFilters[stage] = {q:'',disc:'',clr:''};
+  activeFilters[stage].disc = disc;
+  renderTable(stage);
+}
+
+function filterByClearance(stage, clr) {
+  if(!activeFilters[stage]) activeFilters[stage] = {q:'',disc:'',clr:''};
+  activeFilters[stage].clr = clr;
+  renderTable(stage);
+}
+
+function selectAll(stage, checked) {
+  document.querySelectorAll('.row-cb[data-stage="' + stage + '"]').forEach(cb => cb.checked = checked);
+}
+
+function markLoaded(stage) {
+  document.querySelectorAll('.row-cb[data-stage="' + stage + '"]:checked').forEach(cb => { loaded[cb.dataset.key] = true; });
+  saveState();
+  renderTable(stage);
+}
+
+function copySelected(stage) {
+  const selected = Array.from(document.querySelectorAll('.row-cb[data-stage="' + stage + '"]:checked')).map(cb => cb.dataset.key);
+  if(!selected.length) { alert('No tasks selected.'); return; }
+  const tasks = getAllTasksForStage(stage).filter(t => selected.includes(t.key || t.id)).map(t => {
+    const eff = getEffective(t);
+    return [eff.task, eff.selA, eff.selB, eff.clearance, eff.clr_h, eff.clr_v].join('\t');
+  });
+  navigator.clipboard.writeText(tasks.join('\n')).then(() => showToast('Copied ' + tasks.length + ' tasks', 1500));
+}
+
+function exportCSV(stage) {
+  const all = getAllTasksForStage(stage);
+  const rows = [['Stage','Task Name','Selection A','Selection B','Clearance','H (mm)','V (mm)','Priority','Type','Note','Loaded']];
+  all.forEach(t => {
+    const eff = getEffective(t);
+    const priority = eff.priority || priorityFor(eff.selA, eff.selB, eff.clearance);
+    rows.push([eff.stage || stage, eff.task, eff.selA, eff.selB, eff.clearance, eff.clr_h, eff.clr_v, priority, t.isCustom ? 'Custom' : (eff.isEdited ? 'Edited' : 'Standard'), eff.note || '', loaded[t.key || t.id] ? 'Yes' : 'No']);
+  });
+  const csv = rows.map(r => r.map(v => '"' + String(v || '').replace(/"/g, '""') + '"').join(',')).join('\n');
+  const blob = new Blob([csv], {type:'text/csv'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'Revizto_Tasks_' + stage + '_' + (document.getElementById('projName').value || 'Project') + '_' + new Date().toISOString().split('T')[0] + '.csv';
+  a.click();
+}
+
+let currentTaskKey = '';
+let currentTaskStage = '';
+
+function openAddModal(stage) {
+  currentTaskKey = '';
+  currentTaskStage = stage;
+  document.getElementById('modalTitle').textContent = '＋ Add Custom Task';
+  document.getElementById('modalSub').textContent = 'Create a project-specific clash pair not in the standard matrix.';
+  document.getElementById('modalMode').value = 'add';
+  document.getElementById('modalStage').value = stage;
+  document.getElementById('modalTaskName').value = '';
+  document.getElementById('modalSelA').value = '';
+  document.getElementById('modalSelB').value = '';
+  document.getElementById('modalClrCode').value = 'C50';
+  document.getElementById('modalClrH').value = 50;
+  document.getElementById('modalClrV').value = 50;
+  document.getElementById('modalPriority').value = 'Major';
+  document.getElementById('modalNote').value = '';
+  document.getElementById('modalTaskName').readOnly = false;
+  document.getElementById('modalSelA').readOnly = false;
+  document.getElementById('modalSelB').readOnly = false;
+  document.getElementById('resetLink').style.display = 'none';
+  document.getElementById('deleteBtn').style.display = 'none';
+  document.getElementById('taskModal').classList.add('open');
+}
+
+function editTask(taskKey, isCustom) {
+  currentTaskKey = taskKey;
+  const stages = ['T1','T2','T3','T4'];
+  let task = null, stage = '';
+  for(const s of stages) {
+    task = getAllTasksForStage(s).find(t => (t.key || t.id) === taskKey);
+    if(task) { stage = s; break; }
+  }
+  if(!task) return;
+  currentTaskStage = stage;
+  const eff = getEffective(task);
+  document.getElementById('modalTitle').textContent = isCustom ? '✏️ Edit Custom Task' : '✏️ Edit Clash Task';
+  document.getElementById('modalSub').textContent = isCustom ? 'Modify this custom task.' : 'Override clearance values for this project. Original values are preserved.';
+  document.getElementById('modalMode').value = isCustom ? 'custom' : 'edit';
+  document.getElementById('modalStage').value = stage;
+  document.getElementById('modalTaskName').value = eff.task;
+  document.getElementById('modalSelA').value = eff.selA;
+  document.getElementById('modalSelB').value = eff.selB;
+  document.getElementById('modalClrCode').value = CLR_MAP[eff.clearance] !== undefined ? eff.clearance : 'CUSTOM';
+  document.getElementById('modalClrH').value = eff.clr_h;
+  document.getElementById('modalClrV').value = eff.clr_v;
+  document.getElementById('modalPriority').value = eff.priority || priorityFor(eff.selA, eff.selB, eff.clearance);
+  document.getElementById('modalNote').value = eff.note || '';
+  document.getElementById('modalTaskName').readOnly = !isCustom;
+  document.getElementById('modalSelA').readOnly = !isCustom;
+  document.getElementById('modalSelB').readOnly = !isCustom;
+  document.getElementById('resetLink').style.display = (!isCustom && overrides[taskKey]) ? 'inline-block' : 'none';
+  document.getElementById('deleteBtn').style.display = isCustom ? 'inline-flex' : 'none';
+  document.getElementById('taskModal').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('taskModal').classList.remove('open');
+}
+
+function autofillClearance() {
+  const code = document.getElementById('modalClrCode').value;
+  if(CLR_MAP[code]) {
+    document.getElementById('modalClrH').value = CLR_MAP[code].h;
+    document.getElementById('modalClrV').value = CLR_MAP[code].v;
+  }
+}
+
+function saveModal() {
+  const mode = document.getElementById('modalMode').value;
+  const stage = document.getElementById('modalStage').value;
+  const taskName = document.getElementById('modalTaskName').value.trim();
+  const selA = document.getElementById('modalSelA').value.trim();
+  const selB = document.getElementById('modalSelB').value.trim();
+  const clearance = document.getElementById('modalClrCode').value;
+  const clr_h = parseInt(document.getElementById('modalClrH').value) || 0;
+  const clr_v = parseInt(document.getElementById('modalClrV').value) || 0;
+  const priority = document.getElementById('modalPriority').value;
+  const note = document.getElementById('modalNote').value.trim();
+  if(!taskName) { alert('Task name is required.'); return; }
+  if(mode === 'add') {
+    const id = 'custom-' + Date.now();
+    customTasks.push({id, stage, task: taskName, selA, selB, clearance, clr_h, clr_v, priority, note, isCustom: true});
+  } else if(mode === 'custom') {
+    const ct = customTasks.find(t => t.id === currentTaskKey);
+    if(ct) Object.assign(ct, {task: taskName, selA, selB, clearance, clr_h, clr_v, priority, note});
+  } else {
+    overrides[currentTaskKey] = {clearance, clr_h, clr_v, priority, note};
+  }
+  saveState();
+  closeModal();
+  renderTable(stage);
+  showToast(mode === 'add' ? '✅ Custom task added' : '✅ Task saved', 2000);
+}
+
+function deleteItem() {
+  if(!confirm('Delete this custom task?')) return;
+  const stage = document.getElementById('modalStage').value;
+  customTasks = customTasks.filter(t => t.id !== currentTaskKey);
+  saveState();
+  closeModal();
+  renderTable(stage);
+  showToast('Task deleted', 1500);
+}
+
+function resetOverride() {
+  if(!confirm('Reset this task to original matrix values?')) return;
+  const stage = document.getElementById('modalStage').value;
+  delete overrides[currentTaskKey];
+  saveState();
+  closeModal();
+  renderTable(stage);
+  showToast('Reset to original values', 1500);
+}
+
+function saveProjectRules() {
+  localStorage.setItem('projectRules', document.getElementById('projectRules').value);
+  const el = document.getElementById('rulesSaved');
+  el.style.display = 'flex';
+  setTimeout(() => el.style.display = 'none', 2500);
+}
+
+function addLogEntry() {
+  logEntries.unshift({id: 'log-' + Date.now(), date: new Date().toISOString().split('T')[0], stage: 'T2', count: '', notes: ''});
+  saveState();
+  renderLog();
+}
+
+function renderLog() {
+  const wrap = document.getElementById('logEntries');
+  if(!wrap) return;
+  if(!logEntries.length) {
+    wrap.innerHTML = '<div style="padding:24px;text-align:center;color:#475569">No runs recorded yet. Click + Add Run Entry to start.</div>';
+    return;
+  }
+  wrap.innerHTML = logEntries.map(e =>
+    '<div class="log-entry">' +
+    '<input value="' + (e.date||'') + '" type="date" onchange="updateLog(\'' + e.id + '\',\'date\',this.value)">' +
+    '<input value="' + (e.stage||'') + '" placeholder="T1-T4" onchange="updateLog(\'' + e.id + '\',\'stage\',this.value)" style="width:60px">' +
+    '<input value="' + (e.count||'') + '" placeholder="# tasks" onchange="updateLog(\'' + e.id + '\',\'count\',this.value)" style="width:80px">' +
+    '<input value="' + (e.notes||'').replace(/"/g,'&quot;') + '" placeholder="Clashes found / notes / BIM lead" onchange="updateLog(\'' + e.id + '\',\'notes\',this.value)">' +
+    '</div>'
+  ).join('');
+}
+
+function updateLog(id, field, value) {
+  const e = logEntries.find(e => e.id === id);
+  if(e) e[field] = value;
+  saveState();
+}
+
+function exportLog() {
+  if(!logEntries.length) { alert('No log entries to export.'); return; }
+  const rows = [['Date','Stage','Tasks Loaded','Notes']];
+  logEntries.forEach(e => rows.push([e.date, e.stage, e.count, e.notes]));
+  const csv = rows.map(r => r.map(v => '"' + (v||'').replace(/"/g,'""') + '"').join(',')).join('\n');
+  const blob = new Blob([csv], {type:'text/csv'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'RunLog_' + (document.getElementById('projName').value||'Project') + '_' + new Date().toISOString().split('T')[0] + '.csv';
+  a.click();
+}
+
+function loadMatrixFromExcel(input) {
+  const file = input.files[0];
+  if(!file) return;
+  showUploadToast('Reading matrix…', 10);
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      showUploadToast('Parsing workbook…', 40);
+      const wb = XLSX.read(e.target.result, {type:'array'});
+      const sheetName = wb.SheetNames.find(n => n.toLowerCase().includes('rawdata')) || wb.SheetNames[0];
+      const sheet = wb.Sheets[sheetName];
+      if(!sheet) { alert('No suitable sheet found. Looking for "Rawdata (Do not edit)".'); hideToast(); return; }
+      const data = XLSX.utils.sheet_to_json(sheet, {header:1});
+      showUploadToast('Building tasks…', 70);
+      const newTasks = [];
+      for(let i = 1; i < data.length; i++) {
+        const row = data[i];
+        if(!row || !row[0]) continue;
+        const stage = String(row[0]||'').trim();
+        const clearance = String(row[1]||'').trim();
+        const clrH = parseInt(row[2]) || 0;
+        const clrV = parseInt(row[3]) || 0;
+        const selA = String(row[4]||'').trim();
+        const selB = String(row[5]||'').trim();
+        const taskName = String(row[6]||'').trim() || (stage + '-' + clearance + '-' + selA + ' vs ' + selB);
+        if(stage && selA && selB) newTasks.push([stage, clearance, clrH, clrV, selA, selB, taskName]);
+      }
+      BASE_TASKS = newTasks;
+      showUploadToast('✅ Loaded ' + newTasks.length + ' tasks from ' + file.name, 100);
+      document.getElementById('matrixStatus').textContent = '✅ ' + file.name + ' · ' + newTasks.length + ' tasks · ' + new Date().toLocaleTimeString();
+      saveState();
+      ['T1','T2','T3','T4'].forEach(s => renderTable(s));
+      renderGapMatrix();
+      setTimeout(hideToast, 3000);
+    } catch(err) {
+      hideToast();
+      alert('Error reading file: ' + err.message);
+    }
+    input.value = '';
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function loadClaudeOutput(input) {
+  const file = input.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const data = JSON.parse(e.target.result);
+      let appliedOverrides = 0, appliedCustom = 0;
+
+      // Apply overrides — match by taskPattern substring against task names
+      if(Array.isArray(data.overrides)) {
+        data.overrides.forEach(ov => {
+          const pattern = (ov.taskPattern||'').toLowerCase();
+          BASE_TASKS.forEach(t => {
+            const nameMatch = t[6].toLowerCase().includes(pattern);
+            const pairMatch = (t[4] + ' vs ' + t[5]).toLowerCase().includes(pattern);
+            if(nameMatch || pairMatch) {
+              overrides[t[6]] = {
+                clearance: ov.clearance || t[1],
+                clr_h: ov.clrH !== undefined ? ov.clrH : t[2],
+                clr_v: ov.clrV !== undefined ? ov.clrV : t[3],
+                priority: ov.priority || '',
+                note: [ov.reason, ov.source].filter(Boolean).join(' | ')
+              };
+              appliedOverrides++;
+            }
+          });
+        });
+      }
+
+      // Apply custom tasks
+      if(Array.isArray(data.customTasks)) {
+        data.customTasks.forEach(ct => {
+          const id = 'claude-' + Date.now() + '-' + Math.random().toString(36).substr(2,5);
+          customTasks.push({
+            id, stage: ct.stage || 'T2',
+            task: ct.taskName, selA: ct.selA, selB: ct.selB,
+            clearance: ct.clearance || 'C50',
+            clr_h: ct.clrH !== undefined ? ct.clrH : (CLR_MAP[ct.clearance]||{h:50}).h,
+            clr_v: ct.clrV !== undefined ? ct.clrV : (CLR_MAP[ct.clearance]||{v:50}).v,
+            priority: ct.priority || 'Major',
+            note: ct.reason || '',
+            isCustom: true
+          });
+          appliedCustom++;
+        });
+      }
+
+      // Build project notes append
+      let noteAppend = '';
+      if(data.project || data.report) {
+        noteAppend += '\n\n── Claude Analysis: ' + [data.project, data.report, data.date].filter(Boolean).join(' · ') + ' ──';
+      }
+      if(Array.isArray(data.gateItems) && data.gateItems.length) {
+        noteAppend += '\n\n\U0001F4CB GATE CHECKLIST ITEMS:';
+        data.gateItems.forEach(gi => {
+          noteAppend += '\n[' + (gi.stage||'') + '][' + (gi.discipline||'') + '] ' + gi.item + ' | H:' + (gi.clearanceH||'?') + 'mm V:' + (gi.clearanceV||'?') + 'mm | ' + (gi.clashPair||'') + ' | ' + (gi.source||'');
+        });
+      }
+      if(Array.isArray(data.procurementFlags) && data.procurementFlags.length) {
+        noteAppend += '\n\n⚠️ PROCUREMENT FLAGS:';
+        data.procurementFlags.forEach(pf => {
+          noteAppend += '\n[' + (pf.stage||'') + '][' + (pf.discipline||'') + '] ' + (pf.item||'') + ' | Pending: ' + (pf.pending||'') + ' | By: ' + (pf.targetDate||'TBC');
+        });
+      }
+      if(data.projectNotes) {
+        noteAppend += '\n\n\U0001F4CC RISK SUMMARY:\n' + data.projectNotes;
+      }
+
+      if(noteAppend) {
+        const ta = document.getElementById('projectRules');
+        ta.value = (ta.value ? ta.value + '\n' : '') + noteAppend.trim();
+        saveProjectRules();
+      }
+
+      saveState();
+      ['T1','T2','T3','T4'].forEach(s => renderTable(s));
+      const label = (data.project || file.name).substring(0, 30);
+      document.getElementById('claudeStatus').textContent = '✅ ' + label + ' applied';
+      const gateCount = (data.gateItems||[]).length;
+      showToast('✅ Applied: ' + appliedOverrides + ' overrides, ' + appliedCustom + ' custom tasks' + (gateCount ? ', ' + gateCount + ' gate items' : '') + ' — check Rules tab', 5000);
+    } catch(err) {
+      alert('Error reading Claude output file:\n' + err.message + '\n\nMake sure the file is valid JSON (.txt or .json).');
+    }
+    input.value = '';
+  };
+  reader.readAsText(file);
+}
+
+function renderGapMatrix() {
+  const discs = ['ARC','STR','HYD','MEC','ELE','FIR'];
+  const matrix = {};
+  BASE_TASKS.forEach(t => {
+    const d1 = (t[4]||'').split('_')[0];
+    const d2 = (t[5]||'').split('_')[0];
+    const key = d1 + '|' + d2;
+    if(!matrix[key]) matrix[key] = t[1];
+  });
+  const colors = {HC:'#1f2937',C50:'#0f2a1a',C100V:'#1e1b4b',C150V:'#2d1b69',C600V:'#450a0a',C1500:'#312e81'};
+  const tbody = document.getElementById('gapMatrixBody');
+  if(!tbody) return;
+  tbody.innerHTML = discs.map(d1 =>
+    '<tr><td style="padding:8px 12px;background:#1a1f2e;color:#94a3b8;font-weight:700;border:1px solid #2d3748">' + d1 + '</td>' +
+    discs.map(d2 => {
+      if(d1 === d2) return '<td style="background:#0f1117;border:1px solid #1e2535;text-align:center;color:#374151">—</td>';
+      const clr = matrix[d1+'|'+d2] || matrix[d2+'|'+d1];
+      if(!clr) return '<td style="background:#0f1117;border:1px solid #1e2535;text-align:center;color:#374151">n/a</td>';
+      return '<td style="background:' + (colors[clr]||'#1f2937') + ';border:1px solid #2d3748;text-align:center;font-size:.7rem;font-weight:700;color:#e2e8f0">' + clr + '</td>';
+    }).join('') + '</tr>'
+  ).join('');
+}
+
+function showToast(msg, duration) {
+  const el = document.getElementById('uploadToast');
+  document.getElementById('toastMsg').textContent = msg;
+  document.getElementById('toastBar').style.width = '100%';
+  el.style.display = 'block';
+  if(duration) setTimeout(() => el.style.display = 'none', duration);
+}
+
+function showUploadToast(msg, pct) {
+  const el = document.getElementById('uploadToast');
+  el.style.display = 'block';
+  document.getElementById('toastMsg').textContent = msg;
+  document.getElementById('toastBar').style.width = pct + '%';
+}
+
+function hideToast() { document.getElementById('uploadToast').style.display = 'none'; }
+
+function saveState() {
+  try {
+    localStorage.setItem('bimOverrides', JSON.stringify(overrides));
+    localStorage.setItem('bimCustomTasks', JSON.stringify(customTasks));
+    localStorage.setItem('bimLoaded', JSON.stringify(loaded));
+    localStorage.setItem('bimLog', JSON.stringify(logEntries));
+    localStorage.setItem('bimBaseTasks', JSON.stringify(BASE_TASKS));
+  } catch(e) { console.warn('Save state error:', e); }
+}
+
+function loadState() {
+  try {
+    const savedBase = localStorage.getItem('bimBaseTasks');
+    if(savedBase) BASE_TASKS = JSON.parse(savedBase);
+    else BASE_TASKS = TASKS.slice();
+    overrides = JSON.parse(localStorage.getItem('bimOverrides') || '{}');
+    customTasks = JSON.parse(localStorage.getItem('bimCustomTasks') || '[]');
+    loaded = JSON.parse(localStorage.getItem('bimLoaded') || '{}');
+    logEntries = JSON.parse(localStorage.getItem('bimLog') || '[]');
+    const rules = localStorage.getItem('projectRules');
+    if(rules) document.getElementById('projectRules').value = rules;
+    const info = JSON.parse(localStorage.getItem('projInfo') || '{}');
+    if(info.name) document.getElementById('projName').value = info.name;
+    if(info.lead) document.getElementById('projLead').value = info.lead;
+  } catch(e) { console.warn('Load state error:', e); }
+  renderLog();
+  ['T1','T2','T3','T4'].forEach(s => loadGateState(s));
+  if(BASE_TASKS.length) {
+    document.getElementById('matrixStatus').textContent = '✅ ' + BASE_TASKS.length + ' tasks loaded from last session';
+  }
+}
+
+document.addEventListener('DOMContentLoaded', init);
+
+</script>
+</body>
+</html>
