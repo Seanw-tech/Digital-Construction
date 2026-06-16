@@ -1404,4 +1404,9 @@ window.onload = function() {
   const d = document.getElementById('projDate');
   if(d && !d.value) d.valueAsDate = new Date();
   if(BASE_TASKS.length) {
-    document.getElementById('matrixSta
+    document.getElementById('matrixStatus').textContent = '✅ ' + BASE_TASKS.length + ' tasks loaded from last session';
+  }
+};
+</script>
+</body>
+</html>
