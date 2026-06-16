@@ -41,7 +41,9 @@ main{padding:28px 32px;max-width:1400px}
 .gate-locked{background:#450a0a;color:#fca5a5;border:1px solid #7f1d1d}
 .gate-open{background:#052e16;color:#86efac;border:1px solid #14532d}
 .gate-partial{background:#1c1917;color:#fbbf24;border:1px solid #78350f}
-.grid-2{display:grid;grid-template-columns:380px 1fr;gap:20px;align-items:start}
+.grid-2{display:grid;grid-template-columns:1fr 360px;gap:20px;align-items:stretch}
+.grid-2>div:first-child{order:2;display:flex;flex-direction:column}
+.grid-2>div:nth-child(2){order:1}
 @media(max-width:900px){.grid-2{grid-template-columns:1fr}}
 .card{background:#1a1f2e;border:1px solid #2d3748;border-radius:10px;overflow:hidden}
 .card-header{padding:14px 18px;background:#232a3b;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #2d3748}
@@ -181,7 +183,7 @@ footer{padding:20px 32px;border-top:1px solid #2d3748;text-align:center;font-siz
           <input type="file" id="matrixUpload" accept=".xlsx" style="display:none" onchange="loadMatrixFromExcel(this)">
         </label>
         <label id="claudeUploadLabel" style="background:#0e4429;border:1px solid #166534;color:#34d399;padding:7px 14px;border-radius:6px;font-size:.78rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px">
-          📤 Pre-Clash Gate Updates Upload
+          📋 Additional Gate Rules
           <input type="file" id="claudeUpload" accept=".txt,.json" style="display:none" onchange="loadClaudeOutput(this)">
         </label>
       </div>
@@ -1315,14 +1317,27 @@ function loadClaudeOutput(input) {
 
 function renderGapMatrix() {
   const discs = ['ARC','STR','HYD','MEC','ELE','FIR'];
+  // Priority: HC most restrictive → C50 → C100V → C150V → C600V → C1500 → CUSTOM
+  const CLR_PRI = {HC:0,C50:1,C100V:2,C150V:3,C600V:4,C1500:5,CUSTOM:6};
   const matrix = {};
   BASE_TASKS.forEach(t => {
     const d1 = (t[4]||'').split('_')[0];
     const d2 = (t[5]||'').split('_')[0];
-    const key = d1 + '|' + d2;
-    if(!matrix[key]) matrix[key] = t[1];
+    const key = d1+'|'+d2;
+    const clr = t[1];
+    if(!clr) return;
+    if(!(key in matrix) || (CLR_PRI[clr]??7) < (CLR_PRI[matrix[key]]??7)) matrix[key] = clr;
   });
-  const colors = {HC:'#1f2937',C50:'#0f2a1a',C100V:'#1e1b4b',C150V:'#2d1b69',C600V:'#450a0a',C1500:'#312e81'};
+  // Vivid background + contrasting text per clearance code
+  const STYLE = {
+    HC:    'background:#7f1d1d;color:#fca5a5;border:1px solid #ef4444',
+    C50:   'background:#78350f;color:#fcd34d;border:1px solid #f97316',
+    C100V: 'background:#1e3a5f;color:#93c5fd;border:1px solid #3b82f6',
+    C150V: 'background:#14532d;color:#86efac;border:1px solid #22c55e',
+    C600V: 'background:#312e81;color:#c4b5fd;border:1px solid #8b5cf6',
+    C1500: 'background:#4a044e;color:#f0abfc;border:1px solid #d946ef',
+    CUSTOM:'background:#374151;color:#d1d5db;border:1px solid #6b7280'
+  };
   const tbody = document.getElementById('gapMatrixBody');
   if(!tbody) return;
   tbody.innerHTML = discs.map(d1 =>
@@ -1330,8 +1345,8 @@ function renderGapMatrix() {
     discs.map(d2 => {
       if(d1 === d2) return '<td style="background:#0f1117;border:1px solid #1e2535;text-align:center;color:#374151">—</td>';
       const clr = matrix[d1+'|'+d2] || matrix[d2+'|'+d1];
-      if(!clr) return '<td style="background:#0f1117;border:1px solid #1e2535;text-align:center;color:#374151">n/a</td>';
-      return '<td style="background:' + (colors[clr]||'#1f2937') + ';border:1px solid #2d3748;text-align:center;font-size:.7rem;font-weight:700;color:#e2e8f0">' + clr + '</td>';
+      if(!clr) return '<td style="background:#0f1117;border:1px solid #1e2535;text-align:center;color:#475569;font-size:.65rem">n/a</td>';
+      return '<td style="' + (STYLE[clr]||STYLE.CUSTOM) + ';text-align:center;font-size:.72rem;font-weight:700;padding:4px">' + clr + '</td>';
     }).join('') + '</tr>'
   ).join('');
 }
