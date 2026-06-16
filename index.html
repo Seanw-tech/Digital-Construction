@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BIM Clash Coordination Platform</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#0f1117;color:#e2e8f0;min-height:100vh}
+:root{--t1:#f97316;--t2:#3b82f6;--t3:#a855f7;--t4:#10b981;--surface:#1a1f2e;--surface2:#232a3b;--border:#2d3748}
+header{background:linear-gradient(135deg,#1a1f2e 0%,#232a3b 100%);border-bottom:1px solid #2d3748;padding:20px 32px;display:flex;align-items:center;justify-content:space-between}
+.logo{display:flex;align-items:center;gap:12px}
+.logo-icon{width:36px;height:36px;background:linear-gradient(135deg,#3b82f6,#a855f7);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px}
+h1{font-size:1.3rem;font-weight:700;color:#fff}
+.subtitle{font-size:.75rem;color:#64748b;margin-top:2px}
+.project-info{display:flex;gap:16px;align-items:center}
+.project-field{display:flex;flex-direction:column;gap:2px}
+.project-field label{font-size:.65rem;color:#64748b;text-transform:uppercase;letter-spacing:.05em}
+.project-field input{background:#0f1117;border:1px solid #2d3748;color:#e2e8f0;padding:4px 8px;border-radius:4px;font-size:.8rem;width:180px}
+.project-field input:focus{outline:none;border-color:#3b82f6}
+.badge-live{background:#10b981;color:#fff;font-size:.65rem;padding:3px 8px;border-radius:12px;font-weight:600;letter-spacing:.05em}
+nav{background:#1a1f2e;border-bottom:1px solid #2d3748;padding:0 32px;display:flex;gap:4px;overflow-x:auto}
+.tab{padding:14px 24px;font-size:.85rem;font-weight:600;cursor:pointer;border-bottom:3px solid transparent;color:#64748b;transition:all .2s;white-space:nowrap;display:flex;align-items:center;gap:8px}
+.tab:hover{color:#e2e8f0;background:#232a3b}
+.tab.active{color:#fff;border-bottom-color:var(--accent)}
+.tab .count{font-size:.7rem;padding:2px 6px;border-radius:10px;font-weight:700}
+[data-stage="T1"] .tab-badge,.tab[data-tab="T1"] .count{background:var(--t1);color:#fff}
+[data-stage="T2"] .tab-badge,.tab[data-tab="T2"] .count{background:var(--t2);color:#fff}
+[data-stage="T3"] .tab-badge,.tab[data-tab="T3"] .count{background:var(--t3);color:#fff}
+[data-stage="T4"] .tab-badge,.tab[data-tab="T4"] .count{background:var(--t4);color:#fff}
+.tab[data-tab="LOG"] .count{background:#475569;color:#fff}
+main{padding:28px 32px;max-width:1400px}
+.stage-panel{display:none}
+.stage-panel.active{display:block}
+.stage-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;gap:16px;flex-wrap:wrap}
+.stage-title{display:flex;align-items:center;gap:12px}
+.stage-badge{font-size:1.1rem;font-weight:800;padding:6px 14px;border-radius:8px;color:#fff}
+.stage-desc{color:#94a3b8;font-size:.85rem;margin-top:4px;max-width:600px;line-height:1.5}
+.gate-status{display:flex;align-items:center;gap:8px;padding:10px 18px;border-radius:8px;font-weight:700;font-size:.85rem;white-space:nowrap}
+.gate-locked{background:#450a0a;color:#fca5a5;border:1px solid #7f1d1d}
+.gate-open{background:#052e16;color:#86efac;border:1px solid #14532d}
+.gate-partial{background:#1c1917;color:#fbbf24;border:1px solid #78350f}
+.grid-2{display:grid;grid-template-columns:380px 1fr;gap:20px;align-items:start}
+@media(max-width:900px){.grid-2{grid-template-columns:1fr}}
+.card{background:#1a1f2e;border:1px solid #2d3748;border-radius:10px;overflow:hidden}
+.card-header{padding:14px 18px;background:#232a3b;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #2d3748}
+.card-title{font-size:.85rem;font-weight:700;color:#e2e8f0;display:flex;align-items:center;gap:8px}
+.card-body{padding:0}
+.checklist{list-style:none;max-height:420px;overflow-y:auto}
+.checklist::-webkit-scrollbar{width:4px}
+.checklist::-webkit-scrollbar-track{background:#1a1f2e}
+.checklist::-webkit-scrollbar-thumb{background:#3d4a5c;border-radius:2px}
+.check-item{padding:10px 18px;border-bottom:1px solid #2d3748;display:flex;align-items:flex-start;gap:10px;transition:background .15s}
+.check-item:hover{background:#232a3b}
+.check-item:last-child{border-bottom:none}
+.check-item input[type=checkbox]{width:16px;height:16px;flex-shrink:0;margin-top:2px;accent-color:#3b82f6;cursor:pointer}
+.check-item label{font-size:.78rem;color:#94a3b8;cursor:pointer;line-height:1.4}
+.check-item.done label{color:#475569;text-decoration:line-through}
+.disc-tag{font-size:.65rem;font-weight:700;padding:1px 5px;border-radius:3px;margin-right:4px;vertical-align:middle}
+.disc-ARCH{background:#1d4ed8;color:#bfdbfe}
+.disc-STR{background:#b45309;color:#fde68a}
+.disc-HYD{background:#0e7490;color:#a5f3fc}
+.disc-MEC{background:#7c3aed;color:#e9d5ff}
+.disc-ELE{background:#d97706;color:#fef3c7}
+.disc-FIRE{background:#b91c1c;color:#fee2e2}
+.disc-GEN{background:#374151;color:#d1d5db}
+.progress-bar-wrap{height:4px;background:#2d3748}
+.progress-bar{height:4px;transition:width .3s;border-radius:0 2px 2px 0}
+.toolbar{padding:12px 18px;background:#232a3b;display:flex;align-items:center;gap:10px;flex-wrap:wrap;border-bottom:1px solid #2d3748}
+.search-input{background:#0f1117;border:1px solid #2d3748;color:#e2e8f0;padding:7px 12px;border-radius:6px;font-size:.8rem;width:220px}
+.search-input:focus{outline:none;border-color:#3b82f6}
+select.filter{background:#0f1117;border:1px solid #2d3748;color:#94a3b8;padding:7px 10px;border-radius:6px;font-size:.8rem;cursor:pointer}
+.btn{padding:7px 14px;border-radius:6px;font-size:.78rem;font-weight:600;cursor:pointer;border:none;transition:all .15s;display:flex;align-items:center;gap:6px}
+.btn-primary{background:#3b82f6;color:#fff}
+.btn-primary:hover{background:#2563eb}
+.btn-ghost{background:transparent;color:#94a3b8;border:1px solid #2d3748}
+.btn-ghost:hover{background:#232a3b;color:#e2e8f0}
+.btn-success{background:#10b981;color:#fff}
+.btn-success:hover{background:#059669}
+.task-count-info{margin-left:auto;font-size:.75rem;color:#64748b}
+.table-wrap{overflow-x:auto;max-height:480px;overflow-y:auto}
+.table-wrap::-webkit-scrollbar{width:6px;height:6px}
+.table-wrap::-webkit-scrollbar-track{background:#1a1f2e}
+.table-wrap::-webkit-scrollbar-thumb{background:#3d4a5c;border-radius:3px}
+table{width:100%;border-collapse:collapse;font-size:.78rem}
+thead{position:sticky;top:0;z-index:1}
+th{background:#232a3b;padding:10px 12px;text-align:left;font-weight:700;color:#94a3b8;border-bottom:1px solid #2d3748;white-space:nowrap;font-size:.72rem;text-transform:uppercase;letter-spacing:.04em}
+td{padding:9px 12px;border-bottom:1px solid #1e2535;color:#cbd5e1;vertical-align:middle}
+tr:hover td{background:#1e2535}
+.chk-col{width:36px}
+.chk-col input{accent-color:#3b82f6;cursor:pointer}
+td .clr-badge{font-size:.68rem;font-weight:700;padding:2px 7px;border-radius:4px;display:inline-block}
+.clr-HC{background:#1f2937;color:#9ca3af;border:1px solid #374151}
+.clr-C50{background:#0f2a1a;color:#4ade80;border:1px solid #166534}
+.clr-C100V{background:#1e1b4b;color:#a5b4fc;border:1px solid #3730a3}
+.clr-C150V{background:#2d1b69;color:#c4b5fd;border:1px solid #5b21b6}
+.clr-C600V{background:#450a0a;color:#fca5a5;border:1px solid #7f1d1d}
+.clr-C1500{background:#312e81;color:#e0e7ff;border:1px solid #4338ca}
+.priority-badge{font-size:.68rem;font-weight:700;padding:2px 7px;border-radius:4px}
+.p-Critical{background:#7f1d1d;color:#fca5a5}
+.p-Major{background:#78350f;color:#fde68a}
+.p-Minor{background:#052e16;color:#86efac}
+.task-name{font-family:'Courier New',monospace;font-size:.72rem;color:#e2e8f0}
+.mm-val{color:#64748b;font-size:.72rem}
+.no-tasks{text-align:center;padding:48px;color:#475569}
+.no-tasks .icon{font-size:2.5rem;margin-bottom:12px}
+.gate-warning{background:#1c1917;border:1px solid #78350f;border-radius:8px;padding:14px 18px;margin-bottom:16px;font-size:.82rem;color:#fbbf24;display:flex;gap:10px;align-items:flex-start}
+.gate-ok{background:#052e16;border:1px solid #14532d;border-radius:8px;padding:14px 18px;margin-bottom:16px;font-size:.82rem;color:#86efac;display:flex;gap:10px;align-items:center}
+.log-table-wrap{padding:18px}
+.log-entry{background:#232a3b;border:1px solid #2d3748;border-radius:8px;padding:14px 18px;margin-bottom:10px;display:grid;grid-template-columns:120px 60px 80px 1fr;gap:12px;align-items:center;font-size:.8rem}
+.log-entry input{background:#0f1117;border:1px solid #2d3748;color:#e2e8f0;padding:5px 8px;border-radius:4px;font-size:.78rem;width:100%}
+.log-entry input:focus{outline:none;border-color:#3b82f6}
+.log-header{font-size:.72rem;color:#64748b;text-transform:uppercase;letter-spacing:.04em;padding:0 18px 8px;display:grid;grid-template-columns:120px 60px 80px 1fr;gap:12px}
+.sel-all-row{display:flex;align-items:center;gap:8px;padding:8px 12px;background:#232a3b;border-bottom:1px solid #2d3748}
+.sel-all-row label{font-size:.75rem;color:#64748b}
+.loaded-badge{font-size:.65rem;padding:2px 6px;border-radius:3px;font-weight:700}
+.loaded-Y{background:#052e16;color:#86efac}
+.loaded-N{background:#1f2937;color:#64748b}
+footer{padding:20px 32px;border-top:1px solid #2d3748;text-align:center;font-size:.72rem;color:#374151;margin-top:40px}
+.stats-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px}
+.stat-card{background:#1a1f2e;border:1px solid #2d3748;border-radius:8px;padding:14px 20px;flex:1;min-width:120px}
+.stat-num{font-size:1.6rem;font-weight:800;line-height:1}
+.stat-label{font-size:.72rem;color:#64748b;margin-top:4px}
+/* ── Edit & Custom Task UI ── */
+.btn-edit{background:#1e3a5f;color:#93c5fd;border:1px solid #1d4ed8;padding:3px 8px;font-size:.65rem;border-radius:4px;cursor:pointer;font-weight:700;white-space:nowrap}
+.btn-edit:hover{background:#1d4ed8;color:#fff}
+.btn-danger{background:#450a0a;color:#fca5a5;border:1px solid #7f1d1d;padding:3px 8px;font-size:.65rem;border-radius:4px;cursor:pointer;font-weight:700}
+.btn-danger:hover{background:#7f1d1d;color:#fff}
+.badge-edited{font-size:.62rem;font-weight:700;padding:1px 5px;border-radius:3px;background:#78350f;color:#fde68a;margin-right:4px;vertical-align:middle}
+.badge-custom{font-size:.62rem;font-weight:700;padding:1px 5px;border-radius:3px;background:#0e4429;color:#34d399;margin-right:4px;vertical-align:middle}
+.row-edited td{border-left:3px solid #f59e0b}
+.row-custom td{border-left:3px solid #10b981}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:#1a1f2e;border:1px solid #2d3748;border-radius:12px;padding:28px;width:560px;max-width:96vw;max-height:90vh;overflow-y:auto}
+.modal h3{font-size:1rem;font-weight:700;color:#e2e8f0;margin-bottom:6px}
+.modal-sub{font-size:.75rem;color:#64748b;margin-bottom:20px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.form-row.full{grid-template-columns:1fr}
+.form-group{display:flex;flex-direction:column;gap:4px}
+.form-group label{font-size:.7rem;color:#94a3b8;text-transform:uppercase;letter-spacing:.04em;font-weight:700}
+.form-group input,.form-group select,.form-group textarea{background:#0f1117;border:1px solid #2d3748;color:#e2e8f0;padding:8px 10px;border-radius:6px;font-size:.8rem}
+.form-group input:focus,.form-group select:focus{outline:none;border-color:#3b82f6}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:20px;padding-top:16px;border-top:1px solid #2d3748}
+.divider{height:1px;background:#2d3748;margin:16px 0}
+.reset-link{font-size:.72rem;color:#64748b;cursor:pointer;text-decoration:underline;margin-top:6px;display:inline-block}
+.reset-link:hover{color:#fca5a5}
+.custom-count{font-size:.7rem;padding:2px 7px;border-radius:10px;background:#0e4429;color:#34d399;font-weight:700;margin-left:4px}
+.overrides-count{font-size:.7rem;padding:2px 7px;border-radius:10px;background:#78350f;color:#fde68a;font-weight:700;margin-left:4px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">🏗️</div>
+    <div>
+      <h1>Clash Coordination Platform</h1>
+      <div class="subtitle">Digital Engineering · Clash Detection · Revizto Output</div>
+    </div>
+  </div>
+  <div class="project-info">
+    <div class="project-field">
+      <label>Project Name</label>
+      <input id="projName" value="" placeholder="Enter project code / name" placeholder="Enter project name">
+    </div>
+    <div class="project-field">
+      <label>BIM Lead</label>
+      <input id="projLead" value="" placeholder="BIM Lead" placeholder="BIM Lead">
+    </div>
+    <div class="project-field">
+      <label>Date</label>
+      <input id="projDate" type="date">
+    </div>
+    <span class="badge-live">LIVE</span>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+      <label id="uploadLabel" style="background:#1e3a5f;border:1px solid #1d4ed8;color:#93c5fd;padding:7px 14px;border-radius:6px;font-size:.78rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px">
+        📂 Upload Updated Matrix
+        <input type="file" id="matrixUpload" accept=".xlsx" style="display:none" onchange="loadMatrixFromExcel(this)">
+      </label>
+      <div id="matrixStatus" style="font-size:.68rem;color:#64748b;text-align:right"></div>
+    </div>
+  </div>
+</header>
+
+<!-- Upload progress toast -->
+<div id="uploadToast" style="display:none;position:fixed;bottom:24px;right:24px;background:#1a1f2e;border:1px solid #2d3748;border-radius:10px;padding:16px 20px;z-index:500;min-width:280px;box-shadow:0 8px 32px rgba(0,0,0,.5)">
+  <div id="toastMsg" style="font-size:.82rem;color:#e2e8f0;margin-bottom:8px">Reading matrix…</div>
+  <div style="height:4px;background:#2d3748;border-radius:2px"><div id="toastBar" style="height:4px;background:#3b82f6;border-radius:2px;width:0%;transition:width .3s"></div></div>
+</div>
+
+<nav id="mainNav">
+  <div class="tab active" data-tab="T1" style="--accent:var(--t1)" onclick="switchTab('T1')">
+    T1 <span class="count" data-tab="T1">67</span> Strategic Constraints
+  </div>
+  <div class="tab" data-tab="T2" style="--accent:var(--t2)" onclick="switchTab('T2')">
+    T2 <span class="count" data-tab="T2">223</span> Main Services
+  </div>
+  <div class="tab" data-tab="T3" style="--accent:var(--t3)" onclick="switchTab('T3')">
+    T3 <span class="count" data-tab="T3">108</span> Fit-Out & Devices
+  </div>
+  <div class="tab" data-tab="T4" style="--accent:var(--t4)" onclick="switchTab('T4')">
+    T4 <span class="count" data-tab="T4">27</span> As-Built & Handover
+  </div>
+  <div class="tab" data-tab="RULES" style="--accent:#06b6d4" onclick="switchTab('RULES')">
+    📐 <span class="count" data-tab="RULES" style="background:#0e7490;color:#fff">RULES</span>
+  </div>
+  <div class="tab" data-tab="LOG" style="--accent:#475569" onclick="switchTab('LOG')">
+    📋 <span class="count" data-tab="LOG">RUN LOG</span>
+  </div>
+</nav>
+
+<main>
+
+<!-- ════════════════════ T1 ════════════════════ -->
+<div class="stage-panel active" id="panel-T1">
+  <div class="stage-header">
+    <div>
+      <div class="stage-title">
+        <span class="stage-badge" style="background:var(--t1)">T1</span>
+        <div>
+          <div style="font-size:1.05rem;font-weight:700">Strategic Constraints &amp; Early Locks</div>
+          <div class="stage-desc">Prevent irreversible errors in structure, civil works, seismic performance, and primary service routing before construction commences.</div>
+        </div>
+      </div>
+    </div>
+    <div id="gate-status-T1" class="gate-status gate-locked">🔒 Gate Locked</div>
+  </div>
+  <div class="stats-row">
+    <div class="stat-card"><div class="stat-num" style="color:var(--t1)" id="stat-T1-total">67</div><div class="stat-label">Total Tasks</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:#86efac" id="stat-T1-loaded">0</div><div class="stat-label">Loaded to Revizto</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:#fbbf24" id="stat-T1-gate">0/7</div><div class="stat-label">Gate Items ✓</div></div>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">🔑 Pre-Clash Gate Checklist</span>
+        <span style="font-size:.72rem;color:#64748b" id="pct-T1">0%</span>
+      </div>
+      <div class="progress-bar-wrap"><div class="progress-bar" id="pb-T1" style="width:0%;background:var(--t1)"></div></div>
+      <ul class="checklist" id="cl-T1">
+        <li class="check-item" data-stage="T1"><input type="checkbox" id="T1-1" onchange="updateGate('T1')"><label for="T1-1"><span class="disc-tag disc-STR">STR</span>Cross bracing (donobraces) are modelled — check against risers and cushion heads</label></li>
+        <li class="check-item" data-stage="T1"><input type="checkbox" id="T1-2" onchange="updateGate('T1')"><label for="T1-2"><span class="disc-tag disc-STR">STR</span>Slab thickness between floors verified (random point test)</label></li>
+        <li class="check-item" data-stage="T1"><input type="checkbox" id="T1-3" onchange="updateGate('T1')"><label for="T1-3"><span class="disc-tag disc-STR">STR</span>Intumescent painting on steelwork — service penetration clearances checked (100mm TYP)</label></li>
+        <li class="check-item" data-stage="T1"><input type="checkbox" id="T1-4" onchange="updateGate('T1')"><label for="T1-4"><span class="disc-tag disc-HYD">HYD</span>In-ground foundation beams vs services — pipes in middle third if penetrating; falls on long runs confirmed</label></li>
+        <li class="check-item" data-stage="T1"><input type="checkbox" id="T1-5" onchange="updateGate('T1')"><label for="T1-5"><span class="disc-tag disc-ARCH">ARCH</span>Wall dimensions and positions verified — random point test from grids completed</label></li>
+        <li class="check-item" data-stage="T1"><input type="checkbox" id="T1-6" onchange="updateGate('T1')"><label for="T1-6"><span class="disc-tag disc-ARCH">ARCH</span>Wall heights modelled correctly — full height elements identified and confirmed</label></li>
+        <li class="check-item" data-stage="T1"><input type="checkbox" id="T1-7" onchange="updateGate('T1')"><label for="T1-7"><span class="disc-tag disc-GEN">GEN</span>Services reticulation strategy aligned with construction build sequence</label></li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">📤 Revizto Clash Task Output</span>
+      </div>
+      <div class="toolbar">
+        <input class="search-input" placeholder="🔍 Search tasks..." oninput="filterTable('T1',this.value)">
+        <select class="filter" onchange="filterByDisc('T1',this.value)">
+          <option value="">All Disciplines</option>
+          <option>ARC</option><option>STR</option><option>HYD</option><option>MEC</option><option>ELE</option><option>FIR</option>
+        </select>
+        <select class="filter" onchange="filterByClearance('T1',this.value)">
+          <option value="">All Clearances</option>
+          <option>HC</option><option>C50</option><option>C100V</option><option>C150V</option><option>C600V</option>
+        </select>
+        <span class="task-count-info" id="count-T1">Showing 67 tasks</span>
+        <button class="btn btn-success" onclick="exportCSV('T1')">⬇ Export CSV</button>
+        <button class="btn btn-ghost" onclick="copySelected('T1')">📋 Copy Selected</button>
+        <button class="btn btn-primary" onclick="openAddModal('T1')" style="background:#0e4429;border:1px solid #166534;color:#34d399">＋ Add Custom Task</button>
+      </div>
+      <div class="sel-all-row">
+        <input type="checkbox" id="selAll-T1" onchange="selectAll('T1',this.checked)">
+        <label for="selAll-T1">Select all visible</label>
+        <button class="btn btn-ghost" style="padding:3px 10px;font-size:.7rem;margin-left:auto" onclick="markLoaded('T1')">Mark selected as Loaded ✓</button>
+      </div>
+      <div class="table-wrap">
+        <table id="tbl-T1">
+          <thead><tr>
+            <th class="chk-col"></th>
+            <th>Task Name</th>
+            <th>Selection A</th>
+            <th>Selection B</th>
+            <th>Clearance</th>
+            <th>H (mm)</th>
+            <th>V (mm)</th>
+            <th>Revizto Priority</th>
+            <th>Loaded</th>
+            <th></th>
+          </tr></thead>
+          <tbody id="tbody-T1"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════ T2 ════════════════════ -->
+<div class="stage-panel" id="panel-T2">
+  <div class="stage-header">
+    <div>
+      <div class="stage-title">
+        <span class="stage-badge" style="background:var(--t2)">T2</span>
+        <div>
+          <div style="font-size:1.05rem;font-weight:700">Main Services &amp; Plantroom Coordination</div>
+          <div class="stage-desc">Resolve service viability, congestion, and compliance before ceilings, finishes, or device layouts are developed.</div>
+        </div>
+      </div>
+    </div>
+    <div id="gate-status-T2" class="gate-status gate-locked">🔒 Gate Locked</div>
+  </div>
+  <div class="stats-row">
+    <div class="stat-card"><div class="stat-num" style="color:var(--t2)" id="stat-T2-total">223</div><div class="stat-label">Total Tasks</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:#86efac" id="stat-T2-loaded">0</div><div class="stat-label">Loaded to Revizto</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:#fbbf24" id="stat-T2-gate">0/15</div><div class="stat-label">Gate Items ✓</div></div>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">🔑 Pre-Clash Gate Checklist</span>
+        <span style="font-size:.72rem;color:#64748b" id="pct-T2">0%</span>
+      </div>
+      <div class="progress-bar-wrap"><div class="progress-bar" id="pb-T2" style="width:0%;background:var(--t2)"></div></div>
+      <ul class="checklist" id="cl-T2">
+        <li class="check-item"><input type="checkbox" id="T2-1" onchange="updateGate('T2')"><label for="T2-1"><span class="disc-tag disc-ARCH">ARCH</span>Service walkways modelled in ceiling space — min 900mm wide × 2000mm height, egress routes compliant</label></li>
+        <li class="check-item"><input type="checkbox" id="T2-2" onchange="updateGate('T2')"><label for="T2-2"><span class="disc-tag disc-ARCH">ARCH</span>Ceiling heights modelled correctly — Clearance Matrix adjusted to suit</label></li>
+        <li class="check-item"><input type="checkbox" id="T2-3" onchange="updateGate('T2')"><label for="T2-3"><span class="disc-tag disc-ARCH">ARCH</span>No services penetrate architect-modelled deflection heads (seismic movement clearance)</label></li>
+        <li class="check-item"><input type="checkbox" id="T2-4" onchange="updateGate('T2')"><label for="T2-4"><span class="disc-tag disc-ARCH">ARCH</span>Ceiling/slab thermal or acoustic insulation modelled — spec confirmed</label></li>
+        <li class="check-item"><input type="checkbox" id="T2-5" onchange="updateGate('T2')"><label for="T2-5"><span class="disc-tag disc-ARCH">ARCH</span>Acoustic walls with insulation — diagonal brackets modelled, ceiling clearance increased to 100mm</label></li>
+        <li class="check-item"><input type="checkbox" id="T2-6" onchange="updateGate('T2')"><label for="T2-6"><span class="disc-tag disc-GEN">GEN</span>Deflection heads on partitions confirmed — services not routing through them</label></li>
+        <li class="check-item"><input type="checkbox" id="T2-7" onchange="updateGate('T2')"><label for="T2-7"><span class="disc-tag disc-GEN">GEN</span>All elements 50mm clear from each other and structure — checked</label></li>
+        <li class="check-item"><input type="checkbox" id="T2-8" onchange="updateGate('T2')"><label for="T2-8"><span class="disc-tag disc-GEN">GEN</span>Insulation thickness modelled correctly on ducts/pipes/mech/hydraulic</label></li>
+        <li class="check-item"><input type="checkbox" id="T2-9" onchange="updateGate('T2')"><label for="T2-9"><span class="disc-tag disc-ELE">ELE</span>150mm clearance between all cable trays confirmed (min 125mm where constrained)</label></li>
+        <li class="check-item"><input type="checkbox" id="T2-10" onchange="updateGate('T2')"><label for="T2-10"><span class="disc-tag disc-ELE">ELE</span>Cable separation between power (LV) and low voltage (data, AV, security) modelled correctly</label></li>
+        <li class="check-item"><input type="checkbox" id="T2-11" onchange="updateGate('T2')"><label for="T2-11"><span class="disc-tag disc-MEC">MEC</span>Duct sizes correct — internal dimensions match design drawings</label></li>
+        <li class="check-item"><input type="checkbox" id="T2-12" onchange="updateGate('T2')"><label for="T2-12"><span class="disc-tag disc-MEC">MEC</span>Services &gt;150mm from ceilings — no installation/access impediment</label></li>
+        <li class="check-item"><input type="checkbox" id="T2-13" onchange="updateGate('T2')"><label for="T2-13"><span class="disc-tag disc-MEC">MEC</span>Fire dampers not within 200mm of each other — spacing confirmed</label></li>
+        <li class="check-item"><input type="checkbox" id="T2-14" onchange="updateGate('T2')"><label for="T2-14"><span class="disc-tag disc-HYD">HYD</span>Pipes in walls checked — no hydraulic pipes exceeding wall width</label></li>
+        <li class="check-item"><input type="checkbox" id="T2-15" onchange="updateGate('T2')"><label for="T2-15"><span class="disc-tag disc-HYD">HYD</span>Equal junctions connecting to main drain at ≥15° angle or vertically — confirmed</label></li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-header"><span class="card-title">📤 Revizto Clash Task Output</span></div>
+      <div class="toolbar">
+        <input class="search-input" placeholder="🔍 Search tasks..." oninput="filterTable('T2',this.value)">
+        <select class="filter" onchange="filterByDisc('T2',this.value)">
+          <option value="">All Disciplines</option>
+          <option>ARC</option><option>STR</option><option>HYD</option><option>MEC</option><option>ELE</option><option>FIR</option>
+        </select>
+        <select class="filter" onchange="filterByClearance('T2',this.value)">
+          <option value="">All Clearances</option>
+          <option>HC</option><option>C50</option><option>C100V</option><option>C150V</option><option>C600V</option>
+        </select>
+        <span class="task-count-info" id="count-T2">Showing 223 tasks</span>
+        <button class="btn btn-success" onclick="exportCSV('T2')">⬇ Export CSV</button>
+        <button class="btn btn-ghost" onclick="copySelected('T2')">📋 Copy Selected</button>
+        <button class="btn btn-primary" onclick="openAddModal('T2')" style="background:#0e4429;border:1px solid #166534;color:#34d399">＋ Add Custom Task</button>
+      </div>
+      <div class="sel-all-row">
+        <input type="checkbox" id="selAll-T2" onchange="selectAll('T2',this.checked)">
+        <label for="selAll-T2">Select all visible</label>
+        <button class="btn btn-ghost" style="padding:3px 10px;font-size:.7rem;margin-left:auto" onclick="markLoaded('T2')">Mark selected as Loaded ✓</button>
+      </div>
+      <div class="table-wrap">
+        <table id="tbl-T2">
+          <thead><tr>
+            <th class="chk-col"></th>
+            <th>Task Name</th>
+            <th>Selection A</th>
+            <th>Selection B</th>
+            <th>Clearance</th>
+            <th>H (mm)</th>
+            <th>V (mm)</th>
+            <th>Revizto Priority</th>
+            <th>Loaded</th>
+            <th></th>
+          </tr></thead>
+          <tbody id="tbody-T2"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════ T3 ════════════════════ -->
+<div class="stage-panel" id="panel-T3">
+  <div class="stage-header">
+    <div>
+      <div class="stage-title">
+        <span class="stage-badge" style="background:var(--t3)">T3</span>
+        <div>
+          <div style="font-size:1.05rem;font-weight:700">Fit-Out, Devices &amp; Maintainability</div>
+          <div class="stage-desc">Ensure the model reflects installed reality for commissioning, operations, and facilities management without uncontrolled scope growth.</div>
+        </div>
+      </div>
+    </div>
+    <div id="gate-status-T3" class="gate-status gate-locked">🔒 Gate Locked</div>
+  </div>
+  <div class="stats-row">
+    <div class="stat-card"><div class="stat-num" style="color:var(--t3)" id="stat-T3-total">108</div><div class="stat-label">Total Tasks</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:#86efac" id="stat-T3-loaded">0</div><div class="stat-label">Loaded to Revizto</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:#fbbf24" id="stat-T3-gate">0/12</div><div class="stat-label">Gate Items ✓</div></div>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">🔑 Pre-Clash Gate Checklist</span>
+        <span style="font-size:.72rem;color:#64748b" id="pct-T3">0%</span>
+      </div>
+      <div class="progress-bar-wrap"><div class="progress-bar" id="pb-T3" style="width:0%;background:var(--t3)"></div></div>
+      <ul class="checklist" id="cl-T3">
+        <li class="check-item"><input type="checkbox" id="T3-1" onchange="updateGate('T3')"><label for="T3-1"><span class="disc-tag disc-ARCH">ARCH</span>Acoustic report reviewed — unusual requirements and acoustic wall requirements colour-coded</label></li>
+        <li class="check-item"><input type="checkbox" id="T3-2" onchange="updateGate('T3')"><label for="T3-2"><span class="disc-tag disc-ARCH">ARCH</span>RCP coordination complete — ceiling types and fixtures colour-coded, common geometries across trades highlighted</label></li>
+        <li class="check-item"><input type="checkbox" id="T3-3" onchange="updateGate('T3')"><label for="T3-3"><span class="disc-tag disc-GEN">GEN</span>Ceiling-mounted items modelled (speakers, detectors, sprinklers) — 150mm clearance above FCL confirmed (PCA A-Grade)</label></li>
+        <li class="check-item"><input type="checkbox" id="T3-4" onchange="updateGate('T3')"><label for="T3-4"><span class="disc-tag disc-GEN">GEN</span>Wall-mounted items modelled below ceilings — correctly positioned (not floating)</label></li>
+        <li class="check-item"><input type="checkbox" id="T3-5" onchange="updateGate('T3')"><label for="T3-5"><span class="disc-tag disc-GEN">GEN</span>Plant rooms — spatial check for access and maintenance clearances completed</label></li>
+        <li class="check-item"><input type="checkbox" id="T3-6" onchange="updateGate('T3')"><label for="T3-6"><span class="disc-tag disc-ELE">ELE</span>BMS, Dry Fire, and AV cable trays modelled and confirmed</label></li>
+        <li class="check-item"><input type="checkbox" id="T3-7" onchange="updateGate('T3')"><label for="T3-7"><span class="disc-tag disc-ELE">ELE</span>AV equipment modelled — type and dimensions confirmed against procurement schedule</label></li>
+        <li class="check-item"><input type="checkbox" id="T3-8" onchange="updateGate('T3')"><label for="T3-8"><span class="disc-tag disc-ELE">ELE</span>Floor box numbers and positions align with architectural floor layout</label></li>
+        <li class="check-item"><input type="checkbox" id="T3-9" onchange="updateGate('T3')"><label for="T3-9"><span class="disc-tag disc-HYD">HYD</span>Excess tundish flagged in Revizto — MEC and HYD tundishes identified for team discussion</label></li>
+        <li class="check-item"><input type="checkbox" id="T3-10" onchange="updateGate('T3')"><label for="T3-10"><span class="disc-tag disc-MEC">MEC</span>Flexible duct length ≤3m (target 2.5m) — confirmed</label></li>
+        <li class="check-item"><input type="checkbox" id="T3-11" onchange="updateGate('T3')"><label for="T3-11"><span class="disc-tag disc-MEC">MEC</span>Cooling tower access ladder modelled per AS1657 — spatial requirements confirmed</label></li>
+        <li class="check-item"><input type="checkbox" id="T3-12" onchange="updateGate('T3')"><label for="T3-12"><span class="disc-tag disc-FIRE">FIRE</span>Fire egress routes — minimum widths maintained in ceilings, walkways, and roofs</label></li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-header"><span class="card-title">📤 Revizto Clash Task Output</span></div>
+      <div class="toolbar">
+        <input class="search-input" placeholder="🔍 Search tasks..." oninput="filterTable('T3',this.value)">
+        <select class="filter" onchange="filterByDisc('T3',this.value)">
+          <option value="">All Disciplines</option>
+          <option>ARC</option><option>STR</option><option>HYD</option><option>MEC</option><option>ELE</option><option>FIR</option>
+        </select>
+        <select class="filter" onchange="filterByClearance('T3',this.value)">
+          <option value="">All Clearances</option>
+          <option>HC</option><option>C50</option><option>C100V</option><option>C150V</option><option>C600V</option>
+        </select>
+        <span class="task-count-info" id="count-T3">Showing 108 tasks</span>
+        <button class="btn btn-success" onclick="exportCSV('T3')">⬇ Export CSV</button>
+        <button class="btn btn-ghost" onclick="copySelected('T3')">📋 Copy Selected</button>
+        <button class="btn btn-primary" onclick="openAddModal('T3')" style="background:#0e4429;border:1px solid #166534;color:#34d399">＋ Add Custom Task</button>
+      </div>
+      <div class="sel-all-row">
+        <input type="checkbox" id="selAll-T3" onchange="selectAll('T3',this.checked)">
+        <label for="selAll-T3">Select all visible</label>
+        <button class="btn btn-ghost" style="padding:3px 10px;font-size:.7rem;margin-left:auto" onclick="markLoaded('T3')">Mark selected as Loaded ✓</button>
+      </div>
+      <div class="table-wrap">
+        <table id="tbl-T3">
+          <thead><tr>
+            <th class="chk-col"></th>
+            <th>Task Name</th>
+            <th>Selection A</th>
+            <th>Selection B</th>
+            <th>Clearance</th>
+            <th>H (mm)</th>
+            <th>V (mm)</th>
+            <th>Revizto Priority</th>
+            <th>Loaded</th>
+            <th></th>
+          </tr></thead>
+          <tbody id="tbody-T3"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════ T4 ════════════════════ -->
+<div class="stage-panel" id="panel-T4">
+  <div class="stage-header">
+    <div>
+      <div class="stage-title">
+        <span class="stage-badge" style="background:var(--t4)">T4</span>
+        <div>
+          <div style="font-size:1.05rem;font-weight:700">As-Built &amp; Handover Readiness</div>
+          <div class="stage-desc">Ensure the model reflects installed reality for commissioning, FM handover, and final compliance validation.</div>
+        </div>
+      </div>
+    </div>
+    <div id="gate-status-T4" class="gate-status gate-locked">🔒 Gate Locked</div>
+  </div>
+  <div class="stats-row">
+    <div class="stat-card"><div class="stat-num" style="color:var(--t4)" id="stat-T4-total">27</div><div class="stat-label">Total Tasks</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:#86efac" id="stat-T4-loaded">0</div><div class="stat-label">Loaded to Revizto</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:#fbbf24" id="stat-T4-gate">0/7</div><div class="stat-label">Gate Items ✓</div></div>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">🔑 Pre-Clash Gate Checklist</span>
+        <span style="font-size:.72rem;color:#64748b" id="pct-T4">0%</span>
+      </div>
+      <div class="progress-bar-wrap"><div class="progress-bar" id="pb-T4" style="width:0%;background:var(--t4)"></div></div>
+      <ul class="checklist" id="cl-T4">
+        <li class="check-item"><input type="checkbox" id="T4-1" onchange="updateGate('T4')"><label for="T4-1"><span class="disc-tag disc-GEN">GEN</span>Random check of each trade's 2D drawings against model — spot heights verified</label></li>
+        <li class="check-item"><input type="checkbox" id="T4-2" onchange="updateGate('T4')"><label for="T4-2"><span class="disc-tag disc-ARCH">ARCH</span>Firewall layout verified against the fire report — no discrepancies</label></li>
+        <li class="check-item"><input type="checkbox" id="T4-3" onchange="updateGate('T4')"><label for="T4-3"><span class="disc-tag disc-ARCH">ARCH</span>Roof walkways — confirmed aligned with plant and services routing</label></li>
+        <li class="check-item"><input type="checkbox" id="T4-4" onchange="updateGate('T4')"><label for="T4-4"><span class="disc-tag disc-GEN">GEN</span>No services run between roof ridgeline and ridgeline steelwork — confirmed</label></li>
+        <li class="check-item"><input type="checkbox" id="T4-5" onchange="updateGate('T4')"><label for="T4-5"><span class="disc-tag disc-STR">STR</span>Fire rating of steel through fire walls — checked against drawings (typically 2D, confirm modelled)</label></li>
+        <li class="check-item"><input type="checkbox" id="T4-6" onchange="updateGate('T4')"><label for="T4-6"><span class="disc-tag disc-MEC">MEC</span>Grilles aligned with louvres — no misalignment</label></li>
+        <li class="check-item"><input type="checkbox" id="T4-7" onchange="updateGate('T4')"><label for="T4-7"><span class="disc-tag disc-MEC">MEC</span>Service penetration placeholders — all used or removed; none incorrectly placed</label></li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-header"><span class="card-title">📤 Revizto Clash Task Output</span></div>
+      <div class="toolbar">
+        <input class="search-input" placeholder="🔍 Search tasks..." oninput="filterTable('T4',this.value)">
+        <select class="filter" onchange="filterByDisc('T4',this.value)">
+          <option value="">All Disciplines</option>
+          <option>ARC</option><option>STR</option><option>HYD</option><option>MEC</option><option>ELE</option><option>FIR</option>
+        </select>
+        <select class="filter" onchange="filterByClearance('T4',this.value)">
+          <option value="">All Clearances</option>
+          <option>HC</option><option>C50</option><option>C100V</option><option>C150V</option><option>C600V</option>
+        </select>
+        <span class="task-count-info" id="count-T4">Showing 27 tasks</span>
+        <button class="btn btn-success" onclick="exportCSV('T4')">⬇ Export CSV</button>
+        <button class="btn btn-ghost" onclick="copySelected('T4')">📋 Copy Selected</button>
+        <button class="btn btn-primary" onclick="openAddModal('T4')" style="background:#0e4429;border:1px solid #166534;color:#34d399">＋ Add Custom Task</button>
+      </div>
+      <div class="sel-all-row">
+        <input type="checkbox" id="selAll-T4" onchange="selectAll('T4',this.checked)">
+        <label for="selAll-T4">Select all visible</label>
+        <button class="btn btn-ghost" style="padding:3px 10px;font-size:.7rem;margin-left:auto" onclick="markLoaded('T4')">Mark selected as Loaded ✓</button>
+      </div>
+      <div class="table-wrap">
+        <table id="tbl-T4">
+          <thead><tr>
+            <th class="chk-col"></th>
+            <th>Task Name</th>
+            <th>Selection A</th>
+            <th>Selection B</th>
+            <th>Clearance</th>
+            <th>H (mm)</th>
+            <th>V (mm)</th>
+            <th>Revizto Priority</th>
+            <th>Loaded</th>
+            <th></th>
+          </tr></thead>
+          <tbody id="tbody-T4"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════ RULES & STANDARDS ════════════════════ -->
+<div class="stage-panel" id="panel-RULES">
+  <div class="stage-header">
+    <div>
+      <div class="stage-title">
+        <span class="stage-badge" style="background:#0e7490">📐</span>
+        <div>
+          <div style="font-size:1.05rem;font-weight:700">Project Rules &amp; Clearance Standards</div>
+          <div class="stage-desc">Reference clearance codes, seismic requirements (NZS4219:2009), and discipline-specific service rules that must be applied to clash tasks.</div>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <div style="background:#052e16;border:1px solid #14532d;border-radius:8px;padding:8px 14px;font-size:.78rem;color:#86efac">📌 NZS4219:2009 · NZS4121 · AS1657</div>
+    </div>
+  </div>
+
+  <!-- Row 1: Clearance codes + Seismic table -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px">
+
+    <!-- Clearance Code Legend -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">🔢 Clearance Code Reference</span>
+        <span style="font-size:.72rem;color:#64748b">Applied to all clash tasks in this project</span>
+      </div>
+      <div class="card-body" style="padding:18px">
+        <table style="width:100%;border-collapse:collapse;font-size:.8rem">
+          <thead>
+            <tr>
+              <th style="text-align:left;padding:8px 12px;background:#232a3b;color:#94a3b8;border-bottom:1px solid #2d3748;font-size:.72rem;text-transform:uppercase">Code</th>
+              <th style="text-align:left;padding:8px 12px;background:#232a3b;color:#94a3b8;border-bottom:1px solid #2d3748;font-size:.72rem;text-transform:uppercase">H Gap (mm)</th>
+              <th style="text-align:left;padding:8px 12px;background:#232a3b;color:#94a3b8;border-bottom:1px solid #2d3748;font-size:.72rem;text-transform:uppercase">V Gap (mm)</th>
+              <th style="text-align:left;padding:8px 12px;background:#232a3b;color:#94a3b8;border-bottom:1px solid #2d3748;font-size:.72rem;text-transform:uppercase">Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td style="padding:9px 12px;border-bottom:1px solid #1e2535"><span class="clr-badge clr-HC">HC</span></td><td style="padding:9px 12px;border-bottom:1px solid #1e2535;color:#cbd5e1">0</td><td style="padding:9px 12px;border-bottom:1px solid #1e2535;color:#cbd5e1">0</td><td style="padding:9px 12px;border-bottom:1px solid #1e2535;color:#94a3b8;font-size:.75rem">Hard Clash — 0mm tolerance. Physical intersection not acceptable.</td></tr>
+            <tr><td style="padding:9px 12px;border-bottom:1px solid #1e2535"><span class="clr-badge clr-C50">C50</span></td><td style="padding:9px 12px;border-bottom:1px solid #1e2535;color:#cbd5e1">50</td><td style="padding:9px 12px;border-bottom:1px solid #1e2535;color:#cbd5e1">50</td><td style="padding:9px 12px;border-bottom:1px solid #1e2535;color:#94a3b8;font-size:.75rem">50mm clearance all directions. Standard services separation.</td></tr>
+            <tr><td style="padding:9px 12px;border-bottom:1px solid #1e2535"><span class="clr-badge clr-C100V">C100V</span></td><td style="padding:9px 12px;border-bottom:1px solid #1e2535;color:#cbd5e1">50</td><td style="padding:9px 12px;border-bottom:1px solid #1e2535;color:#cbd5e1">100</td><td style="padding:9px 12px;border-bottom:1px solid #1e2535;color:#94a3b8;font-size:.75rem">100mm vertical, 50mm horizontal. Used at ceiling face vs services.</td></tr>
+            <tr><td style="padding:9px 12px;border-bottom:1px solid #1e2535"><span class="clr-badge clr-C150V">C150V</span></td><td style="padding:9px 12px;border-bottom:1px solid #1e2535;color:#cbd5e1">50</td><td style="padding:9px 12px;border-bottom:1px solid #1e2535;color:#cbd5e1">150</td><td style="padding:9px 12px;border-bottom:1px solid #1e2535;color:#94a3b8;font-size:.75rem">150mm vertical, 50mm horizontal. Project-specific vertical constraint.</td></tr>
+            <tr><td style="padding:9px 12px;border-bottom:1px solid #1e2535"><span class="clr-badge clr-C600V">C600V</span></td><td style="padding:9px 12px;border-bottom:1px solid #1e2535;color:#cbd5e1">50</td><td style="padding:9px 12px;border-bottom:1px solid #1e2535;color:#cbd5e1">600</td><td style="padding:9px 12px;border-bottom:1px solid #1e2535;color:#94a3b8;font-size:.75rem">600mm vertical — Access panel maintenance clearance zone.</td></tr>
+            <tr><td style="padding:9px 12px"><span class="clr-badge clr-C1500" style="background:#312e81;color:#e0e7ff;border:1px solid #4338ca">C1500</span></td><td style="padding:9px 12px;color:#cbd5e1">50</td><td style="padding:9px 12px;color:#cbd5e1">1500</td><td style="padding:9px 12px;color:#94a3b8;font-size:.75rem">1500mm vertical — Air terminal vs heat/smoke detector separation.</td></tr>
+          </tbody>
+        </table>
+        <div style="margin-top:14px;padding:12px;background:#0f172a;border-radius:6px;font-size:.75rem;color:#64748b;line-height:1.6">
+          <strong style="color:#94a3b8">Revizto Priority Logic:</strong><br>
+          Pipework &gt;50mm diameter → <span style="color:#fde68a">Major</span> &nbsp;|&nbsp; Pipework ≤50mm → <span style="color:#86efac">Minor</span><br>
+          Hard clashes (HC) on structural or fire elements → <span style="color:#fca5a5">Critical</span><br>
+          T5 tasks (outside template) → manual entry required in Revizto Clash Automation
+        </div>
+      </div>
+    </div>
+
+    <!-- Seismic Clearance Table NZS4219 -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">⚡ Seismic Clearance Requirements — NZS4219:2009 Table 15</span>
+      </div>
+      <div class="card-body" style="padding:18px">
+        <table style="width:100%;border-collapse:collapse;font-size:.8rem;margin-bottom:14px">
+          <thead>
+            <tr>
+              <th style="text-align:left;padding:8px 12px;background:#232a3b;color:#94a3b8;border-bottom:1px solid #2d3748;font-size:.72rem;text-transform:uppercase">Condition</th>
+              <th style="text-align:center;padding:8px 12px;background:#232a3b;color:#94a3b8;border-bottom:1px solid #2d3748;font-size:.72rem;text-transform:uppercase">Min H (mm)</th>
+              <th style="text-align:center;padding:8px 12px;background:#232a3b;color:#94a3b8;border-bottom:1px solid #2d3748;font-size:.72rem;text-transform:uppercase">Min V (mm)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td style="padding:9px 12px;border-bottom:1px solid #1e2535;color:#cbd5e1;font-size:.75rem">Unrestrained vs Unrestrained components</td><td style="padding:9px 12px;border-bottom:1px solid #1e2535;color:#f97316;text-align:center;font-weight:700">250</td><td style="padding:9px 12px;border-bottom:1px solid #1e2535;color:#f97316;text-align:center;font-weight:700">50</td></tr>
+            <tr><td style="padding:9px 12px;border-bottom:1px solid #1e2535;color:#cbd5e1;font-size:.75rem">Unrestrained vs Restrained components</td><td style="padding:9px 12px;border-bottom:1px solid #1e2535;color:#fbbf24;text-align:center;font-weight:700">150</td><td style="padding:9px 12px;border-bottom:1px solid #1e2535;color:#fbbf24;text-align:center;font-weight:700">50</td></tr>
+            <tr><td style="padding:9px 12px;border-bottom:1px solid #1e2535;color:#cbd5e1;font-size:.75rem">Restrained vs Restrained components</td><td style="padding:9px 12px;border-bottom:1px solid #1e2535;color:#86efac;text-align:center;font-weight:700">50</td><td style="padding:9px 12px;border-bottom:1px solid #1e2535;color:#86efac;text-align:center;font-weight:700">50</td></tr>
+            <tr><td style="padding:9px 12px;color:#cbd5e1;font-size:.75rem">Penetration through structure (walls / floors)</td><td style="padding:9px 12px;color:#86efac;text-align:center;font-weight:700">50</td><td style="padding:9px 12px;color:#86efac;text-align:center;font-weight:700">50</td></tr>
+          </tbody>
+        </table>
+        <div style="background:#0f172a;border-radius:6px;padding:12px;font-size:.74rem;color:#64748b;line-height:1.7">
+          <div style="color:#94a3b8;font-weight:700;margin-bottom:6px">Key Seismic Rules (NZS4219)</div>
+          <div>• Rigid ductwork with hanger &gt;200mm from structure → must be restrained</div>
+          <div>• Pipework &gt;50mm Ø + located &gt;150mm from support → lateral bracing required</div>
+          <div>• Equipment in ceiling &gt;10kg → independently fixed, 25mm clear of ceiling all round</div>
+          <div style="margin-top:6px;padding-top:6px;border-top:1px solid #1e2535;color:#94a3b8;font-weight:600">Penetration Clearances at Structure / Partition Walls:</div>
+          <div>• Ductwork: 12mm &nbsp;|&nbsp; Pipework: 15mm &nbsp;|&nbsp; Cable Tray: 25mm</div>
+          <div style="color:#fbbf24;margin-top:4px">⚠ Ceiling hangers and braces are considered restrained for this table.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Row 2: Discipline-pair gap matrix (visual) -->
+  <div class="card" style="margin-bottom:20px">
+    <div class="card-header">
+      <span class="card-title">📊 Discipline-Pair Minimum Gap Matrix</span>
+      <span style="font-size:.72rem;color:#64748b">Dominant clearance requirement per discipline pair — use to set Revizto tolerances</span>
+    </div>
+    <div class="card-body" style="padding:18px;overflow-x:auto">
+      <table style="border-collapse:collapse;font-size:.73rem;min-width:700px">
+        <thead>
+          <tr>
+            <th style="padding:8px 12px;background:#0f1117;text-align:left;color:#475569;font-size:.7rem;border:1px solid #2d3748">A \ B</th>
+            <th style="padding:8px 16px;background:#1d4ed8;color:#bfdbfe;border:1px solid #2d3748;text-align:center">ARC</th>
+            <th style="padding:8px 16px;background:#b45309;color:#fde68a;border:1px solid #2d3748;text-align:center">STR</th>
+            <th style="padding:8px 16px;background:#0e7490;color:#a5f3fc;border:1px solid #2d3748;text-align:center">HYD</th>
+            <th style="padding:8px 16px;background:#7c3aed;color:#e9d5ff;border:1px solid #2d3748;text-align:center">MEC</th>
+            <th style="padding:8px 16px;background:#d97706;color:#fef3c7;border:1px solid #2d3748;text-align:center">ELE</th>
+            <th style="padding:8px 16px;background:#b91c1c;color:#fee2e2;border:1px solid #2d3748;text-align:center">FIR</th>
+          </tr>
+        </thead>
+        <tbody id="gapMatrixBody"></tbody>
+      </table>
+      <div style="margin-top:12px;display:flex;gap:16px;flex-wrap:wrap;font-size:.72rem">
+        <span style="color:#9ca3af">⬛ HC = Hard Clash (0mm)</span>
+        <span style="color:#4ade80">🟩 C50 = 50mm all dir</span>
+        <span style="color:#a5b4fc">🟦 C100V = 100mm vertical</span>
+        <span style="color:#fca5a5">🟥 C600V = 600mm vertical (access panel)</span>
+        <span style="color:#475569">— = Not applicable</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Row 3: Key service rules -->
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px">
+    <div class="card">
+      <div class="card-header"><span class="card-title">🔵 ELE Service Rules</span></div>
+      <div class="card-body" style="padding:16px">
+        <ul style="list-style:none;font-size:.78rem;line-height:2">
+          <li style="border-bottom:1px solid #1e2535;padding-bottom:6px;margin-bottom:6px"><span style="color:#d97706;font-weight:700">150mm</span> min clearance between cable trays (125mm where constrained)</li>
+          <li style="border-bottom:1px solid #1e2535;padding-bottom:6px;margin-bottom:6px"><span style="color:#d97706;font-weight:700">150–300mm</span> separation between ELV and LV cable trays</li>
+          <li style="border-bottom:1px solid #1e2535;padding-bottom:6px;margin-bottom:6px"><span style="color:#d97706;font-weight:700">150mm</span> clearance above FCL for ceiling-mounted devices (PCA A-Grade)</li>
+          <li><span style="color:#d97706;font-weight:700">25mm</span> penetration clearance at cable tray through structure</li>
+        </ul>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><span class="card-title">🟣 MEC Service Rules</span></div>
+      <div class="card-body" style="padding:16px">
+        <ul style="list-style:none;font-size:.78rem;line-height:2">
+          <li style="border-bottom:1px solid #1e2535;padding-bottom:6px;margin-bottom:6px"><span style="color:#a855f7;font-weight:700">≤3m</span> flexible duct length (target 2.5m)</li>
+          <li style="border-bottom:1px solid #1e2535;padding-bottom:6px;margin-bottom:6px"><span style="color:#a855f7;font-weight:700">150mm</span> min clearance between services and ceiling face</li>
+          <li style="border-bottom:1px solid #1e2535;padding-bottom:6px;margin-bottom:6px"><span style="color:#a855f7;font-weight:700">&gt;200mm</span> spacing between fire dampers</li>
+          <li style="border-bottom:1px solid #1e2535;padding-bottom:6px;margin-bottom:6px"><span style="color:#a855f7;font-weight:700">12mm</span> penetration clearance at ductwork through structure</li>
+          <li>Attenuators wider than parent duct — check spatial fit</li>
+        </ul>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><span class="card-title">🔴 HYD &amp; FIR Service Rules</span></div>
+      <div class="card-body" style="padding:16px">
+        <ul style="list-style:none;font-size:.78rem;line-height:2">
+          <li style="border-bottom:1px solid #1e2535;padding-bottom:6px;margin-bottom:6px"><span style="color:#0e7490;font-weight:700">50mm</span> general clearance, all services to structure</li>
+          <li style="border-bottom:1px solid #1e2535;padding-bottom:6px;margin-bottom:6px"><span style="color:#0e7490;font-weight:700">15mm</span> penetration clearance at pipework through structure</li>
+          <li style="border-bottom:1px solid #1e2535;padding-bottom:6px;margin-bottom:6px"><span style="color:#0e7490;font-weight:700">&gt;50mm</span> Ø pipe → Major priority in Revizto &nbsp;|&nbsp; ≤50mm → Minor</li>
+          <li style="border-bottom:1px solid #1e2535;padding-bottom:6px;margin-bottom:6px">Equal junctions → connect to main drain at ≥15° angle</li>
+          <li><span style="color:#ef4444;font-weight:700">1200mm</span> from fresh air grille → fire detector minimum offset (acoustic rule)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Project-specific rules note -->
+  <div class="card" style="margin-top:20px">
+    <div class="card-header">
+      <span class="card-title">📝 Project-Specific Rules &amp; Notes</span>
+      <span style="font-size:.72rem;color:#64748b">Add project-specific overrides, consultant notes, or BEP requirements here</span>
+    </div>
+    <div class="card-body" style="padding:18px">
+      <textarea id="projectRules" rows="6" placeholder="e.g. — Structural engineer requires 75mm min clearance around post-tensioned slabs&#10;— Fire engineer: all sprinkler branch lines min 300mm from structural beams&#10;— Acoustic consultant: hospital corridors require independent pipe isolation within 500mm of room penetration&#10;— BEP requirement: all conduit runs above ceiling to use STR_Conduit workset only" style="width:100%;background:#0f1117;border:1px solid #2d3748;color:#cbd5e1;padding:12px;border-radius:6px;font-size:.8rem;font-family:'Segoe UI',Arial,sans-serif;resize:vertical;line-height:1.6"></textarea>
+      <div style="margin-top:10px;display:flex;gap:8px">
+        <button class="btn btn-primary" onclick="saveProjectRules()" style="font-size:.75rem">💾 Save Rules</button>
+        <span id="rulesSaved" style="font-size:.75rem;color:#86efac;display:none;align-items:center">✅ Saved</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ════════════════════ RUN LOG ════════════════════ -->
+<div class="stage-panel" id="panel-LOG">
+  <div class="stage-header">
+    <div>
+      <div class="stage-title">
+        <span class="stage-badge" style="background:#475569">📋</span>
+        <div>
+          <div style="font-size:1.05rem;font-weight:700">Coordination Run Log</div>
+          <div class="stage-desc">Record each clash detection run — date, stage, tasks loaded, clash count, BIM lead, and notes. Builds an audit trail for the project.</div>
+        </div>
+      </div>
+    </div>
+    <button class="btn btn-primary" onclick="addLogEntry()">+ Add Run Entry</button>
+  </div>
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Run History</span>
+      <button class="btn btn-ghost" onclick="exportLog()">⬇ Export Log CSV</button>
+    </div>
+    <div class="log-table-wrap" id="logWrap">
+      <div class="log-header">
+        <span>Date</span><span>Stage</span><span>Tasks Loaded</span><span>Clashes Found / Notes / BIM Lead</span>
+      </div>
+      <div id="logEntries"></div>
+    </div>
+  </div>
+</div>
+
+</main>
+<!-- ════ EDIT / ADD TASK MODAL ════ -->
+<div class="modal-overlay" id="taskModal" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <h3 id="modalTitle">Edit Clash Task</h3>
+    <div class="modal-sub" id="modalSub">Adjust clearance factors or priority for this task. Changes are project-specific and saved locally.</div>
+    <input type="hidden" id="modalMode"> <!-- 'edit' or 'add' -->
+    <input type="hidden" id="modalTaskKey">
+    <input type="hidden" id="modalStage">
+    <div class="form-row full">
+      <div class="form-group">
+        <label>Task Name</label>
+        <input id="modalTaskName" placeholder="e.g. NL-C50-MEC_Duct vs STR_Beam" style="font-family:monospace">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Selection Set A</label>
+        <input id="modalSelA" placeholder="e.g. MEC_Uninsulated Duct and Acc">
+      </div>
+      <div class="form-group">
+        <label>Selection Set B</label>
+        <input id="modalSelB" placeholder="e.g. STR_Steelwork (Bracing and Columns)">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Clearance Code</label>
+        <select id="modalClrCode" onchange="autofillClearance()">
+          <option value="HC">HC — Hard Clash (0mm)</option>
+          <option value="C50">C50 — 50mm all directions</option>
+          <option value="C100V">C100V — 100mm vertical / 50mm horizontal</option>
+          <option value="C150V">C150V — 150mm vertical / 50mm horizontal</option>
+          <option value="C600V">C600V — 600mm vertical / 50mm horizontal</option>
+          <option value="CUSTOM">CUSTOM — enter manually below</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Revizto Priority</label>
+        <select id="modalPriority">
+          <option value="Critical">Critical</option>
+          <option value="Major">Major</option>
+          <option value="Minor">Minor</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Horizontal Clearance (mm)</label>
+        <input id="modalClrH" type="number" min="0" placeholder="e.g. 50">
+      </div>
+      <div class="form-group">
+        <label>Vertical Clearance (mm)</label>
+        <input id="modalClrV" type="number" min="0" placeholder="e.g. 100">
+      </div>
+    </div>
+    <div class="form-row full">
+      <div class="form-group">
+        <label>Reason / Note (optional)</label>
+        <input id="modalNote" placeholder="e.g. Structural engineer requires 75mm per site RFI-042">
+      </div>
+    </div>
+    <span class="reset-link" id="resetLink" onclick="resetOverride()" style="display:none">↩ Reset to original G05 values</span>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-danger" id="deleteBtn" onclick="deleteItem()" style="display:none">🗑 Delete</button>
+      <button class="btn btn-primary" onclick="saveModal()">💾 Save Task</button>
+    </div>
+  </div>
+</div>
+
+<footer>BIM Clash Coordination Platform · BIM Clash Coordination Toolkit · Upload your project matrix to begin &nbsp;|&nbsp; Demo data loaded — upload your project matrix to replace</footer>
+
+<script>
+const TASKS = [["T2","HC",0,0,"ARC_Ceiling","ARC_Doors*","NL-HC-ARC_Ceiling vs ARC_Doors*"],["T2","HC",0,0,"ARC_Ceiling","ARC_Fire & Acoustic Wall","NL-HC-ARC_Ceiling vs ARC_Fire & Acoustic Wall"],["T2","C100V",50,100,"ARC_Ceiling","HYD_Uninsulated Pipes and Acc","NL-C100V-ARC_Ceiling vs HYD_Uninsulated Pipes and Acc"],["T2","C100V",50,100,"ARC_Ceiling","HYD_Pipe Insulation","NL-C100V-ARC_Ceiling vs HYD_Pipe Insulation"],["T2","C100V",50,100,"ARC_Ceiling","HYD_Uninsulated Hot and Cold Pipes and Acc","NL-C100V-ARC_Ceiling vs HYD_Uninsulated Hot and Cold Pipes and Acc"],["T2","C100V",50,100,"ARC_Ceiling","HYD_Hot and Cold Insulation","NL-C100V-ARC_Ceiling vs HYD_Hot and Cold Insulation"],["T2","C100V",50,100,"ARC_Ceiling","HYD_Plumbing Fixture","NL-C100V-ARC_Ceiling vs HYD_Plumbing Fixture"],["T2","C100V",50,100,"ARC_Ceiling","MEC_Uninsulated Duct and Acc","NL-C100V-ARC_Ceiling vs MEC_Uninsulated Duct and Acc"],["T2","C100V",50,100,"ARC_Ceiling","MEC_Duct Insulation","NL-C100V-ARC_Ceiling vs MEC_Duct Insulation"],["T2","C100V",50,100,"ARC_Ceiling","MEC_Pipe Insulation","NL-C100V-ARC_Ceiling vs MEC_Pipe Insulation"],["T2","C100V",50,100,"ARC_Ceiling","MEC_Uninsulated Pipes and Acc","NL-C100V-ARC_Ceiling vs MEC_Uninsulated Pipes and Acc"],["T2","C100V",50,100,"ARC_Ceiling","MEC_Uninulated Flexi duct","NL-C100V-ARC_Ceiling vs MEC_Uninulated Flexi duct"],["T2","C100V",50,100,"ARC_Ceiling","MEC_Equipment","NL-C100V-ARC_Ceiling vs MEC_Equipment"],["T2","C100V",50,100,"ARC_Ceiling","ELE_Cable Tray and Fittings","NL-C100V-ARC_Ceiling vs ELE_Cable Tray and Fittings"],["T2","C100V",50,100,"ARC_Ceiling","ELE_Conduit*","NL-C100V-ARC_Ceiling vs ELE_Conduit*"],["T2","C100V",50,100,"ARC_Ceiling","ELE_Electrical Equip.","NL-C100V-ARC_Ceiling vs ELE_Electrical Equip."],["T2","C100V",50,100,"ARC_Ceiling","ELE_Small Devices","NL-C100V-ARC_Ceiling vs ELE_Small Devices"],["T2","C100V",50,100,"ARC_Ceiling","FIR_Fire Pipes","NL-C100V-ARC_Ceiling vs FIR_Fire Pipes"],["T3","HC",0,0,"ARC_Doors*","ARC_Services Walkway","NL-HC-ARC_Doors* vs ARC_Services Walkway"],["T2","HC",0,0,"ARC_Doors*","STR_Conc work Excl Floor Slab","NL-HC-ARC_Doors* vs STR_Conc work Excl Floor Slab"],["T2","HC",0,0,"ARC_Doors*","STR_Steelwork (Bracing and Columns)","NL-HC-ARC_Doors* vs STR_Steelwork (Bracing and Columns)"],["T2","HC",0,0,"ARC_Doors*","STR Floor","NL-HC-ARC_Doors* vs STR Floor"],["T2","C50",50,50,"ARC_Doors*","MEC_Air Terminals","NL-C50-ARC_Doors* vs MEC_Air Terminals"],["T2","C50",50,50,"ARC_Doors*","MEC_Equipment","NL-C50-ARC_Doors* vs MEC_Equipment"],["T3","HC",0,0,"ARC_Doors*","ELE_Electrical Equip.","NL-HC-ARC_Doors* vs ELE_Electrical Equip."],["T4","HC",0,0,"ARC_Gen Model & Casework*","ARC_Fire & Acoustic Wall","NL-HC-ARC_Gen Model & Casework* vs ARC_Fire & Acoustic Wall"],["T4","HC",0,0,"ARC_Gen Model & Casework*","ARC_Windows","NL-HC-ARC_Gen Model & Casework* vs ARC_Windows"],["T4","HC",0,0,"ARC_Gen Model & Casework*","ARC_Services Walkway","NL-HC-ARC_Gen Model & Casework* vs ARC_Services Walkway"],["T4","HC",0,0,"ARC_Gen Model & Casework*","SRV_Access Panel","NL-HC-ARC_Gen Model & Casework* vs SRV_Access Panel"],["T4","HC",0,0,"ARC_Gen Model & Casework*","ARC_Plumbing Fixtures","NL-HC-ARC_Gen Model & Casework* vs ARC_Plumbing Fixtures"],["T4","HC",0,0,"ARC_Gen Model & Casework*","STR_Seismic Elements","NL-HC-ARC_Gen Model & Casework* vs STR_Seismic Elements"],["T4","HC",0,0,"ARC_Gen Model & Casework*","STR_Conc work Excl Floor Slab","NL-HC-ARC_Gen Model & Casework* vs STR_Conc work Excl Floor Slab"],["T4","HC",0,0,"ARC_Gen Model & Casework*","STR_Steelwork (Bracing and Columns)","NL-HC-ARC_Gen Model & Casework* vs STR_Steelwork (Bracing and Columns)"],["T4","HC",0,0,"ARC_Gen Model & Casework*","STR Floor","NL-HC-ARC_Gen Model & Casework* vs STR Floor"],["T4","HC",0,0,"ARC_Gen Model & Casework*","HYD_Uninsulated Pipes and Acc","NL-HC-ARC_Gen Model & Casework* vs HYD_Uninsulated Pipes and Acc"],["T4","HC",0,0,"ARC_Gen Model & Casework*","HYD_Pipe Insulation","NL-HC-ARC_Gen Model & Casework* vs HYD_Pipe Insulation"],["T4","HC",0,0,"ARC_Gen Model & Casework*","HYD_Uninsulated Hot and Cold Pipes and Acc","NL-HC-ARC_Gen Model & Casework* vs HYD_Uninsulated Hot and Cold Pipes and Acc"],["T4","HC",0,0,"ARC_Gen Model & Casework*","HYD_Hot and Cold Insulation","NL-HC-ARC_Gen Model & Casework* vs HYD_Hot and Cold Insulation"],["T4","HC",0,0,"ARC_Gen Model & Casework*","HYD_Plumbing Fixture","NL-HC-ARC_Gen Model & Casework* vs HYD_Plumbing Fixture"],["T4","HC",0,0,"ARC_Gen Model & Casework*","MEC_Air Terminals","NL-HC-ARC_Gen Model & Casework* vs MEC_Air Terminals"],["T4","HC",0,0,"ARC_Gen Model & Casework*","MEC_Uninsulated Duct and Acc","NL-HC-ARC_Gen Model & Casework* vs MEC_Uninsulated Duct and Acc"],["T4","HC",0,0,"ARC_Gen Model & Casework*","MEC_Duct Insulation","NL-HC-ARC_Gen Model & Casework* vs MEC_Duct Insulation"],["T4","HC",0,0,"ARC_Gen Model & Casework*","MEC_Pipe Insulation","NL-HC-ARC_Gen Model & Casework* vs MEC_Pipe Insulation"],["T4","HC",0,0,"ARC_Gen Model & Casework*","MEC_Uninsulated Pipes and Acc","NL-HC-ARC_Gen Model & Casework* vs MEC_Uninsulated Pipes and Acc"],["T4","HC",0,0,"ARC_Gen Model & Casework*","MEC_Uninulated Flexi duct","NL-HC-ARC_Gen Model & Casework* vs MEC_Uninulated Flexi duct"],["T4","HC",0,0,"ARC_Gen Model & Casework*","MEC_Equipment","NL-HC-ARC_Gen Model & Casework* vs MEC_Equipment"],["T4","HC",0,0,"ARC_Gen Model & Casework*","ELE_Cable Tray and Fittings","NL-HC-ARC_Gen Model & Casework* vs ELE_Cable Tray and Fittings"],["T4","HC",0,0,"ARC_Gen Model & Casework*","ELE_Conduit*","NL-HC-ARC_Gen Model & Casework* vs ELE_Conduit*"],["T4","HC",0,0,"ARC_Gen Model & Casework*","ELE_Electrical Equip.","NL-HC-ARC_Gen Model & Casework* vs ELE_Electrical Equip."],["T4","HC",0,0,"ARC_Gen Model & Casework*","ELE_Small Devices","NL-HC-ARC_Gen Model & Casework* vs ELE_Small Devices"],["T4","HC",0,0,"ARC_Gen Model & Casework*","ELE_Services Lighting Fixtures","NL-HC-ARC_Gen Model & Casework* vs ELE_Services Lighting Fixtures"],["T4","HC",0,0,"ARC_Gen Model & Casework*","FIR_Fire Pipes","NL-HC-ARC_Gen Model & Casework* vs FIR_Fire Pipes"],["T2","C50",50,50,"ARC_Fire & Acoustic Wall","SRV_Access Panel","NL-C50-ARC_Fire & Acoustic Wall vs SRV_Access Panel"],["T2","HC",0,0,"ARC_Fire & Acoustic Wall","STR_Seismic Elements","NL-HC-ARC_Fire & Acoustic Wall vs STR_Seismic Elements"],["T2","HC",0,0,"ARC_Fire & Acoustic Wall","STR_Conc work Excl Floor Slab","NL-HC-ARC_Fire & Acoustic Wall vs STR_Conc work Excl Floor Slab"],["T2","HC",0,0,"ARC_Fire & Acoustic Wall","STR_Steelwork (Bracing and Columns)","NL-HC-ARC_Fire & Acoustic Wall vs STR_Steelwork (Bracing and Columns)"],["T2","HC",0,0,"ARC_Fire & Acoustic Wall","STR Floor","NL-HC-ARC_Fire & Acoustic Wall vs STR Floor"],["T2","C50",50,50,"ARC_Fire & Acoustic Wall","HYD_Uninsulated Pipes and Acc","NL-C50-ARC_Fire & Acoustic Wall vs HYD_Uninsulated Pipes and Acc"],["T2","C50",50,50,"ARC_Fire & Acoustic Wall","HYD_Pipe Insulation","NL-C50-ARC_Fire & Acoustic Wall vs HYD_Pipe Insulation"],["T2","C50",50,50,"ARC_Fire & Acoustic Wall","HYD_Uninsulated Hot and Cold Pipes and Acc","NL-C50-ARC_Fire & Acoustic Wall vs HYD_Uninsulated Hot and Cold Pipes and Acc"],["T2","C50",50,50,"ARC_Fire & Acoustic Wall","HYD_Hot and Cold Insulation","NL-C50-ARC_Fire & Acoustic Wall vs HYD_Hot and Cold Insulation"],["T2","C50",50,50,"ARC_Fire & Acoustic Wall","HYD_Plumbing Fixture","NL-C50-ARC_Fire & Acoustic Wall vs HYD_Plumbing Fixture"],["T2","C50",50,50,"ARC_Fire & Acoustic Wall","MEC_Uninsulated Duct and Acc","NL-C50-ARC_Fire & Acoustic Wall vs MEC_Uninsulated Duct and Acc"],["T2","C50",50,50,"ARC_Fire & Acoustic Wall","MEC_Duct Insulation","NL-C50-ARC_Fire & Acoustic Wall vs MEC_Duct Insulation"],["T2","C50",50,50,"ARC_Fire & Acoustic Wall","MEC_Pipe Insulation","NL-C50-ARC_Fire & Acoustic Wall vs MEC_Pipe Insulation"],["T2","C50",50,50,"ARC_Fire & Acoustic Wall","MEC_Uninsulated Pipes and Acc","NL-C50-ARC_Fire & Acoustic Wall vs MEC_Uninsulated Pipes and Acc"],["T2","C50",50,50,"ARC_Fire & Acoustic Wall","MEC_Uninulated Flexi duct","NL-C50-ARC_Fire & Acoustic Wall vs MEC_Uninulated Flexi duct"],["T2","C50",50,50,"ARC_Fire & Acoustic Wall","MEC_Equipment","NL-C50-ARC_Fire & Acoustic Wall vs MEC_Equipment"],["T2","C50",50,50,"ARC_Fire & Acoustic Wall","ELE_Cable Tray and Fittings","NL-C50-ARC_Fire & Acoustic Wall vs ELE_Cable Tray and Fittings"],["T2","C50",50,50,"ARC_Fire & Acoustic Wall","ELE_Conduit*","NL-C50-ARC_Fire & Acoustic Wall vs ELE_Conduit*"],["T2","C50",50,50,"ARC_Fire & Acoustic Wall","ELE_Electrical Equip.","NL-C50-ARC_Fire & Acoustic Wall vs ELE_Electrical Equip."],["T2","C50",50,50,"ARC_Fire & Acoustic Wall","ELE_Services Lighting Fixtures","NL-C50-ARC_Fire & Acoustic Wall vs ELE_Services Lighting Fixtures"],["T2","C50",50,50,"ARC_Fire & Acoustic Wall","FIR_Fire Pipes","NL-C50-ARC_Fire & Acoustic Wall vs FIR_Fire Pipes"],["T2","HC",0,0,"ARC_Windows","STR_Conc work Excl Floor Slab","NL-HC-ARC_Windows vs STR_Conc work Excl Floor Slab"],["T2","HC",0,0,"ARC_Windows","STR_Steelwork (Bracing and Columns)","NL-HC-ARC_Windows vs STR_Steelwork (Bracing and Columns)"],["T2","HC",0,0,"ARC_Windows","STR Floor","NL-HC-ARC_Windows vs STR Floor"],["T3","HC",0,0,"ARC_Services Walkway","SRV_Access Panel","NL-HC-ARC_Services Walkway vs SRV_Access Panel"],["T3","HC",0,0,"ARC_Services Walkway","ARC_Plumbing Fixtures","NL-HC-ARC_Services Walkway vs ARC_Plumbing Fixtures"],["T3","HC",0,0,"ARC_Services Walkway","ARC_SOG Floor Insulation","NL-HC-ARC_Services Walkway vs ARC_SOG Floor Insulation"],["T3","HC",0,0,"ARC_Services Walkway","STR_Seismic Elements","NL-HC-ARC_Services Walkway vs STR_Seismic Elements"],["T3","HC",0,0,"ARC_Services Walkway","STR_Conc work Excl Floor Slab","NL-HC-ARC_Services Walkway vs STR_Conc work Excl Floor Slab"],["T3","HC",0,0,"ARC_Services Walkway","STR_Steelwork (Bracing and Columns)","NL-HC-ARC_Services Walkway vs STR_Steelwork (Bracing and Columns)"],["T3","HC",0,0,"ARC_Services Walkway","STR Floor","NL-HC-ARC_Services Walkway vs STR Floor"],["T3","HC",0,0,"ARC_Services Walkway","HYD_Uninsulated Pipes and Acc","NL-HC-ARC_Services Walkway vs HYD_Uninsulated Pipes and Acc"],["T3","HC",0,0,"ARC_Services Walkway","HYD_Pipe Insulation","NL-HC-ARC_Services Walkway vs HYD_Pipe Insulation"],["T3","HC",0,0,"ARC_Services Walkway","HYD_Uninsulated Hot and Cold Pipes and Acc","NL-HC-ARC_Services Walkway vs HYD_Uninsulated Hot and Cold Pipes and Acc"],["T3","HC",0,0,"ARC_Services Walkway","HYD_Hot and Cold Insulation","NL-HC-ARC_Services Walkway vs HYD_Hot and Cold Insulation"],["T3","HC",0,0,"ARC_Services Walkway","HYD_Plumbing Fixture","NL-HC-ARC_Services Walkway vs HYD_Plumbing Fixture"],["T3","HC",0,0,"ARC_Services Walkway","MEC_Air Terminals","NL-HC-ARC_Services Walkway vs MEC_Air Terminals"],["T3","HC",0,0,"ARC_Services Walkway","MEC_Uninsulated Duct and Acc","NL-HC-ARC_Services Walkway vs MEC_Uninsulated Duct and Acc"],["T3","HC",0,0,"ARC_Services Walkway","MEC_Duct Insulation","NL-HC-ARC_Services Walkway vs MEC_Duct Insulation"],["T3","HC",0,0,"ARC_Services Walkway","MEC_Pipe Insulation","NL-HC-ARC_Services Walkway vs MEC_Pipe Insulation"],["T3","HC",0,0,"ARC_Services Walkway","MEC_Uninsulated Pipes and Acc","NL-HC-ARC_Services Walkway vs MEC_Uninsulated Pipes and Acc"],["T3","HC",0,0,"ARC_Services Walkway","MEC_Uninulated Flexi duct","NL-HC-ARC_Services Walkway vs MEC_Uninulated Flexi duct"],["T3","HC",0,0,"ARC_Services Walkway","MEC_Equipment","NL-HC-ARC_Services Walkway vs MEC_Equipment"],["T3","HC",0,0,"ARC_Services Walkway","ELE_Cable Tray and Fittings","NL-HC-ARC_Services Walkway vs ELE_Cable Tray and Fittings"],["T3","HC",0,0,"ARC_Services Walkway","ELE_Conduit*","NL-HC-ARC_Services Walkway vs ELE_Conduit*"],["T3","HC",0,0,"ARC_Services Walkway","ELE_Electrical Equip.","NL-HC-ARC_Services Walkway vs ELE_Electrical Equip."],["T3","HC",0,0,"ARC_Services Walkway","ELE_Small Devices","NL-HC-ARC_Services Walkway vs ELE_Small Devices"],["T3","HC",0,0,"ARC_Services Walkway","ELE_Services Lighting Fixtures","NL-HC-ARC_Services Walkway vs ELE_Services Lighting Fixtures"],["T3","HC",0,0,"ARC_Services Walkway","FIR_Fire Pipes","NL-HC-ARC_Services Walkway vs FIR_Fire Pipes"],["T3","HC",0,0,"ARC_Services Walkway","FIR_Sprinklers Heads","NL-HC-ARC_Services Walkway vs FIR_Sprinklers Heads"],["T3","HC",0,0,"ARC_Services Walkway","FIR_Heat or Smoke Detectors","NL-HC-ARC_Services Walkway vs FIR_Heat or Smoke Detectors"],["T3","C600V",50,600,"SRV_Access Panel","ARC_Plumbing Fixtures","NL-C600V-SRV_Access Panel vs ARC_Plumbing Fixtures"],["T3","C600V",50,600,"SRV_Access Panel","STR_Seismic Elements","NL-C600V-SRV_Access Panel vs STR_Seismic Elements"],["T3","C600V",50,600,"SRV_Access Panel","STR_Steelwork (Bracing and Columns)","NL-C600V-SRV_Access Panel vs STR_Steelwork (Bracing and Columns)"],["T3","C600V",50,600,"SRV_Access Panel","HYD_Uninsulated Pipes and Acc","NL-C600V-SRV_Access Panel vs HYD_Uninsulated Pipes and Acc"],["T3","C600V",50,600,"SRV_Access Panel","HYD_Pipe Insulation","NL-C600V-SRV_Access Panel vs HYD_Pipe Insulation"],["T3","C600V",50,600,"SRV_Access Panel","HYD_Uninsulated Hot and Cold Pipes and Acc","NL-C600V-SRV_Access Panel vs HYD_Uninsulated Hot and Cold Pipes and Acc"],["T3","C600V",50,600,"SRV_Access Panel","HYD_Hot and Cold Insulation","NL-C600V-SRV_Access Panel vs HYD_Hot and Cold Insulation"],["T3","C600V",50,600,"SRV_Access Panel","MEC_Air Terminals","NL-C600V-SRV_Access Panel vs MEC_Air Terminals"],["T3","C600V",50,600,"SRV_Access Panel","MEC_Uninsulated Duct and Acc","NL-C600V-SRV_Access Panel vs MEC_Uninsulated Duct and Acc"],["T3","C600V",50,600,"SRV_Access Panel","MEC_Duct Insulation","NL-C600V-SRV_Access Panel vs MEC_Duct Insulation"],["T3","C600V",50,600,"SRV_Access Panel","MEC_Pipe Insulation","NL-C600V-SRV_Access Panel vs MEC_Pipe Insulation"],["T3","C600V",50,600,"SRV_Access Panel","MEC_Uninsulated Pipes and Acc","NL-C600V-SRV_Access Panel vs MEC_Uninsulated Pipes and Acc"],["T3","C600V",50,600,"SRV_Access Panel","MEC_Uninulated Flexi duct","NL-C600V-SRV_Access Panel vs MEC_Uninulated Flexi duct"],["T3","C600V",50,600,"SRV_Access Panel","MEC_Equipment","NL-C600V-SRV_Access Panel vs MEC_Equipment"],["T3","C600V",50,600,"SRV_Access Panel","ELE_Cable Tray and Fittings","NL-C600V-SRV_Access Panel vs ELE_Cable Tray and Fittings"],["T3","C600V",50,600,"SRV_Access Panel","ELE_Conduit*","NL-C600V-SRV_Access Panel vs ELE_Conduit*"],["T3","C600V",50,600,"SRV_Access Panel","ELE_Electrical Equip.","NL-C600V-SRV_Access Panel vs ELE_Electrical Equip."],["T3","C600V",50,600,"SRV_Access Panel","ELE_Small Devices","NL-C600V-SRV_Access Panel vs ELE_Small Devices"],["T3","C600V",50,600,"SRV_Access Panel","ELE_Services Lighting Fixtures","NL-C600V-SRV_Access Panel vs ELE_Services Lighting Fixtures"],["T3","C600V",50,600,"SRV_Access Panel","FIR_Fire Pipes","NL-C600V-SRV_Access Panel vs FIR_Fire Pipes"],["T3","HC",0,0,"ARC_Lighting Fixtures","ELE_Services Lighting Fixtures","NL-HC-ARC_Lighting Fixtures vs ELE_Services Lighting Fixtures"],["T3","C50",50,50,"ARC_Plumbing Fixtures","STR_Seismic Elements","NL-C50-ARC_Plumbing Fixtures vs STR_Seismic Elements"],["T3","C50",50,50,"ARC_Plumbing Fixtures","STR_Conc work Excl Floor Slab","NL-C50-ARC_Plumbing Fixtures vs STR_Conc work Excl Floor Slab"],["T3","C50",50,50,"ARC_Plumbing Fixtures","STR_Steelwork (Bracing and Columns)","NL-C50-ARC_Plumbing Fixtures vs STR_Steelwork (Bracing and Columns)"],["T3","C50",50,50,"ARC_Plumbing Fixtures","HYD_Uninsulated Pipes and Acc","NL-C50-ARC_Plumbing Fixtures vs HYD_Uninsulated Pipes and Acc"],["T3","C50",50,50,"ARC_Plumbing Fixtures","HYD_Pipe Insulation","NL-C50-ARC_Plumbing Fixtures vs HYD_Pipe Insulation"],["T3","C50",50,50,"ARC_Plumbing Fixtures","HYD_Uninsulated Hot and Cold Pipes and Acc","NL-C50-ARC_Plumbing Fixtures vs HYD_Uninsulated Hot and Cold Pipes and Acc"],["T3","C50",50,50,"ARC_Plumbing Fixtures","HYD_Hot and Cold Insulation","NL-C50-ARC_Plumbing Fixtures vs HYD_Hot and Cold Insulation"],["T3","C50",50,50,"ARC_Plumbing Fixtures","HYD_Plumbing Fixture","NL-C50-ARC_Plumbing Fixtures vs HYD_Plumbing Fixture"],["T3","C50",50,50,"ARC_Plumbing Fixtures","MEC_Air Terminals","NL-C50-ARC_Plumbing Fixtures vs MEC_Air Terminals"],["T3","C50",50,50,"ARC_Plumbing Fixtures","MEC_Uninsulated Duct and Acc","NL-C50-ARC_Plumbing Fixtures vs MEC_Uninsulated Duct and Acc"],["T3","C50",50,50,"ARC_Plumbing Fixtures","MEC_Duct Insulation","NL-C50-ARC_Plumbing Fixtures vs MEC_Duct Insulation"],["T3","C50",50,50,"ARC_Plumbing Fixtures","MEC_Pipe Insulation","NL-C50-ARC_Plumbing Fixtures vs MEC_Pipe Insulation"],["T3","C50",50,50,"ARC_Plumbing Fixtures","MEC_Uninsulated Pipes and Acc","NL-C50-ARC_Plumbing Fixtures vs MEC_Uninsulated Pipes and Acc"],["T3","C50",50,50,"ARC_Plumbing Fixtures","MEC_Uninulated Flexi duct","NL-C50-ARC_Plumbing Fixtures vs MEC_Uninulated Flexi duct"],["T3","C50",50,50,"ARC_Plumbing Fixtures","MEC_Equipment","NL-C50-ARC_Plumbing Fixtures vs MEC_Equipment"],["T3","C50",50,50,"ARC_Plumbing Fixtures","ELE_Cable Tray and Fittings","NL-C50-ARC_Plumbing Fixtures vs ELE_Cable Tray and Fittings"],["T3","C50",50,50,"ARC_Plumbing Fixtures","ELE_Conduit*","NL-C50-ARC_Plumbing Fixtures vs ELE_Conduit*"],["T3","C50",50,50,"ARC_Plumbing Fixtures","ELE_Electrical Equip.","NL-C50-ARC_Plumbing Fixtures vs ELE_Electrical Equip."],["T3","C50",50,50,"ARC_Plumbing Fixtures","ELE_Small Devices","NL-C50-ARC_Plumbing Fixtures vs ELE_Small Devices"],["T3","C50",50,50,"ARC_Plumbing Fixtures","ELE_Services Lighting Fixtures","NL-C50-ARC_Plumbing Fixtures vs ELE_Services Lighting Fixtures"],["T1","HC",0,0,"ARC_SOG Floor Insulation","HYD_Uninsulated Pipes and Acc","NL-HC-ARC_SOG Floor Insulation vs HYD_Uninsulated Pipes and Acc"],["T1","HC",0,0,"ARC_SOG Floor Insulation","HYD_Pipe Insulation","NL-HC-ARC_SOG Floor Insulation vs HYD_Pipe Insulation"],["T1","HC",0,0,"ARC_SOG Floor Insulation","HYD_Uninsulated Hot and Cold Pipes and Acc","NL-HC-ARC_SOG Floor Insulation vs HYD_Uninsulated Hot and Cold Pipes and Acc"],["T1","HC",0,0,"ARC_SOG Floor Insulation","HYD_Hot and Cold Insulation","NL-HC-ARC_SOG Floor Insulation vs HYD_Hot and Cold Insulation"],["T1","HC",0,0,"ARC_SOG Floor Insulation","HYD_Plumbing Fixture","NL-HC-ARC_SOG Floor Insulation vs HYD_Plumbing Fixture"],["T1","HC",0,0,"ARC_SOG Floor Insulation","MEC_Air Terminals","NL-HC-ARC_SOG Floor Insulation vs MEC_Air Terminals"],["T1","HC",0,0,"ARC_SOG Floor Insulation","MEC_Uninsulated Duct and Acc","NL-HC-ARC_SOG Floor Insulation vs MEC_Uninsulated Duct and Acc"],["T1","HC",0,0,"ARC_SOG Floor Insulation","MEC_Duct Insulation","NL-HC-ARC_SOG Floor Insulation vs MEC_Duct Insulation"],["T1","HC",0,0,"ARC_SOG Floor Insulation","MEC_Pipe Insulation","NL-HC-ARC_SOG Floor Insulation vs MEC_Pipe Insulation"],["T1","HC",0,0,"ARC_SOG Floor Insulation","MEC_Uninsulated Pipes and Acc","NL-HC-ARC_SOG Floor Insulation vs MEC_Uninsulated Pipes and Acc"],["T1","HC",0,0,"ARC_SOG Floor Insulation","MEC_Uninulated Flexi duct","NL-HC-ARC_SOG Floor Insulation vs MEC_Uninulated Flexi duct"],["T1","HC",0,0,"ARC_SOG Floor Insulation","MEC_Equipment","NL-HC-ARC_SOG Floor Insulation vs MEC_Equipment"],["T1","HC",0,0,"ARC_SOG Floor Insulation","ELE_Cable Tray and Fittings","NL-HC-ARC_SOG Floor Insulation vs ELE_Cable Tray and Fittings"],["T1","HC",0,0,"ARC_SOG Floor Insulation","ELE_Conduit*","NL-HC-ARC_SOG Floor Insulation vs ELE_Conduit*"],["T1","HC",0,0,"ARC_SOG Floor Insulation","ELE_Electrical Equip.","NL-HC-ARC_SOG Floor Insulation vs ELE_Electrical Equip."],["T1","HC",0,0,"ARC_SOG Floor Insulation","FIR_Fire Pipes","NL-HC-ARC_SOG Floor Insulation vs FIR_Fire Pipes"],["T2","C50",50,50,"STR_Seismic Elements","STR_Conc work Excl Floor Slab","NL-C50-STR_Seismic Elements vs STR_Conc work Excl Floor Slab"],["T2","C50",50,50,"STR_Seismic Elements","STR_Steelwork (Bracing and Columns)","NL-C50-STR_Seismic Elements vs STR_Steelwork (Bracing and Columns)"],["T2","C50",50,50,"STR_Seismic Elements","STR Floor","NL-C50-STR_Seismic Elements vs STR Floor"],["T2","C50",50,50,"STR_Seismic Elements","HYD_Uninsulated Pipes and Acc","NL-C50-STR_Seismic Elements vs HYD_Uninsulated Pipes and Acc"],["T2","C50",50,50,"STR_Seismic Elements","HYD_Pipe Insulation","NL-C50-STR_Seismic Elements vs HYD_Pipe Insulation"],["T2","C50",50,50,"STR_Seismic Elements","HYD_Uninsulated Hot and Cold Pipes and Acc","NL-C50-STR_Seismic Elements vs HYD_Uninsulated Hot and Cold Pipes and Acc"],["T2","C50",50,50,"STR_Seismic Elements","HYD_Hot and Cold Insulation","NL-C50-STR_Seismic Elements vs HYD_Hot and Cold Insulation"],["T2","C50",50,50,"STR_Seismic Elements","HYD_Plumbing Fixture","NL-C50-STR_Seismic Elements vs HYD_Plumbing Fixture"],["T2","C50",50,50,"STR_Seismic Elements","MEC_Air Terminals","NL-C50-STR_Seismic Elements vs MEC_Air Terminals"],["T2","C50",50,50,"STR_Seismic Elements","MEC_Uninsulated Duct and Acc","NL-C50-STR_Seismic Elements vs MEC_Uninsulated Duct and Acc"],["T2","C50",50,50,"STR_Seismic Elements","MEC_Duct Insulation","NL-C50-STR_Seismic Elements vs MEC_Duct Insulation"],["T2","C50",50,50,"STR_Seismic Elements","MEC_Pipe Insulation","NL-C50-STR_Seismic Elements vs MEC_Pipe Insulation"],["T2","C50",50,50,"STR_Seismic Elements","MEC_Uninsulated Pipes and Acc","NL-C50-STR_Seismic Elements vs MEC_Uninsulated Pipes and Acc"],["T2","C50",50,50,"STR_Seismic Elements","MEC_Uninulated Flexi duct","NL-C50-STR_Seismic Elements vs MEC_Uninulated Flexi duct"],["T2","C50",50,50,"STR_Seismic Elements","MEC_Equipment","NL-C50-STR_Seismic Elements vs MEC_Equipment"],["T2","C50",50,50,"STR_Seismic Elements","ELE_Cable Tray and Fittings","NL-C50-STR_Seismic Elements vs ELE_Cable Tray and Fittings"],["T2","C50",50,50,"STR_Seismic Elements","ELE_Conduit*","NL-C50-STR_Seismic Elements vs ELE_Conduit*"],["T2","C50",50,50,"STR_Seismic Elements","ELE_Electrical Equip.","NL-C50-STR_Seismic Elements vs ELE_Electrical Equip."],["T2","C50",50,50,"STR_Seismic Elements","ELE_Small Devices","NL-C50-STR_Seismic Elements vs ELE_Small Devices"],["T2","C50",50,50,"STR_Seismic Elements","ELE_Services Lighting Fixtures","NL-C50-STR_Seismic Elements vs ELE_Services Lighting Fixtures"],["T2","C50",50,50,"STR_Seismic Elements","FIR_Fire Pipes","NL-C50-STR_Seismic Elements vs FIR_Fire Pipes"],["T1","C50",50,50,"STR_Conc work Excl Floor Slab","HYD_Uninsulated Pipes and Acc","NL-C50-STR_Conc work Excl Floor Slab vs HYD_Uninsulated Pipes and Acc"],["T1","C50",50,50,"STR_Conc work Excl Floor Slab","HYD_Pipe Insulation","NL-C50-STR_Conc work Excl Floor Slab vs HYD_Pipe Insulation"],["T1","C50",50,50,"STR_Conc work Excl Floor Slab","HYD_Uninsulated Hot and Cold Pipes and Acc","NL-C50-STR_Conc work Excl Floor Slab vs HYD_Uninsulated Hot and Cold Pipes and Acc"],["T1","C50",50,50,"STR_Conc work Excl Floor Slab","HYD_Hot and Cold Insulation","NL-C50-STR_Conc work Excl Floor Slab vs HYD_Hot and Cold Insulation"],["T1","C50",50,50,"STR_Conc work Excl Floor Slab","HYD_Plumbing Fixture","NL-C50-STR_Conc work Excl Floor Slab vs HYD_Plumbing Fixture"],["T1","C50",50,50,"STR_Conc work Excl Floor Slab","MEC_Air Terminals","NL-C50-STR_Conc work Excl Floor Slab vs MEC_Air Terminals"],["T1","C50",50,50,"STR_Conc work Excl Floor Slab","MEC_Uninsulated Duct and Acc","NL-C50-STR_Conc work Excl Floor Slab vs MEC_Uninsulated Duct and Acc"],["T1","C50",50,50,"STR_Conc work Excl Floor Slab","MEC_Duct Insulation","NL-C50-STR_Conc work Excl Floor Slab vs MEC_Duct Insulation"],["T1","C50",50,50,"STR_Conc work Excl Floor Slab","MEC_Pipe Insulation","NL-C50-STR_Conc work Excl Floor Slab vs MEC_Pipe Insulation"],["T1","C50",50,50,"STR_Conc work Excl Floor Slab","MEC_Uninsulated Pipes and Acc","NL-C50-STR_Conc work Excl Floor Slab vs MEC_Uninsulated Pipes and Acc"],["T1","C50",50,50,"STR_Conc work Excl Floor Slab","MEC_Uninulated Flexi duct","NL-C50-STR_Conc work Excl Floor Slab vs MEC_Uninulated Flexi duct"],["T1","C50",50,50,"STR_Conc work Excl Floor Slab","MEC_Equipment","NL-C50-STR_Conc work Excl Floor Slab vs MEC_Equipment"],["T1","C50",50,50,"STR_Conc work Excl Floor Slab","ELE_Cable Tray and Fittings","NL-C50-STR_Conc work Excl Floor Slab vs ELE_Cable Tray and Fittings"],["T1","C50",50,50,"STR_Conc work Excl Floor Slab","ELE_Conduit*","NL-C50-STR_Conc work Excl Floor Slab vs ELE_Conduit*"],["T1","C50",50,50,"STR_Conc work Excl Floor Slab","ELE_Electrical Equip.","NL-C50-STR_Conc work Excl Floor Slab vs ELE_Electrical Equip."],["T1","C50",50,50,"STR_Conc work Excl Floor Slab","ELE_Small Devices","NL-C50-STR_Conc work Excl Floor Slab vs ELE_Small Devices"],["T1","C50",50,50,"STR_Conc work Excl Floor Slab","ELE_Services Lighting Fixtures","NL-C50-STR_Conc work Excl Floor Slab vs ELE_Services Lighting Fixtures"],["T1","C50",50,50,"STR_Conc work Excl Floor Slab","FIR_Fire Pipes","NL-C50-STR_Conc work Excl Floor Slab vs FIR_Fire Pipes"],["T1","C50",50,50,"STR_Steelwork (Bracing and Columns)","HYD_Uninsulated Pipes and Acc","NL-C50-STR_Steelwork (Bracing and Columns) vs HYD_Uninsulated Pipes and Acc"],["T1","C50",50,50,"STR_Steelwork (Bracing and Columns)","HYD_Pipe Insulation","NL-C50-STR_Steelwork (Bracing and Columns) vs HYD_Pipe Insulation"],["T1","C50",50,50,"STR_Steelwork (Bracing and Columns)","HYD_Uninsulated Hot and Cold Pipes and Acc","NL-C50-STR_Steelwork (Bracing and Columns) vs HYD_Uninsulated Hot and Cold Pipes and Acc"],["T1","C50",50,50,"STR_Steelwork (Bracing and Columns)","HYD_Hot and Cold Insulation","NL-C50-STR_Steelwork (Bracing and Columns) vs HYD_Hot and Cold Insulation"],["T1","C50",50,50,"STR_Steelwork (Bracing and Columns)","MEC_Air Terminals","NL-C50-STR_Steelwork (Bracing and Columns) vs MEC_Air Terminals"],["T1","C50",50,50,"STR_Steelwork (Bracing and Columns)","MEC_Uninsulated Duct and Acc","NL-C50-STR_Steelwork (Bracing and Columns) vs MEC_Uninsulated Duct and Acc"],["T1","C50",50,50,"STR_Steelwork (Bracing and Columns)","MEC_Duct Insulation","NL-C50-STR_Steelwork (Bracing and Columns) vs MEC_Duct Insulation"],["T1","C50",50,50,"STR_Steelwork (Bracing and Columns)","MEC_Pipe Insulation","NL-C50-STR_Steelwork (Bracing and Columns) vs MEC_Pipe Insulation"],["T1","C50",50,50,"STR_Steelwork (Bracing and Columns)","MEC_Uninsulated Pipes and Acc","NL-C50-STR_Steelwork (Bracing and Columns) vs MEC_Uninsulated Pipes and Acc"],["T1","C50",50,50,"STR_Steelwork (Bracing and Columns)","MEC_Uninulated Flexi duct","NL-C50-STR_Steelwork (Bracing and Columns) vs MEC_Uninulated Flexi duct"],["T1","C50",50,50,"STR_Steelwork (Bracing and Columns)","MEC_Equipment","NL-C50-STR_Steelwork (Bracing and Columns) vs MEC_Equipment"],["T1","C50",50,50,"STR_Steelwork (Bracing and Columns)","ELE_Cable Tray and Fittings","NL-C50-STR_Steelwork (Bracing and Columns) vs ELE_Cable Tray and Fittings"],["T1","C50",50,50,"STR_Steelwork (Bracing and Columns)","ELE_Conduit*","NL-C50-STR_Steelwork (Bracing and Columns) vs ELE_Conduit*"],["T1","C50",50,50,"STR_Steelwork (Bracing and Columns)","ELE_Electrical Equip.","NL-C50-STR_Steelwork (Bracing and Columns) vs ELE_Electrical Equip."],["T1","C50",50,50,"STR_Steelwork (Bracing and Columns)","ELE_Small Devices","NL-C50-STR_Steelwork (Bracing and Columns) vs ELE_Small Devices"],["T1","C50",50,50,"STR_Steelwork (Bracing and Columns)","ELE_Services Lighting Fixtures","NL-C50-STR_Steelwork (Bracing and Columns) vs ELE_Services Lighting Fixtures"],["T1","C50",50,50,"STR Floor","HYD_Uninsulated Pipes and Acc","NL-C50-STR Floor vs HYD_Uninsulated Pipes and Acc"],["T1","C50",50,50,"STR Floor","HYD_Pipe Insulation","NL-C50-STR Floor vs HYD_Pipe Insulation"],["T1","C50",50,50,"STR Floor","HYD_Uninsulated Hot and Cold Pipes and Acc","NL-C50-STR Floor vs HYD_Uninsulated Hot and Cold Pipes and Acc"],["T1","C50",50,50,"STR Floor","HYD_Hot and Cold Insulation","NL-C50-STR Floor vs HYD_Hot and Cold Insulation"],["T1","C50",50,50,"STR Floor","MEC_Air Terminals","NL-C50-STR Floor vs MEC_Air Terminals"],["T1","C50",50,50,"STR Floor","MEC_Uninsulated Duct and Acc","NL-C50-STR Floor vs MEC_Uninsulated Duct and Acc"],["T1","C50",50,50,"STR Floor","MEC_Duct Insulation","NL-C50-STR Floor vs MEC_Duct Insulation"],["T1","C50",50,50,"STR Floor","MEC_Pipe Insulation","NL-C50-STR Floor vs MEC_Pipe Insulation"],["T1","C50",50,50,"STR Floor","MEC_Uninsulated Pipes and Acc","NL-C50-STR Floor vs MEC_Uninsulated Pipes and Acc"],["T1","C50",50,50,"STR Floor","MEC_Uninulated Flexi duct","NL-C50-STR Floor vs MEC_Uninulated Flexi duct"],["T1","C50",50,50,"STR Floor","MEC_Equipment","NL-C50-STR Floor vs MEC_Equipment"],["T1","C50",50,50,"STR Floor","ELE_Cable Tray and Fittings","NL-C50-STR Floor vs ELE_Cable Tray and Fittings"],["T1","C50",50,50,"STR Floor","ELE_Conduit*","NL-C50-STR Floor vs ELE_Conduit*"],["T1","C50",50,50,"STR Floor","ELE_Electrical Equip.","NL-C50-STR Floor vs ELE_Electrical Equip."],["T1","C50",50,50,"STR Floor","ELE_Small Devices","NL-C50-STR Floor vs ELE_Small Devices"],["T1","C50",50,50,"STR Floor","ELE_Services Lighting Fixtures","NL-C50-STR Floor vs ELE_Services Lighting Fixtures"],["T1","C50",50,50,"STR Floor","FIR_Fire Pipes","NL-C50-STR Floor vs FIR_Fire Pipes"],["T2","C50",50,50,"HYD_Uninsulated Pipes","HYD_Pipe Insulation","NL-C50-HYD_Uninsulated Pipes vs HYD_Pipe Insulation"],["T2","C50",50,50,"HYD_Uninsulated Pipes","HYD_Uninsulated Hot and Cold Pipes and Acc","NL-C50-HYD_Uninsulated Pipes vs HYD_Uninsulated Hot and Cold Pipes and Acc"],["T2","C50",50,50,"HYD_Uninsulated Pipes","HYD_Hot and Cold Insulation","NL-C50-HYD_Uninsulated Pipes vs HYD_Hot and Cold Insulation"],["T2","C50",50,50,"HYD_Uninsulated Pipes","HYD_Plumbing Fixture","NL-C50-HYD_Uninsulated Pipes vs HYD_Plumbing Fixture"],["T2","C50",50,50,"HYD_Uninsulated Pipes","MEC_Air Terminals","NL-C50-HYD_Uninsulated Pipes vs MEC_Air Terminals"],["T2","C50",50,50,"HYD_Uninsulated Pipes","MEC_Uninsulated Duct and Acc","NL-C50-HYD_Uninsulated Pipes vs MEC_Uninsulated Duct and Acc"],["T2","C50",50,50,"HYD_Uninsulated Pipes","MEC_Duct Insulation","NL-C50-HYD_Uninsulated Pipes vs MEC_Duct Insulation"],["T2","C50",50,50,"HYD_Uninsulated Pipes","MEC_Pipe Insulation","NL-C50-HYD_Uninsulated Pipes vs MEC_Pipe Insulation"],["T2","C50",50,50,"HYD_Uninsulated Pipes","MEC_Uninsulated Pipes and Acc","NL-C50-HYD_Uninsulated Pipes vs MEC_Uninsulated Pipes and Acc"],["T2","C50",50,50,"HYD_Uninsulated Pipes","MEC_Uninulated Flexi duct","NL-C50-HYD_Uninsulated Pipes vs MEC_Uninulated Flexi duct"],["T2","C50",50,50,"HYD_Uninsulated Pipes","MEC_Equipment","NL-C50-HYD_Uninsulated Pipes vs MEC_Equipment"],["T2","C50",50,50,"HYD_Uninsulated Pipes","ELE_Cable Tray and Fittings","NL-C50-HYD_Uninsulated Pipes vs ELE_Cable Tray and Fittings"],["T2","C50",50,50,"HYD_Uninsulated Pipes","ELE_Conduit*","NL-C50-HYD_Uninsulated Pipes vs ELE_Conduit*"],["T2","C50",50,50,"HYD_Uninsulated Pipes","ELE_Electrical Equip.","NL-C50-HYD_Uninsulated Pipes vs ELE_Electrical Equip."],["T2","C50",50,50,"HYD_Uninsulated Pipes","ELE_Small Devices","NL-C50-HYD_Uninsulated Pipes vs ELE_Small Devices"],["T2","C50",50,50,"HYD_Uninsulated Pipes","ELE_Services Lighting Fixtures","NL-C50-HYD_Uninsulated Pipes vs ELE_Services Lighting Fixtures"],["T2","C50",50,50,"HYD_Uninsulated Pipes","FIR_Fire Pipes","NL-C50-HYD_Uninsulated Pipes vs FIR_Fire Pipes"],["T2","C50",50,50,"HYD_Uninsulated Pipes","FIR_Sprinklers Heads","NL-C50-HYD_Uninsulated Pipes vs FIR_Sprinklers Heads"],["T2","C50",50,50,"HYD_Uninsulated Pipes","FIR_Heat or Smoke Detectors","NL-C50-HYD_Uninsulated Pipes vs FIR_Heat or Smoke Detectors"],["T2","C50",50,50,"HYD_Pipe Insulation","HYD_Uninsulated Hot and Cold Pipes and Acc","NL-C50-HYD_Pipe Insulation vs HYD_Uninsulated Hot and Cold Pipes and Acc"],["T2","C50",50,50,"HYD_Pipe Insulation","HYD_Hot and Cold Insulation","NL-C50-HYD_Pipe Insulation vs HYD_Hot and Cold Insulation"],["T2","C50",50,50,"HYD_Pipe Insulation","HYD_Plumbing Fixture","NL-C50-HYD_Pipe Insulation vs HYD_Plumbing Fixture"],["T2","C50",50,50,"HYD_Pipe Insulation","MEC_Air Terminals","NL-C50-HYD_Pipe Insulation vs MEC_Air Terminals"],["T2","C50",50,50,"HYD_Pipe Insulation","MEC_Uninsulated Duct and Acc","NL-C50-HYD_Pipe Insulation vs MEC_Uninsulated Duct and Acc"],["T2","C50",50,50,"HYD_Pipe Insulation","MEC_Duct Insulation","NL-C50-HYD_Pipe Insulation vs MEC_Duct Insulation"],["T2","C50",50,50,"HYD_Pipe Insulation","MEC_Pipe Insulation","NL-C50-HYD_Pipe Insulation vs MEC_Pipe Insulation"],["T2","C50",50,50,"HYD_Pipe Insulation","MEC_Uninsulated Pipes and Acc","NL-C50-HYD_Pipe Insulation vs MEC_Uninsulated Pipes and Acc"],["T2","C50",50,50,"HYD_Pipe Insulation","MEC_Uninulated Flexi duct","NL-C50-HYD_Pipe Insulation vs MEC_Uninulated Flexi duct"],["T2","C50",50,50,"HYD_Pipe Insulation","MEC_Equipment","NL-C50-HYD_Pipe Insulation vs MEC_Equipment"],["T2","C50",50,50,"HYD_Pipe Insulation","ELE_Cable Tray and Fittings","NL-C50-HYD_Pipe Insulation vs ELE_Cable Tray and Fittings"],["T2","C50",50,50,"HYD_Pipe Insulation","ELE_Conduit*","NL-C50-HYD_Pipe Insulation vs ELE_Conduit*"],["T2","C50",50,50,"HYD_Pipe Insulation","ELE_Electrical Equip.","NL-C50-HYD_Pipe Insulation vs ELE_Electrical Equip."],["T2","C50",50,50,"HYD_Pipe Insulation","ELE_Small Devices","NL-C50-HYD_Pipe Insulation vs ELE_Small Devices"],["T2","C50",50,50,"HYD_Pipe Insulation","ELE_Services Lighting Fixtures","NL-C50-HYD_Pipe Insulation vs ELE_Services Lighting Fixtures"],["T2","C50",50,50,"HYD_Pipe Insulation","FIR_Fire Pipes","NL-C50-HYD_Pipe Insulation vs FIR_Fire Pipes"],["T2","C50",50,50,"HYD_Pipe Insulation","FIR_Sprinklers Heads","NL-C50-HYD_Pipe Insulation vs FIR_Sprinklers Heads"],["T2","C50",50,50,"HYD_Pipe Insulation","FIR_Heat or Smoke Detectors","NL-C50-HYD_Pipe Insulation vs FIR_Heat or Smoke Detectors"],["T2","C50",50,50,"HYD_Uninsulated Hot and Cold Pipes and Acc","HYD_Hot and Cold Insulation","NL-C50-HYD_Uninsulated Hot and Cold Pipes and Acc vs HYD_Hot and Cold Insulation"],["T2","C50",50,50,"HYD_Uninsulated Hot and Cold Pipes and Acc","HYD_Plumbing Fixture","NL-C50-HYD_Uninsulated Hot and Cold Pipes and Acc vs HYD_Plumbing Fixture"],["T2","C50",50,50,"HYD_Uninsulated Hot and Cold Pipes and Acc","MEC_Air Terminals","NL-C50-HYD_Uninsulated Hot and Cold Pipes and Acc vs MEC_Air Terminals"],["T2","C50",50,50,"HYD_Uninsulated Hot and Cold Pipes and Acc","MEC_Uninsulated Duct and Acc","NL-C50-HYD_Uninsulated Hot and Cold Pipes and Acc vs MEC_Uninsulated Duct and Acc"],["T2","C50",50,50,"HYD_Uninsulated Hot and Cold Pipes and Acc","MEC_Duct Insulation","NL-C50-HYD_Uninsulated Hot and Cold Pipes and Acc vs MEC_Duct Insulation"],["T2","C50",50,50,"HYD_Uninsulated Hot and Cold Pipes and Acc","MEC_Pipe Insulation","NL-C50-HYD_Uninsulated Hot and Cold Pipes and Acc vs MEC_Pipe Insulation"],["T2","C50",50,50,"HYD_Uninsulated Hot and Cold Pipes and Acc","MEC_Uninsulated Pipes and Acc","NL-C50-HYD_Uninsulated Hot and Cold Pipes and Acc vs MEC_Uninsulated Pipes and Acc"],["T2","C50",50,50,"HYD_Uninsulated Hot and Cold Pipes and Acc","MEC_Uninulated Flexi duct","NL-C50-HYD_Uninsulated Hot and Cold Pipes and Acc vs MEC_Uninulated Flexi duct"],["T2","C50",50,50,"HYD_Uninsulated Hot and Cold Pipes and Acc","MEC_Equipment","NL-C50-HYD_Uninsulated Hot and Cold Pipes and Acc vs MEC_Equipment"],["T2","C50",50,50,"HYD_Uninsulated Hot and Cold Pipes and Acc","ELE_Cable Tray and Fittings","NL-C50-HYD_Uninsulated Hot and Cold Pipes and Acc vs ELE_Cable Tray and Fittings"],["T2","C50",50,50,"HYD_Uninsulated Hot and Cold Pipes and Acc","ELE_Conduit*","NL-C50-HYD_Uninsulated Hot and Cold Pipes and Acc vs ELE_Conduit*"],["T2","C50",50,50,"HYD_Uninsulated Hot and Cold Pipes and Acc","ELE_Electrical Equip.","NL-C50-HYD_Uninsulated Hot and Cold Pipes and Acc vs ELE_Electrical Equip."],["T2","C50",50,50,"HYD_Uninsulated Hot and Cold Pipes and Acc","ELE_Small Devices","NL-C50-HYD_Uninsulated Hot and Cold Pipes and Acc vs ELE_Small Devices"],["T2","C50",50,50,"HYD_Uninsulated Hot and Cold Pipes and Acc","ELE_Services Lighting Fixtures","NL-C50-HYD_Uninsulated Hot and Cold Pipes and Acc vs ELE_Services Lighting Fixtures"],["T2","C50",50,50,"HYD_Uninsulated Hot and Cold Pipes and Acc","FIR_Fire Pipes","NL-C50-HYD_Uninsulated Hot and Cold Pipes and Acc vs FIR_Fire Pipes"],["T2","C50",50,50,"HYD_Uninsulated Hot and Cold Pipes and Acc","FIR_Sprinklers Heads","NL-C50-HYD_Uninsulated Hot and Cold Pipes and Acc vs FIR_Sprinklers Heads"],["T2","C50",50,50,"HYD_Uninsulated Hot and Cold Pipes and Acc","FIR_Heat or Smoke Detectors","NL-C50-HYD_Uninsulated Hot and Cold Pipes and Acc vs FIR_Heat or Smoke Detectors"],["T2","C50",50,50,"HYD_Hot and Cold Insulation","HYD_Plumbing Fixture","NL-C50-HYD_Hot and Cold Insulation vs HYD_Plumbing Fixture"],["T2","C50",50,50,"HYD_Hot and Cold Insulation","MEC_Air Terminals","NL-C50-HYD_Hot and Cold Insulation vs MEC_Air Terminals"],["T2","C50",50,50,"HYD_Hot and Cold Insulation","MEC_Uninsulated Duct and Acc","NL-C50-HYD_Hot and Cold Insulation vs MEC_Uninsulated Duct and Acc"],["T2","C50",50,50,"HYD_Hot and Cold Insulation","MEC_Duct Insulation","NL-C50-HYD_Hot and Cold Insulation vs MEC_Duct Insulation"],["T2","C50",50,50,"HYD_Hot and Cold Insulation","MEC_Pipe Insulation","NL-C50-HYD_Hot and Cold Insulation vs MEC_Pipe Insulation"],["T2","C50",50,50,"HYD_Hot and Cold Insulation","MEC_Uninsulated Pipes and Acc","NL-C50-HYD_Hot and Cold Insulation vs MEC_Uninsulated Pipes and Acc"],["T2","C50",50,50,"HYD_Hot and Cold Insulation","MEC_Uninulated Flexi duct","NL-C50-HYD_Hot and Cold Insulation vs MEC_Uninulated Flexi duct"],["T2","C50",50,50,"HYD_Hot and Cold Insulation","MEC_Equipment","NL-C50-HYD_Hot and Cold Insulation vs MEC_Equipment"],["T2","C50",50,50,"HYD_Hot and Cold Insulation","ELE_Cable Tray and Fittings","NL-C50-HYD_Hot and Cold Insulation vs ELE_Cable Tray and Fittings"],["T2","C50",50,50,"HYD_Hot and Cold Insulation","ELE_Conduit*","NL-C50-HYD_Hot and Cold Insulation vs ELE_Conduit*"],["T2","C50",50,50,"HYD_Hot and Cold Insulation","ELE_Electrical Equip.","NL-C50-HYD_Hot and Cold Insulation vs ELE_Electrical Equip."],["T2","C50",50,50,"HYD_Hot and Cold Insulation","ELE_Small Devices","NL-C50-HYD_Hot and Cold Insulation vs ELE_Small Devices"],["T2","C50",50,50,"HYD_Hot and Cold Insulation","ELE_Services Lighting Fixtures","NL-C50-HYD_Hot and Cold Insulation vs ELE_Services Lighting Fixtures"],["T2","C50",50,50,"HYD_Hot and Cold Insulation","FIR_Fire Pipes","NL-C50-HYD_Hot and Cold Insulation vs FIR_Fire Pipes"],["T2","C50",50,50,"HYD_Hot and Cold Insulation","FIR_Sprinklers Heads","NL-C50-HYD_Hot and Cold Insulation vs FIR_Sprinklers Heads"],["T2","C50",50,50,"HYD_Hot and Cold Insulation","FIR_Heat or Smoke Detectors","NL-C50-HYD_Hot and Cold Insulation vs FIR_Heat or Smoke Detectors"],["T2","C50",50,50,"HYD_ Plumbing Fixture","MEC_Air Terminals","NL-C50-HYD_ Plumbing Fixture vs MEC_Air Terminals"],["T2","C50",50,50,"HYD_ Plumbing Fixture","MEC_Uninsulated Duct and Acc","NL-C50-HYD_ Plumbing Fixture vs MEC_Uninsulated Duct and Acc"],["T2","C50",50,50,"HYD_ Plumbing Fi
