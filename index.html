@@ -1399,8 +1399,8 @@ window.onload = function() {
   ['T1','T2','T3','T4'].forEach(s => renderTable(s));
   renderLog();
   renderGapMatrix();
-  updateTabCounts();
   ['T1','T2','T3','T4'].forEach(s => updateGate(s));
+  if(typeof updateTabCounts === 'function') updateTabCounts();
   const d = document.getElementById('projDate');
   if(d && !d.value) d.valueAsDate = new Date();
   if(BASE_TASKS.length) {
