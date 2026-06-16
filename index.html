@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>BIM Clash Coordination Platform</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js" onerror="this.onerror=null;this.src='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js'"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Segoe UI',Arial,sans-serif;background:#0f1117;color:#e2e8f0;min-height:100vh}
@@ -181,7 +181,7 @@ footer{padding:20px 32px;border-top:1px solid #2d3748;text-align:center;font-siz
           <input type="file" id="matrixUpload" accept=".xlsx" style="display:none" onchange="loadMatrixFromExcel(this)">
         </label>
         <label id="claudeUploadLabel" style="background:#0e4429;border:1px solid #166534;color:#34d399;padding:7px 14px;border-radius:6px;font-size:.78rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px">
-          📤 Upload Claude Output
+          📤 Pre-Clash Gate Updates Upload
           <input type="file" id="claudeUpload" accept=".txt,.json" style="display:none" onchange="loadClaudeOutput(this)">
         </label>
       </div>
@@ -210,7 +210,7 @@ footer{padding:20px 32px;border-top:1px solid #2d3748;text-align:center;font-siz
     T3 <span class="count" data-tab="T3">108</span> Fit-Out & Devices
   </div>
   <div class="tab" data-tab="T4" style="--accent:var(--t4)" onclick="switchTab('T4')">
-    T4 <span class="count" data-tab="T4">27</span> As-Built & Handover
+    T4 <span class="count" data-tab="T4">27</span> As-Built & Handover Readiness
   </div>
   <div class="tab" data-tab="RULES" style="--accent:#06b6d4" onclick="switchTab('RULES')">
     📐 <span class="count" data-tab="RULES" style="background:#0e7490;color:#fff">RULES</span>
@@ -230,7 +230,7 @@ footer{padding:20px 32px;border-top:1px solid #2d3748;text-align:center;font-siz
         <span class="stage-badge" style="background:var(--t1)">T1</span>
         <div>
           <div style="font-size:1.05rem;font-weight:700">Strategic Constraints &amp; Early Locks</div>
-          <div class="stage-desc">Prevent irreversible errors in structure, civil works, seismic performance, and primary service routing before construction commences.</div>
+          <div class="stage-desc">Prevent irreversible errors in structure, civil works, seismic performance, egress protection, major penetrations, and primary service routing before detailed services coordination is developed.</div>
         </div>
       </div>
     </div>
@@ -311,7 +311,7 @@ footer{padding:20px 32px;border-top:1px solid #2d3748;text-align:center;font-siz
         <span class="stage-badge" style="background:var(--t2)">T2</span>
         <div>
           <div style="font-size:1.05rem;font-weight:700">Main Services &amp; Plantroom Coordination</div>
-          <div class="stage-desc">Resolve service viability, congestion, and compliance before ceilings, finishes, or device layouts are developed.</div>
+          <div class="stage-desc">Resolve service viability, congestion, and compliance in the areas that drive construction risk before ceilings, finishes, and detailed device layouts are finalised.</div>
         </div>
       </div>
     </div>
@@ -398,7 +398,7 @@ footer{padding:20px 32px;border-top:1px solid #2d3748;text-align:center;font-siz
         <span class="stage-badge" style="background:var(--t3)">T3</span>
         <div>
           <div style="font-size:1.05rem;font-weight:700">Fit-Out, Devices &amp; Maintainability</div>
-          <div class="stage-desc">Ensure the model reflects installed reality for commissioning, operations, and facilities management without uncontrolled scope growth.</div>
+          <div class="stage-desc">Confirm installed coordination where it affects ceilings, room layouts, device locations, access, commissioning, maintenance, and compliance — without expanding modelling beyond the agreed project scope.</div>
         </div>
       </div>
     </div>
@@ -482,7 +482,7 @@ footer{padding:20px 32px;border-top:1px solid #2d3748;text-align:center;font-siz
         <span class="stage-badge" style="background:var(--t4)">T4</span>
         <div>
           <div style="font-size:1.05rem;font-weight:700">As-Built &amp; Handover Readiness</div>
-          <div class="stage-desc">Ensure the model reflects installed reality for commissioning, FM handover, and final compliance validation.</div>
+          <div class="stage-desc">Confirm installed reality where required for commissioning, compliance evidence, asset information, and FM handover. Not a second design stage — a controlled close-out and verification stage.</div>
         </div>
       </div>
     </div>
@@ -1324,4 +1324,42 @@ function hideToast() { document.getElementById('uploadToast').style.display = 'n
 
 function saveState() {
   try {
-    localStorage.setItem('bimOverrides', JSON.stringif
+    localStorage.setItem('bimOverrides', JSON.stringify(overrides));
+    localStorage.setItem('bimCustomTasks', JSON.stringify(customTasks));
+    localStorage.setItem('bimLoaded', JSON.stringify(loaded));
+    localStorage.setItem('bimLog', JSON.stringify(logEntries));
+    if(BASE_TASKS.length) localStorage.setItem('bimBaseTasks', JSON.stringify(BASE_TASKS));
+  } catch(e) {}
+}
+
+function loadState() {
+  try {
+    const so = localStorage.getItem('bimOverrides');
+    if(so) overrides = JSON.parse(so);
+    const sc = localStorage.getItem('bimCustomTasks');
+    if(sc) customTasks = JSON.parse(sc);
+    const sl = localStorage.getItem('bimLoaded');
+    if(sl) loaded = JSON.parse(sl);
+    const sg = localStorage.getItem('bimLog');
+    if(sg) logEntries = JSON.parse(sg);
+    const savedBase = localStorage.getItem('bimBaseTasks');
+    if(savedBase) BASE_TASKS = JSON.parse(savedBase);
+    else BASE_TASKS = TASKS.slice();
+  } catch(e) {}
+}
+
+window.onload = function() {
+  loadState();
+  ['T1','T2','T3','T4'].forEach(s => renderTable(s));
+  renderLog();
+  renderGapMatrix();
+  updateTabCounts();
+  const d = document.getElementById('projDate');
+  if(d && !d.value) d.valueAsDate = new Date();
+  if(BASE_TASKS.length) {
+    document.getElementById('matrixStatus').textContent = '✅ ' + BASE_TASKS.length + ' tasks loaded from last session';
+  }
+};
+</script>
+</body>
+</html>
