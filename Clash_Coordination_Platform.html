@@ -1172,6 +1172,63 @@ function exportLog() {
   a.click();
 }
 
+// ── Shared matrix parsing helpers (used by both upload button and auto-load) ──
+const catToStage = {0:'T2',1:'T1',2:'T2',3:'T3',4:'T4'};
+const CLR_HV = {HC:[0,0],C50:[50,50],C100V:[50,100],C150V:[50,150],C150:[50,150],C600V:[50,600],C1500:[50,1500]};
+function toCode(v) {
+  const s = String(v||'').toUpperCase().trim();
+  if(s==='HC') return 'HC';
+  if(s==='C150') return 'C150V'; // normalise variant
+  if(['C50','C100V','C150V','C600V','C1500'].includes(s)) return s;
+  const n = parseInt(v);
+  if(isNaN(n) || n===0) return null; // 0 = not a clash, skip
+  if(n<=50) return 'C50';
+  if(n<=100) return 'C100V';
+  if(n<=150) return 'C150V';
+  if(n<=600) return 'C600V';
+  if(n<=1500) return 'C1500';
+  return 'CUSTOM';
+}
+function parseSheetRows(data) {
+  const tasks = [];
+  if(!data || data.length < 2) return tasks;
+  const hdr = (data[0] || []).map(h => String(h||'').toLowerCase().trim());
+  const has7Col = hdr.length >= 7 && (hdr[2] === 'h (mm)' || !isNaN(parseInt(data[1]&&data[1][2])));
+  for(let i = 1; i < data.length; i++) {
+    const row = data[i];
+    if(!row || row.length < 3) continue;
+    let stage, clearance, clrH, clrV, selA, selB, taskName;
+    if(has7Col) {
+      stage = String(row[0]||'').trim();
+      clearance = toCode(String(row[1]||'').trim());
+      if(!clearance) continue;
+      clrH = parseInt(row[2]) || 0;
+      clrV = parseInt(row[3]) || 0;
+      selA = String(row[4]||'').trim();
+      selB = String(row[5]||'').trim();
+      taskName = String(row[6]||'').trim();
+    } else {
+      clearance = toCode(row[1]);
+      if(!clearance) continue;
+      [clrH, clrV] = CLR_HV[clearance] || [0, 0];
+      const cat = row[0];
+      stage = catToStage[cat] !== undefined ? catToStage[cat] : (String(cat).match(/^T[1-4]$/) ? String(cat) : 'T2');
+      selA = String(row[2]||'').trim();
+      selB = String(row[3]||'').trim();
+      taskName = String(row[4]||'').trim() || (clearance + '-' + selA + ' vs ' + selB);
+    }
+    if(selA && selB && stage.match(/^T[1-4]$/)) tasks.push([stage, clearance, clrH, clrV, selA, selB, taskName]);
+  }
+  return tasks;
+}
+function parseWorkbook(wb) {
+  // Always read from "Rawdata (Do not edit)" sheet only
+  const rawSheet = wb.SheetNames.find(n => n.toLowerCase().includes('rawdata'));
+  if(!rawSheet) return [];
+  const rows = XLSX.utils.sheet_to_json(wb.Sheets[rawSheet], {header:1});
+  return parseSheetRows(rows);
+}
+
 function loadMatrixFromExcel(input) {
   const file = input.files[0];
   if(!file) return;
@@ -1179,91 +1236,14 @@ function loadMatrixFromExcel(input) {
   const reader = new FileReader();
   reader.onload = function(e) {
     try {
-      showUploadToast('Parsing workbook…', 40);
+      showUploadToast('Parsing workbook…', 50);
       const wb = XLSX.read(e.target.result, {type:'array'});
-
-      // Helper: parse tasks from one sheet's row data
-      const catToStage = {0:'T2',1:'T1',2:'T2',3:'T3',4:'T4'};
-      // Clearance code → [H mm, V mm]
-      const CLR_HV = {HC:[0,0],C50:[50,50],C100V:[50,100],C150V:[50,150],C150:[50,150],C600V:[50,600],C1500:[50,1500]};
-      const toCode = v => {
-        const s = String(v||'').toUpperCase().trim();
-        if(s==='HC') return 'HC';
-        // Already a valid clearance code — pass through (C150 treated as C150V)
-        if(s==='C150') return 'C150V';
-        if(['C50','C100V','C150V','C600V','C1500'].includes(s)) return s;
-        const n = parseInt(v);
-        if(isNaN(n) || n===0) return null; // 0 = not a clash, skip row entirely
-        if(n<=50) return 'C50';
-        if(n<=100) return 'C100V';
-        if(n<=150) return 'C150V';
-        if(n<=600) return 'C600V';
-        if(n<=1500) return 'C1500';
-        return 'CUSTOM';
-      };
-      function parseSheetRows(data) {
-        const tasks = [];
-        if(!data || data.length < 2) return tasks;
-        const hdr = (data[0] || []).map(h => String(h||'').toLowerCase().trim());
-        const has7Col = hdr.length >= 7 && (hdr[2] === 'h (mm)' || !isNaN(parseInt(data[1]&&data[1][2])));
-        for(let i = 1; i < data.length; i++) {
-          const row = data[i];
-          if(!row || row.length < 3) continue;
-          let stage, clearance, clrH, clrV, selA, selB, taskName;
-          if(has7Col) {
-            stage = String(row[0]||'').trim();
-            const rawClr7 = String(row[1]||'').trim();
-            // Run through toCode() — converts numeric values (50→C50, 100→C100V) and skips 0/empty
-            clearance = toCode(rawClr7);
-            if(!clearance) continue;
-            clrH = parseInt(row[2]) || 0;
-            clrV = parseInt(row[3]) || 0;
-            selA = String(row[4]||'').trim();
-            selB = String(row[5]||'').trim();
-            taskName = String(row[6]||'').trim();
-          } else {
-            const cat = row[0];
-            const rawClr = row[1];
-            clearance = toCode(rawClr);
-            if(!clearance) continue;
-            // Look up correct H/V from code table — parseInt fails on 'C50', 'C100V' etc.
-            [clrH, clrV] = CLR_HV[clearance] || [0, 0];
-            stage = catToStage[cat] !== undefined ? catToStage[cat] : (String(cat).match(/^T[1-4]$/) ? String(cat) : 'T2');
-            selA = String(row[2]||'').trim();
-            selB = String(row[3]||'').trim();
-            taskName = String(row[4]||'').trim() || (clearance + '-' + selA + ' vs ' + selB);
-          }
-          if(selA && selB && stage.match(/^T[1-4]$/)) tasks.push([stage, clearance, clrH, clrV, selA, selB, taskName]);
-        }
-        return tasks;
-      }
-
-      showUploadToast('Building tasks…', 70);
-      const newTasks = [];
-      const sheetLog = [];
-      const seenKeys = new Set();
-
-      // Prefer a dedicated rawdata sheet; otherwise read ALL sheets and merge
-      const rawSheet = wb.SheetNames.find(n => n.toLowerCase().includes('rawdata'));
-      const sheetsToRead = rawSheet ? [rawSheet] : wb.SheetNames;
-
-      for(const sName of sheetsToRead) {
-        const sh = wb.Sheets[sName];
-        if(!sh) continue;
-        const rows = XLSX.utils.sheet_to_json(sh, {header:1});
-        const parsed = parseSheetRows(rows);
-        let added = 0;
-        for(const t of parsed) {
-          const key = t[0]+'|'+t[4]+'|'+t[5]; // stage|selA|selB
-          if(!seenKeys.has(key)) { seenKeys.add(key); newTasks.push(t); added++; }
-        }
-        if(added > 0 || parsed.length > 0) sheetLog.push(sName + ':' + added);
-      }
-
+      showUploadToast('Building tasks…', 75);
+      const newTasks = parseWorkbook(wb);
+      if(!newTasks.length) { hideToast(); alert('No tasks found. Check the "Rawdata (Do not edit)" sheet exists and has data.'); return; }
       BASE_TASKS = newTasks;
-      const sheetDetail = sheetLog.length > 1 ? ' [' + sheetLog.join(', ') + ']' : '';
       showUploadToast('✅ Loaded ' + newTasks.length + ' tasks from ' + file.name, 100);
-      document.getElementById('matrixStatus').textContent = '✅ ' + file.name + ' · ' + newTasks.length + ' tasks' + sheetDetail + ' · ' + new Date().toLocaleTimeString();
+      document.getElementById('matrixStatus').textContent = '✅ ' + file.name + ' · ' + newTasks.length + ' tasks · ' + new Date().toLocaleTimeString();
       saveState();
       ['T1','T2','T3','T4'].forEach(s => renderTable(s));
       renderGapMatrix();
@@ -1520,7 +1500,33 @@ function importSession(input) {
   reader.readAsText(file);
 }
 
-window.onload = function() {
+async function autoLoadMatrix() {
+  // Only auto-load if no matrix already in localStorage
+  if(BASE_TASKS.length) return;
+  const MATRIX_URL = './DIG_G05_Clash_Detection_Matrix.xlsx';
+  try {
+    showUploadToast('Auto-loading matrix from GitHub…', 20);
+    const res = await fetch(MATRIX_URL);
+    if(!res.ok) { hideToast(); return; }
+    const buf = await res.arrayBuffer();
+    showUploadToast('Parsing matrix…', 60);
+    const wb = XLSX.read(buf, {type:'array'});
+    showUploadToast('Building tasks…', 80);
+    const newTasks = parseWorkbook(wb); // shared top-level helpers
+    if(!newTasks.length) { hideToast(); return; }
+    BASE_TASKS = newTasks;
+    localStorage.setItem('bimBaseTasks', JSON.stringify(BASE_TASKS));
+    ['T1','T2','T3','T4'].forEach(s => renderTable(s));
+    renderGapMatrix();
+    document.getElementById('matrixStatus').textContent = '✅ Auto-loaded from GitHub · ' + BASE_TASKS.length + ' tasks · ' + new Date().toLocaleTimeString();
+    showUploadToast('✅ Matrix auto-loaded — ' + BASE_TASKS.length + ' tasks', 100);
+    setTimeout(hideToast, 3000);
+  } catch(e) {
+    hideToast(); // Silent fail — user can upload manually
+  }
+}
+
+window.onload = async function() {
   loadState();
   ['T1','T2','T3','T4'].forEach(s => renderTable(s));
   ['T1','T2','T3','T4'].forEach(s => loadGateState(s));
@@ -1533,6 +1539,8 @@ window.onload = function() {
   if(BASE_TASKS.length) {
     document.getElementById('matrixStatus').textContent = '✅ ' + BASE_TASKS.length + ' tasks loaded from last session';
   }
+  // Auto-load matrix from GitHub if none in session
+  await autoLoadMatrix();
 };
 </script>
 </body>
