@@ -1,0 +1,138 @@
+<svg viewBox="0 0 900 760" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial, sans-serif">
+  <!-- Background -->
+  <rect width="900" height="760" fill="#0f1117"/>
+
+  <!-- Title -->
+  <text x="450" y="38" text-anchor="middle" font-size="17" font-weight="700" fill="#e2e8f0">BIM Clash Coordination Platform — Workflow</text>
+  <text x="450" y="58" text-anchor="middle" font-size="11" fill="#64748b">NL Clash Detection Framework · T1 → T2 → T3 → T4</text>
+
+  <!-- ── ROW 1: G05 Matrix ── -->
+  <rect x="330" y="76" width="240" height="52" rx="8" fill="#1a1f2e" stroke="#3b82f6" stroke-width="1.5"/>
+  <text x="450" y="97" text-anchor="middle" font-size="12" font-weight="700" fill="#93c5fd">📊  G05 Clash Matrix</text>
+  <text x="450" y="113" text-anchor="middle" font-size="10" fill="#64748b">Excel · Single source of truth for all tasks</text>
+
+  <!-- Arrow down -->
+  <line x1="450" y1="128" x2="450" y2="158" stroke="#3b82f6" stroke-width="1.5" marker-end="url(#arr-blue)"/>
+  <text x="455" y="147" font-size="9" fill="#3b82f6">📂 Upload Updated Matrix</text>
+
+  <!-- ── ROW 2: Platform ── -->
+  <rect x="80" y="162" width="640" height="180" rx="10" fill="#1a1f2e" stroke="#2d3748" stroke-width="1.5"/>
+  <text x="400" y="183" text-anchor="middle" font-size="13" font-weight="700" fill="#e2e8f0">BIM Clash Coordination Platform</text>
+  <text x="400" y="199" text-anchor="middle" font-size="10" fill="#64748b">Open Clash_Coordination_Platform.html in Chrome · No installation required</text>
+
+  <!-- Left panel: checklist -->
+  <rect x="100" y="208" width="270" height="118" rx="7" fill="#232a3b" stroke="#f97316" stroke-width="1.2"/>
+  <text x="235" y="228" text-anchor="middle" font-size="11" font-weight="700" fill="#fb923c">🔑  Pre-Clash Gate Checklist</text>
+  <text x="235" y="245" text-anchor="middle" font-size="9.5" fill="#94a3b8">Discipline-tagged items (ARCH / STR / HYD /</text>
+  <text x="235" y="260" text-anchor="middle" font-size="9.5" fill="#94a3b8">MEC / ELE / FIR) must be ✅ before running</text>
+  <text x="235" y="275" text-anchor="middle" font-size="9.5" fill="#94a3b8">Revizto for this stage.</text>
+  <rect x="108" y="285" width="70" height="16" rx="4" fill="#450a0a" stroke="#7f1d1d" stroke-width="1"/>
+  <text x="143" y="297" text-anchor="middle" font-size="9" fill="#fca5a5" font-weight="700">🔒 Gate Locked</text>
+  <rect x="188" y="285" width="60" height="16" rx="4" fill="#1c1917" stroke="#78350f" stroke-width="1"/>
+  <text x="218" y="297" text-anchor="middle" font-size="9" fill="#fbbf24" font-weight="700">⚠️ Partial</text>
+  <rect x="258" y="285" width="104" height="16" rx="4" fill="#052e16" stroke="#14532d" stroke-width="1"/>
+  <text x="310" y="297" text-anchor="middle" font-size="9" fill="#86efac" font-weight="700">✅ Gate Open → Export</text>
+
+  <!-- Arrow between panels -->
+  <text x="400" y="275" text-anchor="middle" font-size="18" fill="#2d3748">▶</text>
+
+  <!-- Right panel: task output -->
+  <rect x="430" y="208" width="270" height="118" rx="7" fill="#232a3b" stroke="#10b981" stroke-width="1.2"/>
+  <text x="565" y="228" text-anchor="middle" font-size="11" font-weight="700" fill="#34d399">📤  Revizto Clash Task Output</text>
+  <text x="565" y="245" text-anchor="middle" font-size="9.5" fill="#94a3b8">Filter by discipline or clearance code.</text>
+  <text x="565" y="260" text-anchor="middle" font-size="9.5" fill="#94a3b8">✏️ Edit to override H/V clearance per task.</text>
+  <text x="565" y="275" text-anchor="middle" font-size="9.5" fill="#94a3b8">Select tasks → Mark as Loaded in Revizto.</text>
+  <rect x="438" y="285" width="80" height="16" rx="4" fill="#1e3a5f" stroke="#1d4ed8" stroke-width="1"/>
+  <text x="478" y="297" text-anchor="middle" font-size="9" fill="#93c5fd" font-weight="700">⬇ Export CSV</text>
+  <rect x="528" y="285" width="80" height="16" rx="4" fill="#1c2537" stroke="#2d3748" stroke-width="1"/>
+  <text x="568" y="297" text-anchor="middle" font-size="9" fill="#94a3b8" font-weight="700">⬆ Export Session</text>
+  <rect x="618" y="285" width="74" height="16" rx="4" fill="#1c2537" stroke="#2d3748" stroke-width="1"/>
+  <text x="655" y="297" text-anchor="middle" font-size="9" fill="#94a3b8" font-weight="700">⬇ Import Session</text>
+
+  <!-- Stage gate labels -->
+  <text x="450" y="355" text-anchor="middle" font-size="10" fill="#64748b">Repeat for each stage gate: T1 → T2 → T3 → T4 (sequential — no stage skips)</text>
+
+  <!-- ── Stage gate badges ── -->
+  <rect x="100" y="366" width="130" height="22" rx="5" fill="#f97316" opacity=".15" stroke="#f97316" stroke-width="1"/>
+  <text x="165" y="381" text-anchor="middle" font-size="10" font-weight="700" fill="#f97316">T1 Strategic Constraints</text>
+  <rect x="240" y="366" width="130" height="22" rx="5" fill="#3b82f6" opacity=".15" stroke="#3b82f6" stroke-width="1"/>
+  <text x="305" y="381" text-anchor="middle" font-size="10" font-weight="700" fill="#3b82f6">T2 Main Services</text>
+  <rect x="380" y="366" width="130" height="22" rx="5" fill="#a855f7" opacity=".15" stroke="#a855f7" stroke-width="1"/>
+  <text x="445" y="381" text-anchor="middle" font-size="10" font-weight="700" fill="#a855f7">T3 Fit-Out &amp; Devices</text>
+  <rect x="520" y="366" width="130" height="22" rx="5" fill="#10b981" opacity=".15" stroke="#10b981" stroke-width="1"/>
+  <text x="585" y="381" text-anchor="middle" font-size="10" font-weight="700" fill="#10b981">T4 As-Built &amp; Handover</text>
+
+  <!-- ── ROW 3: Three outputs side by side ── -->
+  <!-- Arrow down-left to Revizto -->
+  <line x1="235" y1="342" x2="180" y2="406" stroke="#10b981" stroke-width="1.5" marker-end="url(#arr-green)"/>
+
+  <!-- Arrow down-center to Claude -->
+  <line x1="450" y1="342" x2="450" y2="406" stroke="#0e7490" stroke-width="1.5" marker-end="url(#arr-cyan)"/>
+
+  <!-- Arrow down-right to Session Transfer -->
+  <line x1="660" y1="342" x2="720" y2="406" stroke="#475569" stroke-width="1.5" marker-end="url(#arr-grey)"/>
+
+  <!-- Box: Revizto -->
+  <rect x="50" y="410" width="230" height="80" rx="8" fill="#1a1f2e" stroke="#10b981" stroke-width="1.2"/>
+  <text x="165" y="432" text-anchor="middle" font-size="11" font-weight="700" fill="#34d399">Revizto Clash Automation</text>
+  <text x="165" y="450" text-anchor="middle" font-size="9.5" fill="#94a3b8">Load CSV tasks into Revizto.</text>
+  <text x="165" y="465" text-anchor="middle" font-size="9.5" fill="#94a3b8">Run clash detection for the stage.</text>
+  <text x="165" y="480" text-anchor="middle" font-size="9.5" fill="#94a3b8">Triage results → assign to responsible party.</text>
+
+  <!-- Box: Claude Analysis -->
+  <rect x="315" y="410" width="270" height="80" rx="8" fill="#1a1f2e" stroke="#0e7490" stroke-width="1.2"/>
+  <text x="450" y="432" text-anchor="middle" font-size="11" font-weight="700" fill="#a5f3fc">Claude Report Analysis</text>
+  <text x="450" y="450" text-anchor="middle" font-size="9.5" fill="#94a3b8">Attach project PDF/Word report at claude.ai.</text>
+  <text x="450" y="465" text-anchor="middle" font-size="9.5" fill="#94a3b8">Claude outputs JSON: overrides + gate notes.</text>
+  <text x="450" y="480" text-anchor="middle" font-size="9.5" fill="#64748b">New tasks? → Update G05 Matrix, re-upload.</text>
+
+  <!-- Box: Session Transfer -->
+  <rect x="620" y="410" width="230" height="80" rx="8" fill="#1a1f2e" stroke="#475569" stroke-width="1.2"/>
+  <text x="735" y="432" text-anchor="middle" font-size="11" font-weight="700" fill="#94a3b8">Session Transfer</text>
+  <text x="735" y="450" text-anchor="middle" font-size="9.5" fill="#94a3b8">⬆ Export Session → .json file.</text>
+  <text x="735" y="465" text-anchor="middle" font-size="9.5" fill="#94a3b8">Copy to USB or share via email.</text>
+  <text x="735" y="480" text-anchor="middle" font-size="9.5" fill="#94a3b8">⬇ Import Session on any PC.</text>
+
+  <!-- Arrow: Claude JSON → Platform -->
+  <line x1="450" y1="490" x2="450" y2="530" stroke="#0e7490" stroke-width="1.5" marker-end="url(#arr-cyan)"/>
+  <text x="456" y="514" font-size="9" fill="#0e7490">📋 Additional Gate Rules upload</text>
+
+  <!-- Platform receives Claude output -->
+  <rect x="315" y="534" width="270" height="44" rx="8" fill="#0e2a3b" stroke="#0e7490" stroke-width="1.2"/>
+  <text x="450" y="552" text-anchor="middle" font-size="10" font-weight="700" fill="#a5f3fc">Applies to Platform:</text>
+  <text x="450" y="568" text-anchor="middle" font-size="9.5" fill="#64748b">Clearance overrides · Gate notes · Procurement flags</text>
+
+  <!-- ── RULES tab reference ── -->
+  <rect x="80" y="600" width="740" height="60" rx="8" fill="#1a1f2e" stroke="#2d3748" stroke-width="1"/>
+  <text x="450" y="621" text-anchor="middle" font-size="11" font-weight="700" fill="#e2e8f0">📐  Rules &amp; Standards Tab</text>
+  <text x="450" y="638" text-anchor="middle" font-size="9.5" fill="#64748b">Clearance Code Reference (HC / C50 / C100V / C150V / C600V / C1500)  ·  NZS4219:2009 Seismic Table  ·  Discipline-Pair Gap Matrix  ·  ELE / MEC / HYD+FIR Service Rules  ·  Project Notes</text>
+  <text x="450" y="652" text-anchor="middle" font-size="9" fill="#475569">Gap Matrix: shows most restrictive clearance per discipline pair. HC dominates if any HC task exists for that pair. Full clearance breakdown shown below matrix.</text>
+
+  <!-- ── Legend ── -->
+  <text x="80" y="690" font-size="10" fill="#475569">Legend:</text>
+  <rect x="120" y="679" width="12" height="12" rx="2" fill="none" stroke="#3b82f6" stroke-width="1.5"/>
+  <text x="136" y="690" font-size="9.5" fill="#64748b">Matrix / Platform flow</text>
+  <rect x="240" y="679" width="12" height="12" rx="2" fill="none" stroke="#10b981" stroke-width="1.5"/>
+  <text x="256" y="690" font-size="9.5" fill="#64748b">Revizto output</text>
+  <rect x="340" y="679" width="12" height="12" rx="2" fill="none" stroke="#0e7490" stroke-width="1.5"/>
+  <text x="356" y="690" font-size="9.5" fill="#64748b">Claude analysis</text>
+  <rect x="450" y="679" width="12" height="12" rx="2" fill="none" stroke="#475569" stroke-width="1.5"/>
+  <text x="466" y="690" font-size="9.5" fill="#64748b">Session transfer (offline)</text>
+  <text x="80" y="712" font-size="9" fill="#374151">v1.1 · BIM Clash Coordination Toolkit · Sean Wang, BIM Manager</text>
+
+  <!-- Arrow markers -->
+  <defs>
+    <marker id="arr-blue" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#3b82f6"/>
+    </marker>
+    <marker id="arr-green" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#10b981"/>
+    </marker>
+    <marker id="arr-cyan" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#0e7490"/>
+    </marker>
+    <marker id="arr-grey" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#475569"/>
+    </marker>
+  </defs>
+</svg>
