@@ -14,6 +14,7 @@ A project-agnostic toolkit for structured, stage-gated clash detection and digit
 BIM_Clash_Coordination_Toolkit/
 ├── README.md                             ← You are here
 ├── CHANGELOG.md                          ← Version history + project deployments
+├── Clash_Coordination_Workflow.svg       ← Visual workflow diagram (open in browser)
 │
 ├── Platform/
 │   └── Clash_Coordination_Platform.html  ← Main coordination dashboard (open in Chrome)
@@ -26,6 +27,8 @@ BIM_Clash_Coordination_Toolkit/
     └── _Template/                        ← Copy this folder for each new project
         └── [ProjectCode]_notes.md        ← Project-specific notes and overrides log
 ```
+
+> 📊 **See `Clash_Coordination_Workflow.svg`** for a visual overview of the full process.
 
 ---
 
@@ -53,10 +56,10 @@ You are a senior BIM Coordination Manager with 15+ years of experience across co
 
 The project uses a staged clash detection framework with four coordination stages:
 
-- **T1 — Strategic Constraints & Early Locks**: Structural, civil, underground, embedded services, primary routing. Decisions irreversible once construction starts.
-- **T2 — Main Services & Plantroom Coordination**: Main distribution routes, ceiling space, fire-rated construction, seismic zones, access panels, deflection heads.
-- **T3 — Fit-Out, Devices & Maintainability**: Ceiling-mounted devices, wall-mounted items, plant access, fitout elements, specialist equipment.
-- **T4 — As-Built & Handover**: Final penetrations, supports, asset data, egress, maintenance access.
+- **T1 — Strategic Constraints & Early Locks**: Prevent irreversible errors in structure, civil works, seismic performance, egress protection, major penetrations, and primary service routing before detailed services coordination is developed.
+- **T2 — Main Services & Plantroom Coordination**: Resolve service viability, congestion, and compliance in the areas that drive construction risk before ceilings, finishes, and detailed device layouts are finalised.
+- **T3 — Fit-Out, Devices & Maintainability**: Confirm installed coordination where it affects ceilings, room layouts, device locations, access, commissioning, maintenance, and compliance — without expanding modelling beyond the agreed project scope.
+- **T4 — As-Built & Handover Readiness**: Confirm installed reality where required for commissioning, compliance evidence, asset information, and FM handover. Not a second design stage — a controlled close-out and verification stage.
 
 The platform already has standard NZS4219:2009 seismic clearances and general BIM coordination rules. Your task is to extract **project-specific** requirements — things that override, supplement, or add to the standard rules based on what this particular report specifies.
 
@@ -109,13 +112,6 @@ Return results in this exact structure:
 
 ---
 
-### New Custom Clash Tasks
-
-| Task Name | Selection A | Selection B | Clearance | Priority | Stage | Reason |
-|---|---|---|---|---|---|---|
-
----
-
 ### Procurement Flags
 
 | Item | Discipline | What is pending | When needed by | Stage |
@@ -133,20 +129,68 @@ Return results in this exact structure:
 ```
 
 **What to do with the output:**
-- Gate checklist items → type into the **Rules & Standards** tab → Project Notes field in the platform
+
+Fastest path — Claude outputs a JSON block at the end of its response (labelled `=== CLAUDE OUTPUT FILE ===`). Copy that JSON into a `.txt` file and click **📋 Additional Gate Rules** in the platform — clearance overrides, gate notes, and procurement flags are applied automatically.
+
+Manual fallback:
+- Gate checklist items → **Rules & Standards** tab → Project Notes field
 - Clearance overrides → click ✏️ **Edit** on the relevant task row
-- Custom tasks → click **＋ Add Custom Task**
 - Procurement flags → note in the Run Log tab
+
+> **Important:** If Claude identifies new clash task pairs not in your matrix, do **not** add them through the platform. Update the G05 Clash Matrix in Excel and re-upload via **📂 Upload Updated Matrix**. The matrix is the single source of truth for all clash tasks.
 
 </details>
 
 **Step 5 — Work through the gates**  
 For each stage (T1 → T2 → T3 → T4):
-- Complete the Pre-Clash Gate checklist (watch the gate status change from 🔒 to ✅)
-- Use ✏️ Edit on any task to override clearance values for this project
-- Use ＋ Add Custom Task for clash pairs not in the standard matrix
+- Complete the Pre-Clash Gate Checklist (left panel) — gate status changes from 🔒 to ✅ automatically
+- Use ✏️ Edit on any task row to override clearance values for this project
+- If a new clash pair is identified, update the G05 Matrix in Excel and re-upload
 - Click **⬇ Export CSV** to get the Revizto-ready task list
 - Log each coordination run in the Run Log tab
+
+**Step 6 — Transfer to another PC (optional)**  
+Click **⬆ Export Session** to save all tasks, overrides, gate progress, and log to a JSON file.  
+On the other PC, open the platform and click **⬇ Import Session** to restore everything instantly.
+
+---
+
+## Workflow Overview
+
+```
+G05 Clash Matrix (Excel)
+        │
+        ▼  Upload Updated Matrix
+┌─────────────────────────────────┐
+│   BIM Clash Coordination        │
+│   Platform (HTML dashboard)     │
+│                                 │
+│  [Left]          [Right]        │
+│  Pre-Clash    Revizto Clash     │
+│  Gate         Task Output       │
+│  Checklist    (filterable       │
+│  T1–T4        table, CSV        │
+│  gates        export)           │
+└─────────────────────────────────┘
+        │                   │
+        │ Gate = ✅          │ Export CSV
+        ▼                   ▼
+  Run Revizto          Revizto Clash
+  Clash Detection      Automation Tasks
+  for this stage       Loaded Manually
+
+        │
+        ▼  Project Report (PDF/Word)
+   Claude Analysis Prompt
+   (claude.ai — any computer)
+        │
+        ▼  Download JSON output
+   📋 Additional Gate Rules upload
+   → Applies clearance overrides
+   → Adds gate notes & procurement flags
+   → New task pairs? Update G05 Matrix
+     and re-upload — NOT through platform
+```
 
 ---
 
@@ -154,14 +198,17 @@ For each stage (T1 → T2 → T3 → T4):
 
 | Feature | What it does |
 |---|---|
-| T1–T4 Stage tabs | 425 standard tasks (from your uploaded matrix) split by coordination stage |
-| Pre-Clash Gate Checklist | Discipline-tagged checklist items that must be ✅ before running each stage in Revizto |
+| T1–T4 Stage tabs | Tasks from your uploaded G05 matrix split by coordination stage |
+| Pre-Clash Gate Checklist | Discipline-tagged checklist (left panel) — must be ✅ before running each stage in Revizto |
+| Revizto Clash Task Output | Task table (right panel) — search, filter by discipline or clearance, mark as loaded, export CSV |
 | Gate Status | Automatically shows 🔒 Locked / ⚠️ Partial / ✅ Open based on checklist progress |
-| ✏️ Edit Task | Override clearance code, H/V values, Revizto priority, and add a reason note |
-| ＋ Add Custom Task | Add project-specific clash pairs not in the standard matrix |
-| 📐 Rules & Standards | NZS4219:2009 seismic table, clearance code reference, discipline gap matrix, project rules |
-| 📂 Upload Matrix | Upload updated G05 Excel → platform rebuilds all tasks automatically |
-| ⬇ Export CSV | Revizto-ready export including overrides, custom tasks, type flag, and notes |
+| ✏️ Edit Task | Override clearance code, H/V values, Revizto priority, and add a reason note per task |
+| 📐 Rules & Standards | NZS4219:2009 seismic table, clearance code reference, discipline gap matrix with breakdown, project notes |
+| 📂 Upload Updated Matrix | Upload updated G05 Excel → platform rebuilds all tasks automatically; overrides preserved |
+| 📋 Additional Gate Rules | Upload JSON from Claude analysis → applies clearance overrides, gate notes, procurement flags |
+| ⬆ Export Session | Save all tasks, overrides, gate states, and run log to a portable JSON file |
+| ⬇ Import Session | Load a session file on any PC to restore a project's full setup instantly |
+| ⬇ Export CSV | Revizto-ready export including overrides, type flag, and notes |
 | Run Log | Dated record of each coordination session |
 
 ---
