@@ -1184,9 +1184,14 @@ function loadMatrixFromExcel(input) {
 
       // Helper: parse tasks from one sheet's row data
       const catToStage = {0:'T2',1:'T1',2:'T2',3:'T3',4:'T4'};
+      // Clearance code → [H mm, V mm]
+      const CLR_HV = {HC:[0,0],C50:[50,50],C100V:[50,100],C150V:[50,150],C150:[50,150],C600V:[50,600],C1500:[50,1500]};
       const toCode = v => {
         const s = String(v||'').toUpperCase().trim();
         if(s==='HC') return 'HC';
+        // Already a valid clearance code — pass through (C150 treated as C150V)
+        if(s==='C150') return 'C150V';
+        if(['C50','C100V','C150V','C600V','C1500'].includes(s)) return s;
         const n = parseInt(v);
         if(isNaN(n) || n===0) return null; // 0 = not a clash, skip row entirely
         if(n<=50) return 'C50';
@@ -1208,9 +1213,9 @@ function loadMatrixFromExcel(input) {
           if(has7Col) {
             stage = String(row[0]||'').trim();
             const rawClr7 = String(row[1]||'').trim();
-            // 0 or empty = not a clash in this matrix format — skip row
-            if(!rawClr7 || rawClr7 === '0') continue;
-            clearance = rawClr7.toUpperCase();
+            // Run through toCode() — converts numeric values (50→C50, 100→C100V) and skips 0/empty
+            clearance = toCode(rawClr7);
+            if(!clearance) continue;
             clrH = parseInt(row[2]) || 0;
             clrV = parseInt(row[3]) || 0;
             selA = String(row[4]||'').trim();
@@ -1221,9 +1226,9 @@ function loadMatrixFromExcel(input) {
             const rawClr = row[1];
             clearance = toCode(rawClr);
             if(!clearance) continue;
-            const clrMm = String(rawClr).toUpperCase()==='HC' ? 0 : (parseInt(rawClr)||0);
+            // Look up correct H/V from code table — parseInt fails on 'C50', 'C100V' etc.
+            [clrH, clrV] = CLR_HV[clearance] || [0, 0];
             stage = catToStage[cat] !== undefined ? catToStage[cat] : (String(cat).match(/^T[1-4]$/) ? String(cat) : 'T2');
-            clrH = clrMm; clrV = clrMm;
             selA = String(row[2]||'').trim();
             selB = String(row[3]||'').trim();
             taskName = String(row[4]||'').trim() || (clearance + '-' + selA + ' vs ' + selB);
