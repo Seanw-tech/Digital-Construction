@@ -93,11 +93,11 @@ tr:hover td{background:#1e2535}
 .chk-col{width:36px}
 .chk-col input{accent-color:#3b82f6;cursor:pointer}
 td .clr-badge{font-size:.68rem;font-weight:700;padding:2px 7px;border-radius:4px;display:inline-block}
-.clr-HC{background:#1f2937;color:#9ca3af;border:1px solid #374151}
+.clr-HC{background:#7f1d1d;color:#fca5a5;border:1px solid #ef4444}
 .clr-C50{background:#0f2a1a;color:#4ade80;border:1px solid #166534}
 .clr-C100V{background:#1e1b4b;color:#a5b4fc;border:1px solid #3730a3}
 .clr-C150V{background:#2d1b69;color:#c4b5fd;border:1px solid #5b21b6}
-.clr-C600V{background:#450a0a;color:#fca5a5;border:1px solid #7f1d1d}
+.clr-C600V{background:#064e3b;color:#6ee7b7;border:1px solid #10b981}
 .clr-C1500{background:#312e81;color:#e0e7ff;border:1px solid #4338ca}
 .priority-badge{font-size:.68rem;font-weight:700;padding:2px 7px;border-radius:4px}
 .p-Critical{background:#7f1d1d;color:#fca5a5}
@@ -759,11 +759,11 @@ footer{padding:20px 32px;border-top:1px solid #2d3748;text-align:center;font-siz
         <tbody id="gapMatrixBody"></tbody>
       </table>
       <div style="margin-top:12px;display:flex;gap:16px;flex-wrap:wrap;font-size:.72rem">
-        <span style="color:#9ca3af">⬛ HC = Hard Clash (0mm)</span>
+        <span style="color:#fca5a5">🟥 HC = Hard Clash (0mm)</span>
         <span style="color:#fcd34d">🟨 C50 = 50mm all dir</span>
         <span style="color:#a5b4fc">🟦 C100V = 100mm vertical</span>
-        <span style="color:#86efac">🟩 C150V = 150mm vertical</span>
-        <span style="color:#c4b5fd">🟪 C600V = 600mm (access panel)</span>
+        <span style="color:#c4b5fd">🟪 C150V = 150mm vertical</span>
+        <span style="color:#6ee7b7">🟩 C600V = 600mm (access panel)</span>
         <span style="color:#f0abfc">🟣 C1500 = 1500mm (air terminal)</span>
         <span style="color:#475569">— = Not applicable / same discipline</span>
       </div>
@@ -1350,7 +1350,7 @@ function renderGapMatrix() {
     C50:   'background:#78350f;color:#fcd34d;border:1px solid #f97316',
     C100V: 'background:#1e3a5f;color:#93c5fd;border:1px solid #3b82f6',
     C150V: 'background:#14532d;color:#86efac;border:1px solid #22c55e',
-    C600V: 'background:#312e81;color:#c4b5fd;border:1px solid #8b5cf6',
+    C600V: 'background:#064e3b;color:#6ee7b7;border:1px solid #10b981',
     C1500: 'background:#4a044e;color:#f0abfc;border:1px solid #d946ef',
     CUSTOM:'background:#374151;color:#d1d5db;border:1px solid #6b7280'
   };
