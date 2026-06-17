@@ -1410,4 +1410,31 @@ function loadState() {
     if(sl) loaded = JSON.parse(sl);
     const sg = localStorage.getItem('bimLog');
     if(sg) logEntries = JSON.parse(sg);
-    const savedBase = localStorage.g
+    const savedBase = localStorage.getItem('bimBaseTasks');
+    if(savedBase) BASE_TASKS = JSON.parse(savedBase);
+    else BASE_TASKS = TASKS.slice();
+    const sp = localStorage.getItem('projInfo');
+    if(sp) {
+      const pi = JSON.parse(sp);
+      if(pi.name) document.getElementById('projName').value = pi.name;
+      if(pi.lead) document.getElementById('projLead').value = pi.lead;
+    }
+  } catch(e) {}
+}
+
+window.onload = function() {
+  loadState();
+  ['T1','T2','T3','T4'].forEach(s => renderTable(s));
+  renderLog();
+  renderGapMatrix();
+  ['T1','T2','T3','T4'].forEach(s => updateGate(s));
+  if(typeof updateTabCounts === 'function') updateTabCounts();
+  const d = document.getElementById('projDate');
+  if(d && !d.value) d.valueAsDate = new Date();
+  if(BASE_TASKS.length) {
+    document.getElementById('matrixStatus').textContent = '✅ ' + BASE_TASKS.length + ' tasks loaded from last session';
+  }
+};
+</script>
+</body>
+</html>
