@@ -41,13 +41,15 @@ main{padding:28px 32px;max-width:1400px}
 .gate-locked{background:#450a0a;color:#fca5a5;border:1px solid #7f1d1d}
 .gate-open{background:#052e16;color:#86efac;border:1px solid #14532d}
 .gate-partial{background:#1c1917;color:#fbbf24;border:1px solid #78350f}
-.grid-2{display:grid;grid-template-columns:380px 1fr;gap:20px;align-items:start}
+.grid-2{display:grid;grid-template-columns:380px 1fr;gap:20px;align-items:stretch}
+.grid-2>div:first-child{order:1;display:flex;flex-direction:column}.grid-2>div:first-child>.card{display:flex;flex-direction:column;height:100%}
+.grid-2>div:nth-child(2){order:2;display:flex;flex-direction:column}.grid-2>div:nth-child(2)>.card{display:flex;flex-direction:column;height:100%}
 @media(max-width:900px){.grid-2{grid-template-columns:1fr}}
 .card{background:#1a1f2e;border:1px solid #2d3748;border-radius:10px;overflow:hidden}
 .card-header{padding:14px 18px;background:#232a3b;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #2d3748}
 .card-title{font-size:.85rem;font-weight:700;color:#e2e8f0;display:flex;align-items:center;gap:8px}
 .card-body{padding:0}
-.checklist{list-style:none;max-height:420px;overflow-y:auto}
+.checklist{list-style:none;overflow-y:auto;flex:1;min-height:0}
 .checklist::-webkit-scrollbar{width:4px}
 .checklist::-webkit-scrollbar-track{background:#1a1f2e}
 .checklist::-webkit-scrollbar-thumb{background:#3d4a5c;border-radius:2px}
@@ -79,7 +81,7 @@ select.filter{background:#0f1117;border:1px solid #2d3748;color:#94a3b8;padding:
 .btn-success{background:#10b981;color:#fff}
 .btn-success:hover{background:#059669}
 .task-count-info{margin-left:auto;font-size:.75rem;color:#64748b}
-.table-wrap{overflow-x:auto;max-height:480px;overflow-y:auto}
+.table-wrap{overflow-x:auto;overflow-y:auto;flex:1;min-height:0}
 .table-wrap::-webkit-scrollbar{width:6px;height:6px}
 .table-wrap::-webkit-scrollbar-track{background:#1a1f2e}
 .table-wrap::-webkit-scrollbar-thumb{background:#3d4a5c;border-radius:3px}
@@ -128,9 +130,7 @@ footer{padding:20px 32px;border-top:1px solid #2d3748;text-align:center;font-siz
 .btn-danger{background:#450a0a;color:#fca5a5;border:1px solid #7f1d1d;padding:3px 8px;font-size:.65rem;border-radius:4px;cursor:pointer;font-weight:700}
 .btn-danger:hover{background:#7f1d1d;color:#fff}
 .badge-edited{font-size:.62rem;font-weight:700;padding:1px 5px;border-radius:3px;background:#78350f;color:#fde68a;margin-right:4px;vertical-align:middle}
-.badge-custom{font-size:.62rem;font-weight:700;padding:1px 5px;border-radius:3px;background:#0e4429;color:#34d399;margin-right:4px;vertical-align:middle}
 .row-edited td{border-left:3px solid #f59e0b}
-.row-custom td{border-left:3px solid #10b981}
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;align-items:center;justify-content:center}
 .modal-overlay.open{display:flex}
 .modal{background:#1a1f2e;border:1px solid #2d3748;border-radius:12px;padding:28px;width:560px;max-width:96vw;max-height:90vh;overflow-y:auto}
@@ -146,8 +146,9 @@ footer{padding:20px 32px;border-top:1px solid #2d3748;text-align:center;font-siz
 .divider{height:1px;background:#2d3748;margin:16px 0}
 .reset-link{font-size:.72rem;color:#64748b;cursor:pointer;text-decoration:underline;margin-top:6px;display:inline-block}
 .reset-link:hover{color:#fca5a5}
-.custom-count{font-size:.7rem;padding:2px 7px;border-radius:10px;background:#0e4429;color:#34d399;font-weight:700;margin-left:4px}
 .overrides-count{font-size:.7rem;padding:2px 7px;border-radius:10px;background:#78350f;color:#fde68a;font-weight:700;margin-left:4px}
+.btn-io{background:#1c2537;color:#94a3b8;border:1px solid #2d3748;padding:7px 14px;border-radius:6px;font-size:.78rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px}
+.btn-io:hover{background:#232a3b;color:#e2e8f0;border-color:#475569}
 </style>
 </head>
 <body>
@@ -181,8 +182,15 @@ footer{padding:20px 32px;border-top:1px solid #2d3748;text-align:center;font-siz
           <input type="file" id="matrixUpload" accept=".xlsx" style="display:none" onchange="loadMatrixFromExcel(this)">
         </label>
         <label id="claudeUploadLabel" style="background:#0e4429;border:1px solid #166534;color:#34d399;padding:7px 14px;border-radius:6px;font-size:.78rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px">
-          📤 Pre-Clash Gate Updates Upload
+          📋 Additional Gate Rules
           <input type="file" id="claudeUpload" accept=".txt,.json" style="display:none" onchange="loadClaudeOutput(this)">
+        </label>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:4px">
+        <button class="btn-io" onclick="exportSession()">⬆ Export Session</button>
+        <label class="btn-io" style="cursor:pointer">
+          ⬇ Import Session
+          <input type="file" id="sessionImport" accept=".json" style="display:none" onchange="importSession(this)">
         </label>
       </div>
       <div style="display:flex;gap:16px">
@@ -192,6 +200,67 @@ footer{padding:20px 32px;border-top:1px solid #2d3748;text-align:center;font-siz
     </div>
   </div>
 </header>
+
+<!-- ════════ Edit Task Modal ════════ -->
+<div class="modal-overlay" id="taskModal">
+  <div class="modal">
+    <h3 id="modalTitle">✏️ Edit Clash Task</h3>
+    <div class="modal-sub" id="modalSub">Override clearance values for this project. Original matrix values are preserved.</div>
+    <input type="hidden" id="modalMode" value="edit">
+    <input type="hidden" id="modalStage" value="">
+    <div class="form-row">
+      <div class="form-group">
+        <label>Task Name</label>
+        <input id="modalTaskName" readonly style="opacity:.5">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Selection A</label>
+        <input id="modalSelA" readonly style="opacity:.5">
+      </div>
+      <div class="form-group">
+        <label>Selection B</label>
+        <input id="modalSelB" readonly style="opacity:.5">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Clearance Code</label>
+        <select id="modalClrCode" onchange="autofillClearance()">
+          <option>HC</option><option>C50</option><option>C100V</option><option>C150V</option><option>C600V</option><option>C1500</option><option>CUSTOM</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Revizto Priority</label>
+        <select id="modalPriority">
+          <option>Critical</option><option>Major</option><option>Minor</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>H Gap (mm)</label>
+        <input id="modalClrH" type="number">
+      </div>
+      <div class="form-group">
+        <label>V Gap (mm)</label>
+        <input id="modalClrV" type="number">
+      </div>
+    </div>
+    <div class="form-row full">
+      <div class="form-group">
+        <label>Reason / Note</label>
+        <textarea id="modalNote" rows="2" placeholder="Why was this clearance changed?"></textarea>
+      </div>
+    </div>
+    <span class="reset-link" id="resetLink" onclick="resetOverride()">↩ Reset to original matrix values</span>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveModal()">💾 Save Override</button>
+    </div>
+  </div>
+</div>
 
 <!-- Upload progress toast -->
 <div id="uploadToast" style="display:none;position:fixed;bottom:24px;right:24px;background:#1a1f2e;border:1px solid #2d3748;border-radius:10px;padding:16px 20px;z-index:500;min-width:280px;box-shadow:0 8px 32px rgba(0,0,0,.5)">
@@ -249,14 +318,25 @@ footer{padding:20px 32px;border-top:1px solid #2d3748;text-align:center;font-siz
       </div>
       <div class="progress-bar-wrap"><div class="progress-bar" id="pb-T1" style="width:0%;background:var(--t1)"></div></div>
       <ul class="checklist" id="cl-T1">
-        <li class="check-item" data-stage="T1"><input type="checkbox" id="T1-1" onchange="updateGate('T1')"><label for="T1-1"><span class="disc-tag disc-STR">STR</span>Cross bracing (donobraces) are modelled — check against risers and cushion heads</label></li>
-        <li class="check-item" data-stage="T1"><input type="checkbox" id="T1-2" onchange="updateGate('T1')"><label for="T1-2"><span class="disc-tag disc-STR">STR</span>Slab thickness between floors verified (random point test)</label></li>
-        <li class="check-item" data-stage="T1"><input type="checkbox" id="T1-3" onchange="updateGate('T1')"><label for="T1-3"><span class="disc-tag disc-STR">STR</span>Intumescent painting on steelwork — service penetration clearances checked (100mm TYP)</label></li>
-        <li class="check-item" data-stage="T1"><input type="checkbox" id="T1-4" onchange="updateGate('T1')"><label for="T1-4"><span class="disc-tag disc-HYD">HYD</span>In-ground foundation beams vs services — pipes in middle third if penetrating; falls on long runs confirmed</label></li>
-        <li class="check-item" data-stage="T1"><input type="checkbox" id="T1-5" onchange="updateGate('T1')"><label for="T1-5"><span class="disc-tag disc-ARCH">ARCH</span>Wall dimensions and positions verified — random point test from grids completed</label></li>
-        <li class="check-item" data-stage="T1"><input type="checkbox" id="T1-6" onchange="updateGate('T1')"><label for="T1-6"><span class="disc-tag disc-ARCH">ARCH</span>Wall heights modelled correctly — full height elements identified and confirmed</label></li>
-        <li class="check-item" data-stage="T1"><input type="checkbox" id="T1-7" onchange="updateGate('T1')"><label for="T1-7"><span class="disc-tag disc-GEN">GEN</span>Services reticulation strategy aligned with construction build sequence</label></li>
-      </ul>
+        <li class="check-item" data-stage="T1"><input type="checkbox" id="T1-1" onchange="updateGate('T1')"><label for="T1-1"><span class="disc-tag disc-ARCH">ARCH</span>Wall dimensions and positions verified — random point test from grids completed</label></li>
+        <li class="check-item" data-stage="T1"><input type="checkbox" id="T1-2" onchange="updateGate('T1')"><label for="T1-2"><span class="disc-tag disc-ARCH">ARCH</span>Wall heights modelled correctly — full height elements identified and confirmed</label></li>
+        <li class="check-item" data-stage="T1"><input type="checkbox" id="T1-3" onchange="updateGate('T1')"><label for="T1-3"><span class="disc-tag disc-STR">STR</span>Cross bracing (donobraces) are modelled — check against risers and cushion heads</label></li>
+        <li class="check-item" data-stage="T1"><input type="checkbox" id="T1-4" onchange="updateGate('T1')"><label for="T1-4"><span class="disc-tag disc-STR">STR</span>Slab thickness between floors verified (random point test)</label></li>
+        <li class="check-item" data-stage="T1"><input type="checkbox" id="T1-5" onchange="updateGate('T1')"><label for="T1-5"><span class="disc-tag disc-STR">STR</span>Intumescent painting on steelwork — service penetration clearances checked (100mm TYP)</label></li>
+        <li class="check-item" data-stage="T1"><input type="checkbox" id="T1-6" onchange="updateGate('T1')"><label for="T1-6"><span class="disc-tag disc-STR">STR</span>Structural model included in federated environment for plantrooms, risers, main corridors, and all primary service areas</label></li>
+        <li class="check-item" data-stage="T1"><input type="checkbox" id="T1-7" onchange="updateGate('T1')"><label for="T1-7"><span class="disc-tag disc-STR">STR</span>Structural and civil hard constraints modelled or documented sufficiently to support main service route decisions</label></li>
+        <li class="check-item" data-stage="T1"><input type="checkbox" id="T1-8" onchange="updateGate('T1')"><label for="T1-8"><span class="disc-tag disc-HYD">HYD</span>In-ground foundation beams vs services — pipes in middle third if penetrating; falls on long runs confirmed</label></li>
+        <li class="check-item" data-stage="T1"><input type="checkbox" id="T1-9" onchange="updateGate('T1')"><label for="T1-9"><span class="disc-tag disc-GEN">GEN</span>Services reticulation strategy aligned with construction build sequence</label></li>
+        <li class="check-item" data-stage="T1"><input type="checkbox" id="T1-10" onchange="updateGate('T1')"><label for="T1-10"><span class="disc-tag disc-GEN">GEN</span>Major penetrations controlled via a live register — owner, status, and approval authority recorded for each</label></li>
+        <li class="check-item" data-stage="T1"><input type="checkbox" id="T1-11" onchange="updateGate('T1')"><label for="T1-11"><span class="disc-tag disc-GEN">GEN</span>Primary services use realistic external dimensions, conservative envelopes, or agreed route zones (design-to-install intent)</label></li>
+        <li class="check-item" data-stage="T1"><input type="checkbox" id="T1-12" onchange="updateGate('T1')"><label for="T1-12"><span class="disc-tag disc-GEN">GEN</span>Major plant placeholders replaced with realistic dimensions or conservative access and maintenance envelopes</label></li>
+        <li class="check-item" data-stage="T1"><input type="checkbox" id="T1-13" onchange="updateGate('T1')"><label for="T1-13"><span class="disc-tag disc-GEN">GEN</span>Seismic no-go zones, egress protection volumes, and minimum clearance rules defined as model volumes, rules, or documented constraints</label></li>
+        <li class="check-item" data-stage="T1"><input type="checkbox" id="T1-14" onchange="updateGate('T1')"><label for="T1-14"><span class="disc-tag disc-GEN">GEN</span>New clash tasks can be mapped to G05 Clash Matrix categories before T2 automation or reporting begins</label></li>
+        <li class="check-item" data-stage="T1"><input type="checkbox" id="T1-15" onchange="updateGate('T1')"><label for="T1-15"><span class="disc-tag disc-GEN">GEN</span>Each system element has one accountable authoring party confirmed for this coordination stage</label></li>
+        <li class="check-item" data-stage="T1"><input type="checkbox" id="T1-16" onchange="updateGate('T1')"><label for="T1-16"><span class="disc-tag disc-GEN">GEN</span>Placeholder geometry is only used where purpose, owner, and replacement trigger are clearly defined</label></li>
+        <li class="check-item" data-stage="T1"><input type="checkbox" id="T1-17" onchange="updateGate('T1')"><label for="T1-17"><span class="disc-tag disc-GEN">GEN</span>All coordination issues assigned to the party responsible for action — not the party who raised the issue</label></li>
+        <li class="check-item" data-stage="T1"><input type="checkbox" id="T1-18" onchange="updateGate('T1')"><label for="T1-18"><span class="disc-tag disc-GEN">GEN</span>Unresolved T1 constraints assigned to accountable owner with due date, or formally accepted as risk before progressing to T2</label></li>
+        </ul>
     </div>
     <div class="card">
       <div class="card-header">
@@ -275,7 +355,6 @@ footer{padding:20px 32px;border-top:1px solid #2d3748;text-align:center;font-siz
         <span class="task-count-info" id="count-T1">Showing 67 tasks</span>
         <button class="btn btn-success" onclick="exportCSV('T1')">⬇ Export CSV</button>
         <button class="btn btn-ghost" onclick="copySelected('T1')">📋 Copy Selected</button>
-        <button class="btn btn-primary" onclick="openAddModal('T1')" style="background:#0e4429;border:1px solid #166534;color:#34d399">＋ Add Custom Task</button>
       </div>
       <div class="sel-all-row">
         <input type="checkbox" id="selAll-T1" onchange="selectAll('T1',this.checked)">
@@ -335,17 +414,24 @@ footer{padding:20px 32px;border-top:1px solid #2d3748;text-align:center;font-siz
         <li class="check-item"><input type="checkbox" id="T2-3" onchange="updateGate('T2')"><label for="T2-3"><span class="disc-tag disc-ARCH">ARCH</span>No services penetrate architect-modelled deflection heads (seismic movement clearance)</label></li>
         <li class="check-item"><input type="checkbox" id="T2-4" onchange="updateGate('T2')"><label for="T2-4"><span class="disc-tag disc-ARCH">ARCH</span>Ceiling/slab thermal or acoustic insulation modelled — spec confirmed</label></li>
         <li class="check-item"><input type="checkbox" id="T2-5" onchange="updateGate('T2')"><label for="T2-5"><span class="disc-tag disc-ARCH">ARCH</span>Acoustic walls with insulation — diagonal brackets modelled, ceiling clearance increased to 100mm</label></li>
-        <li class="check-item"><input type="checkbox" id="T2-6" onchange="updateGate('T2')"><label for="T2-6"><span class="disc-tag disc-GEN">GEN</span>Deflection heads on partitions confirmed — services not routing through them</label></li>
-        <li class="check-item"><input type="checkbox" id="T2-7" onchange="updateGate('T2')"><label for="T2-7"><span class="disc-tag disc-GEN">GEN</span>All elements 50mm clear from each other and structure — checked</label></li>
-        <li class="check-item"><input type="checkbox" id="T2-8" onchange="updateGate('T2')"><label for="T2-8"><span class="disc-tag disc-GEN">GEN</span>Insulation thickness modelled correctly on ducts/pipes/mech/hydraulic</label></li>
-        <li class="check-item"><input type="checkbox" id="T2-9" onchange="updateGate('T2')"><label for="T2-9"><span class="disc-tag disc-ELE">ELE</span>150mm clearance between all cable trays confirmed (min 125mm where constrained)</label></li>
-        <li class="check-item"><input type="checkbox" id="T2-10" onchange="updateGate('T2')"><label for="T2-10"><span class="disc-tag disc-ELE">ELE</span>Cable separation between power (LV) and low voltage (data, AV, security) modelled correctly</label></li>
-        <li class="check-item"><input type="checkbox" id="T2-11" onchange="updateGate('T2')"><label for="T2-11"><span class="disc-tag disc-MEC">MEC</span>Duct sizes correct — internal dimensions match design drawings</label></li>
-        <li class="check-item"><input type="checkbox" id="T2-12" onchange="updateGate('T2')"><label for="T2-12"><span class="disc-tag disc-MEC">MEC</span>Services &gt;150mm from ceilings — no installation/access impediment</label></li>
-        <li class="check-item"><input type="checkbox" id="T2-13" onchange="updateGate('T2')"><label for="T2-13"><span class="disc-tag disc-MEC">MEC</span>Fire dampers not within 200mm of each other — spacing confirmed</label></li>
-        <li class="check-item"><input type="checkbox" id="T2-14" onchange="updateGate('T2')"><label for="T2-14"><span class="disc-tag disc-HYD">HYD</span>Pipes in walls checked — no hydraulic pipes exceeding wall width</label></li>
-        <li class="check-item"><input type="checkbox" id="T2-15" onchange="updateGate('T2')"><label for="T2-15"><span class="disc-tag disc-HYD">HYD</span>Equal junctions connecting to main drain at ≥15° angle or vertically — confirmed</label></li>
-      </ul>
+        <li class="check-item"><input type="checkbox" id="T2-6" onchange="updateGate('T2')"><label for="T2-6"><span class="disc-tag disc-HYD">HYD</span>Pipes in walls checked — no hydraulic pipes exceeding wall width</label></li>
+        <li class="check-item"><input type="checkbox" id="T2-7" onchange="updateGate('T2')"><label for="T2-7"><span class="disc-tag disc-HYD">HYD</span>Equal junctions connecting to main drain at ≥15° angle or vertically — confirmed</label></li>
+        <li class="check-item"><input type="checkbox" id="T2-8" onchange="updateGate('T2')"><label for="T2-8"><span class="disc-tag disc-MEC">MEC</span>Duct sizes correct — internal dimensions match design drawings</label></li>
+        <li class="check-item"><input type="checkbox" id="T2-9" onchange="updateGate('T2')"><label for="T2-9"><span class="disc-tag disc-MEC">MEC</span>Services &gt;150mm from ceilings — no installation/access impediment</label></li>
+        <li class="check-item"><input type="checkbox" id="T2-10" onchange="updateGate('T2')"><label for="T2-10"><span class="disc-tag disc-MEC">MEC</span>Fire dampers not within 200mm of each other — spacing confirmed</label></li>
+        <li class="check-item"><input type="checkbox" id="T2-11" onchange="updateGate('T2')"><label for="T2-11"><span class="disc-tag disc-ELE">ELE</span>150mm clearance between all cable trays confirmed (min 125mm where constrained)</label></li>
+        <li class="check-item"><input type="checkbox" id="T2-12" onchange="updateGate('T2')"><label for="T2-12"><span class="disc-tag disc-ELE">ELE</span>Cable separation between power (LV) and low voltage (data, AV, security) modelled correctly</label></li>
+        <li class="check-item" data-stage="T2"><input type="checkbox" id="T2-13" onchange="updateGate('T2')"><label for="T2-13"><span class="disc-tag disc-FIR">FIR</span>Fire model transition rule confirmed — when re-coordination is required and who is responsible when subcontractor model replaces design model</label></li>
+        <li class="check-item"><input type="checkbox" id="T2-14" onchange="updateGate('T2')"><label for="T2-14"><span class="disc-tag disc-GEN">GEN</span>Deflection heads on partitions confirmed — services not routing through them</label></li>
+        <li class="check-item"><input type="checkbox" id="T2-15" onchange="updateGate('T2')"><label for="T2-15"><span class="disc-tag disc-GEN">GEN</span>All elements 50mm clear from each other and structure — checked</label></li>
+        <li class="check-item"><input type="checkbox" id="T2-16" onchange="updateGate('T2')"><label for="T2-16"><span class="disc-tag disc-GEN">GEN</span>Insulation thickness modelled correctly on ducts/pipes/mech/hydraulic</label></li>
+        <li class="check-item" data-stage="T2"><input type="checkbox" id="T2-17" onchange="updateGate('T2')"><label for="T2-17"><span class="disc-tag disc-GEN">GEN</span>Ceiling control surfaces defined by zone, room, or agreed construction area before device and fit-out coordination begins</label></li>
+        <li class="check-item" data-stage="T2"><input type="checkbox" id="T2-18" onchange="updateGate('T2')"><label for="T2-18"><span class="disc-tag disc-GEN">GEN</span>Main and branch distribution services modelled in active construction zones to agreed coordination accuracy</label></li>
+        <li class="check-item" data-stage="T2"><input type="checkbox" id="T2-19" onchange="updateGate('T2')"><label for="T2-19"><span class="disc-tag disc-GEN">GEN</span>Insulation, clearance, fire, acoustic, and access assumptions agreed and applied where they drive clash outcomes</label></li>
+        <li class="check-item" data-stage="T2"><input type="checkbox" id="T2-20" onchange="updateGate('T2')"><label for="T2-20"><span class="disc-tag disc-GEN">GEN</span>Maintenance access volumes initiated for major valves, dampers, FCUs, VAVs, switchboards, pumps, and plant</label></li>
+        <li class="check-item" data-stage="T2"><input type="checkbox" id="T2-21" onchange="updateGate('T2')"><label for="T2-21"><span class="disc-tag disc-GEN">GEN</span>High-risk seismic and support modelling commenced, or responsibility and timing formally agreed with accountable party</label></li>
+        <li class="check-item" data-stage="T2"><input type="checkbox" id="T2-22" onchange="updateGate('T2')"><label for="T2-22"><span class="disc-tag disc-GEN">GEN</span>All unresolved T2 issues assigned to correct responsible party with due date, status, and priority recorded</label></li>
+        </ul>
     </div>
     <div class="card">
       <div class="card-header"><span class="card-title">📤 Revizto Clash Task Output</span></div>
@@ -362,7 +448,6 @@ footer{padding:20px 32px;border-top:1px solid #2d3748;text-align:center;font-siz
         <span class="task-count-info" id="count-T2">Showing 223 tasks</span>
         <button class="btn btn-success" onclick="exportCSV('T2')">⬇ Export CSV</button>
         <button class="btn btn-ghost" onclick="copySelected('T2')">📋 Copy Selected</button>
-        <button class="btn btn-primary" onclick="openAddModal('T2')" style="background:#0e4429;border:1px solid #166534;color:#34d399">＋ Add Custom Task</button>
       </div>
       <div class="sel-all-row">
         <input type="checkbox" id="selAll-T2" onchange="selectAll('T2',this.checked)">
@@ -419,17 +504,24 @@ footer{padding:20px 32px;border-top:1px solid #2d3748;text-align:center;font-siz
       <ul class="checklist" id="cl-T3">
         <li class="check-item"><input type="checkbox" id="T3-1" onchange="updateGate('T3')"><label for="T3-1"><span class="disc-tag disc-ARCH">ARCH</span>Acoustic report reviewed — unusual requirements and acoustic wall requirements colour-coded</label></li>
         <li class="check-item"><input type="checkbox" id="T3-2" onchange="updateGate('T3')"><label for="T3-2"><span class="disc-tag disc-ARCH">ARCH</span>RCP coordination complete — ceiling types and fixtures colour-coded, common geometries across trades highlighted</label></li>
-        <li class="check-item"><input type="checkbox" id="T3-3" onchange="updateGate('T3')"><label for="T3-3"><span class="disc-tag disc-GEN">GEN</span>Ceiling-mounted items modelled (speakers, detectors, sprinklers) — 150mm clearance above FCL confirmed (PCA A-Grade)</label></li>
-        <li class="check-item"><input type="checkbox" id="T3-4" onchange="updateGate('T3')"><label for="T3-4"><span class="disc-tag disc-GEN">GEN</span>Wall-mounted items modelled below ceilings — correctly positioned (not floating)</label></li>
-        <li class="check-item"><input type="checkbox" id="T3-5" onchange="updateGate('T3')"><label for="T3-5"><span class="disc-tag disc-GEN">GEN</span>Plant rooms — spatial check for access and maintenance clearances completed</label></li>
+        <li class="check-item"><input type="checkbox" id="T3-3" onchange="updateGate('T3')"><label for="T3-3"><span class="disc-tag disc-HYD">HYD</span>Excess tundish flagged in Revizto — MEC and HYD tundishes identified for team discussion</label></li>
+        <li class="check-item"><input type="checkbox" id="T3-4" onchange="updateGate('T3')"><label for="T3-4"><span class="disc-tag disc-MEC">MEC</span>Flexible duct length ≤3m (target 2.5m) — confirmed</label></li>
+        <li class="check-item"><input type="checkbox" id="T3-5" onchange="updateGate('T3')"><label for="T3-5"><span class="disc-tag disc-MEC">MEC</span>Cooling tower access ladder modelled per AS1657 — spatial requirements confirmed</label></li>
         <li class="check-item"><input type="checkbox" id="T3-6" onchange="updateGate('T3')"><label for="T3-6"><span class="disc-tag disc-ELE">ELE</span>BMS, Dry Fire, and AV cable trays modelled and confirmed</label></li>
         <li class="check-item"><input type="checkbox" id="T3-7" onchange="updateGate('T3')"><label for="T3-7"><span class="disc-tag disc-ELE">ELE</span>AV equipment modelled — type and dimensions confirmed against procurement schedule</label></li>
         <li class="check-item"><input type="checkbox" id="T3-8" onchange="updateGate('T3')"><label for="T3-8"><span class="disc-tag disc-ELE">ELE</span>Floor box numbers and positions align with architectural floor layout</label></li>
-        <li class="check-item"><input type="checkbox" id="T3-9" onchange="updateGate('T3')"><label for="T3-9"><span class="disc-tag disc-HYD">HYD</span>Excess tundish flagged in Revizto — MEC and HYD tundishes identified for team discussion</label></li>
-        <li class="check-item"><input type="checkbox" id="T3-10" onchange="updateGate('T3')"><label for="T3-10"><span class="disc-tag disc-MEC">MEC</span>Flexible duct length ≤3m (target 2.5m) — confirmed</label></li>
-        <li class="check-item"><input type="checkbox" id="T3-11" onchange="updateGate('T3')"><label for="T3-11"><span class="disc-tag disc-MEC">MEC</span>Cooling tower access ladder modelled per AS1657 — spatial requirements confirmed</label></li>
-        <li class="check-item"><input type="checkbox" id="T3-12" onchange="updateGate('T3')"><label for="T3-12"><span class="disc-tag disc-FIRE">FIRE</span>Fire egress routes — minimum widths maintained in ceilings, walkways, and roofs</label></li>
-      </ul>
+        <li class="check-item"><input type="checkbox" id="T3-9" onchange="updateGate('T3')"><label for="T3-9"><span class="disc-tag disc-FIRE">FIRE</span>Fire egress routes — minimum widths maintained in ceilings, walkways, and roofs</label></li>
+        <li class="check-item"><input type="checkbox" id="T3-10" onchange="updateGate('T3')"><label for="T3-10"><span class="disc-tag disc-GEN">GEN</span>Ceiling-mounted items modelled (speakers, detectors, sprinklers) — 150mm clearance above FCL confirmed (PCA A-Grade)</label></li>
+        <li class="check-item"><input type="checkbox" id="T3-11" onchange="updateGate('T3')"><label for="T3-11"><span class="disc-tag disc-GEN">GEN</span>Wall-mounted items modelled below ceilings — correctly positioned (not floating)</label></li>
+        <li class="check-item"><input type="checkbox" id="T3-12" onchange="updateGate('T3')"><label for="T3-12"><span class="disc-tag disc-GEN">GEN</span>Plant rooms — spatial check for access and maintenance clearances completed</label></li>
+        <li class="check-item" data-stage="T3"><input type="checkbox" id="T3-13" onchange="updateGate('T3')"><label for="T3-13"><span class="disc-tag disc-GEN">GEN</span>Final device and terminal layouts coordinated in active construction zones</label></li>
+        <li class="check-item" data-stage="T3"><input type="checkbox" id="T3-14" onchange="updateGate('T3')"><label for="T3-14"><span class="disc-tag disc-GEN">GEN</span>Access panels, inspection points, and maintenance clearances validated where required</label></li>
+        <li class="check-item" data-stage="T3"><input type="checkbox" id="T3-15" onchange="updateGate('T3')"><label for="T3-15"><span class="disc-tag disc-GEN">GEN</span>Local penetrations and builders work holes recorded, approved, or assigned for trade resolution as applicable</label></li>
+        <li class="check-item" data-stage="T3"><input type="checkbox" id="T3-16" onchange="updateGate('T3')"><label for="T3-16"><span class="disc-tag disc-GEN">GEN</span>No unresolved critical clashes remain that would prevent ceiling closure, commissioning, compliance, or safe access</label></li>
+        <li class="check-item" data-stage="T3"><input type="checkbox" id="T3-17" onchange="updateGate('T3')"><label for="T3-17"><span class="disc-tag disc-GEN">GEN</span>Outstanding T3 issues assigned with construction priority, due date, and responsible party</label></li>
+        <li class="check-item" data-stage="T3"><input type="checkbox" id="T3-18" onchange="updateGate('T3')"><label for="T3-18"><span class="disc-tag disc-GEN">GEN</span>T3 outputs are suitable to support trade installation, commissioning planning, and site verification</label></li>
+        <li class="check-item" data-stage="T3"><input type="checkbox" id="T3-19" onchange="updateGate('T3')"><label for="T3-19"><span class="disc-tag disc-GEN">GEN</span>Field change affecting fire, acoustic, egress, seismic, structure, or maintainability — re-clash scope confirmed and responsibility assigned</label></li>
+        </ul>
     </div>
     <div class="card">
       <div class="card-header"><span class="card-title">📤 Revizto Clash Task Output</span></div>
@@ -446,7 +538,6 @@ footer{padding:20px 32px;border-top:1px solid #2d3748;text-align:center;font-siz
         <span class="task-count-info" id="count-T3">Showing 108 tasks</span>
         <button class="btn btn-success" onclick="exportCSV('T3')">⬇ Export CSV</button>
         <button class="btn btn-ghost" onclick="copySelected('T3')">📋 Copy Selected</button>
-        <button class="btn btn-primary" onclick="openAddModal('T3')" style="background:#0e4429;border:1px solid #166534;color:#34d399">＋ Add Custom Task</button>
       </div>
       <div class="sel-all-row">
         <input type="checkbox" id="selAll-T3" onchange="selectAll('T3',this.checked)">
@@ -501,14 +592,20 @@ footer{padding:20px 32px;border-top:1px solid #2d3748;text-align:center;font-siz
       </div>
       <div class="progress-bar-wrap"><div class="progress-bar" id="pb-T4" style="width:0%;background:var(--t4)"></div></div>
       <ul class="checklist" id="cl-T4">
-        <li class="check-item"><input type="checkbox" id="T4-1" onchange="updateGate('T4')"><label for="T4-1"><span class="disc-tag disc-GEN">GEN</span>Random check of each trade's 2D drawings against model — spot heights verified</label></li>
-        <li class="check-item"><input type="checkbox" id="T4-2" onchange="updateGate('T4')"><label for="T4-2"><span class="disc-tag disc-ARCH">ARCH</span>Firewall layout verified against the fire report — no discrepancies</label></li>
-        <li class="check-item"><input type="checkbox" id="T4-3" onchange="updateGate('T4')"><label for="T4-3"><span class="disc-tag disc-ARCH">ARCH</span>Roof walkways — confirmed aligned with plant and services routing</label></li>
-        <li class="check-item"><input type="checkbox" id="T4-4" onchange="updateGate('T4')"><label for="T4-4"><span class="disc-tag disc-GEN">GEN</span>No services run between roof ridgeline and ridgeline steelwork — confirmed</label></li>
-        <li class="check-item"><input type="checkbox" id="T4-5" onchange="updateGate('T4')"><label for="T4-5"><span class="disc-tag disc-STR">STR</span>Fire rating of steel through fire walls — checked against drawings (typically 2D, confirm modelled)</label></li>
-        <li class="check-item"><input type="checkbox" id="T4-6" onchange="updateGate('T4')"><label for="T4-6"><span class="disc-tag disc-MEC">MEC</span>Grilles aligned with louvres — no misalignment</label></li>
-        <li class="check-item"><input type="checkbox" id="T4-7" onchange="updateGate('T4')"><label for="T4-7"><span class="disc-tag disc-MEC">MEC</span>Service penetration placeholders — all used or removed; none incorrectly placed</label></li>
-      </ul>
+        <li class="check-item"><input type="checkbox" id="T4-1" onchange="updateGate('T4')"><label for="T4-1"><span class="disc-tag disc-ARCH">ARCH</span>Firewall layout verified against the fire report — no discrepancies</label></li>
+        <li class="check-item"><input type="checkbox" id="T4-2" onchange="updateGate('T4')"><label for="T4-2"><span class="disc-tag disc-ARCH">ARCH</span>Roof walkways — confirmed aligned with plant and services routing</label></li>
+        <li class="check-item"><input type="checkbox" id="T4-3" onchange="updateGate('T4')"><label for="T4-3"><span class="disc-tag disc-STR">STR</span>Fire rating of steel through fire walls — checked against drawings (typically 2D, confirm modelled)</label></li>
+        <li class="check-item"><input type="checkbox" id="T4-4" onchange="updateGate('T4')"><label for="T4-4"><span class="disc-tag disc-MEC">MEC</span>Grilles aligned with louvres — no misalignment</label></li>
+        <li class="check-item"><input type="checkbox" id="T4-5" onchange="updateGate('T4')"><label for="T4-5"><span class="disc-tag disc-MEC">MEC</span>Service penetration placeholders — all used or removed; none incorrectly placed</label></li>
+        <li class="check-item"><input type="checkbox" id="T4-6" onchange="updateGate('T4')"><label for="T4-6"><span class="disc-tag disc-GEN">GEN</span>Random check of each trade's 2D drawings against model — spot heights verified</label></li>
+        <li class="check-item"><input type="checkbox" id="T4-7" onchange="updateGate('T4')"><label for="T4-7"><span class="disc-tag disc-GEN">GEN</span>No services run between roof ridgeline and ridgeline steelwork — confirmed</label></li>
+        <li class="check-item" data-stage="T4"><input type="checkbox" id="T4-8" onchange="updateGate('T4')"><label for="T4-8"><span class="disc-tag disc-GEN">GEN</span>As-built modelling confirmed for mandatory scope — plantrooms, risers, main corridors, major plant, registered penetrations affecting compliance or FM handover</label></li>
+        <li class="check-item" data-stage="T4"><input type="checkbox" id="T4-9" onchange="updateGate('T4')"><label for="T4-9"><span class="disc-tag disc-GEN">GEN</span>Material deviations from coordinated design captured where they affect operation, access, safety, compliance, or FM handover</label></li>
+        <li class="check-item" data-stage="T4"><input type="checkbox" id="T4-10" onchange="updateGate('T4')"><label for="T4-10"><span class="disc-tag disc-GEN">GEN</span>Penetrations and supports finalised and aligned between model, register, and site records where required</label></li>
+        <li class="check-item" data-stage="T4"><input type="checkbox" id="T4-11" onchange="updateGate('T4')"><label for="T4-11"><span class="disc-tag disc-GEN">GEN</span>Final access and compliance checks completed — egress, access hatches, service clearances, seismic no-go zones, and maintenance access</label></li>
+        <li class="check-item" data-stage="T4"><input type="checkbox" id="T4-12" onchange="updateGate('T4')"><label for="T4-12"><span class="disc-tag disc-GEN">GEN</span>Key equipment and handover assets have correct dimensions, location, identifier, and required asset data per project brief</label></li>
+        <li class="check-item" data-stage="T4"><input type="checkbox" id="T4-13" onchange="updateGate('T4')"><label for="T4-13"><span class="disc-tag disc-GEN">GEN</span>Residual issues closed, formally accepted, or transferred to defects, commissioning, or handover process — none left unassigned</label></li>
+        </ul>
     </div>
     <div class="card">
       <div class="card-header"><span class="card-title">📤 Revizto Clash Task Output</span></div>
@@ -525,7 +622,6 @@ footer{padding:20px 32px;border-top:1px solid #2d3748;text-align:center;font-siz
         <span class="task-count-info" id="count-T4">Showing 27 tasks</span>
         <button class="btn btn-success" onclick="exportCSV('T4')">⬇ Export CSV</button>
         <button class="btn btn-ghost" onclick="copySelected('T4')">📋 Copy Selected</button>
-        <button class="btn btn-primary" onclick="openAddModal('T4')" style="background:#0e4429;border:1px solid #166534;color:#34d399">＋ Add Custom Task</button>
       </div>
       <div class="sel-all-row">
         <input type="checkbox" id="selAll-T4" onchange="selectAll('T4',this.checked)">
@@ -664,10 +760,16 @@ footer{padding:20px 32px;border-top:1px solid #2d3748;text-align:center;font-siz
       </table>
       <div style="margin-top:12px;display:flex;gap:16px;flex-wrap:wrap;font-size:.72rem">
         <span style="color:#9ca3af">⬛ HC = Hard Clash (0mm)</span>
-        <span style="color:#4ade80">🟩 C50 = 50mm all dir</span>
+        <span style="color:#fcd34d">🟨 C50 = 50mm all dir</span>
         <span style="color:#a5b4fc">🟦 C100V = 100mm vertical</span>
-        <span style="color:#fca5a5">🟥 C600V = 600mm vertical (access panel)</span>
-        <span style="color:#475569">— = Not applicable</span>
+        <span style="color:#86efac">🟩 C150V = 150mm vertical</span>
+        <span style="color:#c4b5fd">🟪 C600V = 600mm (access panel)</span>
+        <span style="color:#f0abfc">🟣 C1500 = 1500mm (air terminal)</span>
+        <span style="color:#475569">— = Not applicable / same discipline</span>
+      </div>
+      <div style="margin-top:10px;padding:10px 14px;background:#0f172a;border-radius:6px;font-size:.74rem;color:#64748b;line-height:1.6">
+        <span style="color:#94a3b8;font-weight:700">ℹ️ How this matrix works: </span>Each cell shows the <strong style="color:#e2e8f0">most restrictive</strong> clearance code for that discipline pair from your uploaded G05 matrix. HC dominates because any single hard clash task between two disciplines overrides softer clearance codes. This is correct coordination logic — HC means physical intersection is never acceptable. If all your discipline pairs include at least one HC task, every cell will show HC. To see the full range of clearances in use, upload your G05 matrix and check the clearance filter in each T1–T4 panel.
+        <div id="clrBreakdown" style="margin-top:8px;display:flex;gap:16px;flex-wrap:wrap"></div>
       </div>
     </div>
   </div>
@@ -764,7 +866,6 @@ footer{padding:20px 32px;border-top:1px solid #2d3748;text-align:center;font-siz
 const TASKS = []; // Tasks loaded via Excel upload or from previous session
 let BASE_TASKS = [];
 let overrides = {};
-let customTasks = [];
 let loaded = {};
 let logEntries = [];
 let activeFilters = {};
@@ -802,15 +903,12 @@ function switchTab(tab) {
 }
 
 function getAllTasksForStage(stage) {
-  const base = BASE_TASKS.filter(t => t[0] === stage).map(t => ({
-    key: t[6], stage: t[0], clearance: t[1], clr_h: t[2], clr_v: t[3], selA: t[4], selB: t[5], task: t[6], isCustom: false
+  return BASE_TASKS.filter(t => t[0] === stage).map(t => ({
+    key: t[6], stage: t[0], clearance: t[1], clr_h: t[2], clr_v: t[3], selA: t[4], selB: t[5], task: t[6]
   }));
-  const custom = customTasks.filter(t => t.stage === stage);
-  return [...base, ...custom];
 }
 
 function getEffective(task) {
-  if(task.isCustom) return task;
   const ov = overrides[task.key];
   if(ov) return Object.assign({}, task, ov, {isEdited: true});
   return task;
@@ -845,11 +943,10 @@ function renderTable(stage) {
       const isLoaded = loaded[key];
       const priority = eff.priority || priorityFor(eff.selA, eff.selB, eff.clearance);
       const editedBadge = eff.isEdited ? '<span class="badge-edited">EDITED</span>' : '';
-      const customBadge = t.isCustom ? '<span class="badge-custom">CUSTOM</span>' : '';
-      const noteHtml = eff.note ? '<div style="font-size:.68rem;color:#64748b;margin-top:2px">\u{1F4DD} ' + eff.note + '</div>' : '';
-      return '<tr class="' + (eff.isEdited ? 'row-edited' : '') + ' ' + (t.isCustom ? 'row-custom' : '') + '">' +
+      const noteHtml = eff.note ? '<div style="font-size:.68rem;color:#64748b;margin-top:2px">📝 ' + eff.note + '</div>' : '';
+      return '<tr class="' + (eff.isEdited ? 'row-edited' : '') + '">' +
         '<td class="chk-col"><input type="checkbox" class="row-cb" data-stage="' + stage + '" data-key="' + key.replace(/"/g,'&quot;') + '"></td>' +
-        '<td><span class="task-name">' + editedBadge + customBadge + eff.task + '</span>' + noteHtml + '</td>' +
+        '<td><span class="task-name">' + editedBadge + eff.task + '</span>' + noteHtml + '</td>' +
         '<td style="font-size:.75rem">' + eff.selA + '</td>' +
         '<td style="font-size:.75rem">' + eff.selB + '</td>' +
         '<td><span class="clr-badge clr-' + eff.clearance + '">' + eff.clearance + '</span></td>' +
@@ -857,7 +954,7 @@ function renderTable(stage) {
         '<td class="mm-val">' + eff.clr_v + '</td>' +
         '<td><span class="priority-badge p-' + priority + '">' + priority + '</span></td>' +
         '<td><span class="loaded-badge loaded-' + (isLoaded ? 'Y' : 'N') + '">' + (isLoaded ? '✓' : '—') + '</span></td>' +
-        '<td><button class="btn-edit" onclick="editTask(\'' + key.replace(/'/g,"\\'").replace(/\\/g,'\\\\') + '\',' + t.isCustom + ')">&#9998;&#65039; Edit</button></td>' +
+        '<td><button class="btn-edit" onclick="editTask(\'' + key.replace(/'/g,"\\'").replace(/\\/g,'\\\\') + '\')">&#9998;&#65039; Edit</button></td>' +
         '</tr>';
     }).join('');
   }
@@ -943,7 +1040,7 @@ function exportCSV(stage) {
   all.forEach(t => {
     const eff = getEffective(t);
     const priority = eff.priority || priorityFor(eff.selA, eff.selB, eff.clearance);
-    rows.push([eff.stage || stage, eff.task, eff.selA, eff.selB, eff.clearance, eff.clr_h, eff.clr_v, priority, t.isCustom ? 'Custom' : (eff.isEdited ? 'Edited' : 'Standard'), eff.note || '', loaded[t.key || t.id] ? 'Yes' : 'No']);
+    rows.push([eff.stage || stage, eff.task, eff.selA, eff.selB, eff.clearance, eff.clr_h, eff.clr_v, priority, eff.isEdited ? 'Edited' : 'Standard', eff.note || '', loaded[t.key || t.id] ? 'Yes' : 'No']);
   });
   const csv = rows.map(r => r.map(v => '"' + String(v || '').replace(/"/g, '""') + '"').join(',')).join('\n');
   const blob = new Blob([csv], {type:'text/csv'});
@@ -956,43 +1053,20 @@ function exportCSV(stage) {
 let currentTaskKey = '';
 let currentTaskStage = '';
 
-function openAddModal(stage) {
-  currentTaskKey = '';
-  currentTaskStage = stage;
-  document.getElementById('modalTitle').textContent = '＋ Add Custom Task';
-  document.getElementById('modalSub').textContent = 'Create a project-specific clash pair not in the standard matrix.';
-  document.getElementById('modalMode').value = 'add';
-  document.getElementById('modalStage').value = stage;
-  document.getElementById('modalTaskName').value = '';
-  document.getElementById('modalSelA').value = '';
-  document.getElementById('modalSelB').value = '';
-  document.getElementById('modalClrCode').value = 'C50';
-  document.getElementById('modalClrH').value = 50;
-  document.getElementById('modalClrV').value = 50;
-  document.getElementById('modalPriority').value = 'Major';
-  document.getElementById('modalNote').value = '';
-  document.getElementById('modalTaskName').readOnly = false;
-  document.getElementById('modalSelA').readOnly = false;
-  document.getElementById('modalSelB').readOnly = false;
-  document.getElementById('resetLink').style.display = 'none';
-  document.getElementById('deleteBtn').style.display = 'none';
-  document.getElementById('taskModal').classList.add('open');
-}
-
-function editTask(taskKey, isCustom) {
+function editTask(taskKey) {
   currentTaskKey = taskKey;
   const stages = ['T1','T2','T3','T4'];
   let task = null, stage = '';
   for(const s of stages) {
-    task = getAllTasksForStage(s).find(t => (t.key || t.id) === taskKey);
+    task = getAllTasksForStage(s).find(t => t.key === taskKey);
     if(task) { stage = s; break; }
   }
   if(!task) return;
   currentTaskStage = stage;
   const eff = getEffective(task);
-  document.getElementById('modalTitle').textContent = isCustom ? '✏️ Edit Custom Task' : '✏️ Edit Clash Task';
-  document.getElementById('modalSub').textContent = isCustom ? 'Modify this custom task.' : 'Override clearance values for this project. Original values are preserved.';
-  document.getElementById('modalMode').value = isCustom ? 'custom' : 'edit';
+  document.getElementById('modalTitle').textContent = '✏️ Edit Clash Task';
+  document.getElementById('modalSub').textContent = 'Override clearance values for this project. Original matrix values are preserved.';
+  document.getElementById('modalMode').value = 'edit';
   document.getElementById('modalStage').value = stage;
   document.getElementById('modalTaskName').value = eff.task;
   document.getElementById('modalSelA').value = eff.selA;
@@ -1002,11 +1076,10 @@ function editTask(taskKey, isCustom) {
   document.getElementById('modalClrV').value = eff.clr_v;
   document.getElementById('modalPriority').value = eff.priority || priorityFor(eff.selA, eff.selB, eff.clearance);
   document.getElementById('modalNote').value = eff.note || '';
-  document.getElementById('modalTaskName').readOnly = !isCustom;
-  document.getElementById('modalSelA').readOnly = !isCustom;
-  document.getElementById('modalSelB').readOnly = !isCustom;
-  document.getElementById('resetLink').style.display = (!isCustom && overrides[taskKey]) ? 'inline-block' : 'none';
-  document.getElementById('deleteBtn').style.display = isCustom ? 'inline-flex' : 'none';
+  document.getElementById('modalTaskName').readOnly = true;
+  document.getElementById('modalSelA').readOnly = true;
+  document.getElementById('modalSelB').readOnly = true;
+  document.getElementById('resetLink').style.display = overrides[taskKey] ? 'inline-block' : 'none';
   document.getElementById('taskModal').classList.add('open');
 }
 
@@ -1034,29 +1107,11 @@ function saveModal() {
   const priority = document.getElementById('modalPriority').value;
   const note = document.getElementById('modalNote').value.trim();
   if(!taskName) { alert('Task name is required.'); return; }
-  if(mode === 'add') {
-    const id = 'custom-' + Date.now();
-    customTasks.push({id, stage, task: taskName, selA, selB, clearance, clr_h, clr_v, priority, note, isCustom: true});
-  } else if(mode === 'custom') {
-    const ct = customTasks.find(t => t.id === currentTaskKey);
-    if(ct) Object.assign(ct, {task: taskName, selA, selB, clearance, clr_h, clr_v, priority, note});
-  } else {
-    overrides[currentTaskKey] = {clearance, clr_h, clr_v, priority, note};
-  }
+  overrides[currentTaskKey] = {clearance, clr_h, clr_v, priority, note};
   saveState();
   closeModal();
   renderTable(stage);
-  showToast(mode === 'add' ? '✅ Custom task added' : '✅ Task saved', 2000);
-}
-
-function deleteItem() {
-  if(!confirm('Delete this custom task?')) return;
-  const stage = document.getElementById('modalStage').value;
-  customTasks = customTasks.filter(t => t.id !== currentTaskKey);
-  saveState();
-  closeModal();
-  renderTable(stage);
-  showToast('Task deleted', 1500);
+  showToast('✅ Override saved', 2000);
 }
 
 function resetOverride() {
@@ -1126,21 +1181,15 @@ function loadMatrixFromExcel(input) {
     try {
       showUploadToast('Parsing workbook…', 40);
       const wb = XLSX.read(e.target.result, {type:'array'});
-      const sheetName = wb.SheetNames.find(n => n.toLowerCase().includes('rawdata')) || wb.SheetNames[0];
-      const sheet = wb.Sheets[sheetName];
-      if(!sheet) { alert('No suitable sheet found. Looking for "Rawdata (Do not edit)".'); hideToast(); return; }
-      const data = XLSX.utils.sheet_to_json(sheet, {header:1});
-      showUploadToast('Building tasks…', 70);
-      const newTasks = [];
-      // Detect column layout from header row
-      const hdr = (data[0] || []).map(h => String(h||'').toLowerCase());
-      const has7Col = hdr.length >= 7 && (hdr[2] === 'h (mm)' || !isNaN(parseInt(data[1]&&data[1][2])));
-      // Map numeric category to stage; map clearance value to code
+
+      // Helper: parse tasks from one sheet's row data
       const catToStage = {0:'T2',1:'T1',2:'T2',3:'T3',4:'T4'};
       const toCode = v => {
-        if(String(v).toUpperCase()==='HC') return 'HC';
+        const s = String(v||'').toUpperCase().trim();
+        if(s==='HC') return 'HC';
         const n = parseInt(v);
-        if(isNaN(n) || n===0) return null; // 0 = not a clash, skip
+        if(isNaN(n)) return null;
+        if(n===0) return 'HC'; // 0mm clearance = hard clash
         if(n<=50) return 'C50';
         if(n<=100) return 'C100V';
         if(n<=150) return 'C150V';
@@ -1148,38 +1197,66 @@ function loadMatrixFromExcel(input) {
         if(n<=1500) return 'C1500';
         return 'CUSTOM';
       };
-      for(let i = 1; i < data.length; i++) {
-        const row = data[i];
-        if(!row || row.length < 3) continue;
-        let stage, clearance, clrH, clrV, selA, selB, taskName;
-        if(has7Col) {
-          // Original 7-column format: Stage | Clearance | H | V | SelA | SelB | TaskName
-          stage = String(row[0]||'').trim();
-          clearance = String(row[1]||'').trim();
-          clrH = parseInt(row[2]) || 0;
-          clrV = parseInt(row[3]) || 0;
-          selA = String(row[4]||'').trim();
-          selB = String(row[5]||'').trim();
-          taskName = String(row[6]||'').trim();
-        } else {
-          // 5-column format: Category | Clearance(mm or "HC") | SelA | SelB | TaskName
-          const cat = row[0];
-          const rawClr = row[1];
-          clearance = toCode(rawClr);
-          if(!clearance) continue; // skip 0 = not a clash
-          const clrMm = String(rawClr).toUpperCase()==='HC' ? 0 : (parseInt(rawClr)||0);
-          stage = catToStage[cat] || (String(cat).match(/^T[1-4]$/) ? String(cat) : 'T2');
-          clrH = clrMm;
-          clrV = clrMm;
-          selA = String(row[2]||'').trim();
-          selB = String(row[3]||'').trim();
-          taskName = String(row[4]||'').trim() || (clearance + '-' + selA + ' vs ' + selB);
+      function parseSheetRows(data) {
+        const tasks = [];
+        if(!data || data.length < 2) return tasks;
+        const hdr = (data[0] || []).map(h => String(h||'').toLowerCase().trim());
+        const has7Col = hdr.length >= 7 && (hdr[2] === 'h (mm)' || !isNaN(parseInt(data[1]&&data[1][2])));
+        for(let i = 1; i < data.length; i++) {
+          const row = data[i];
+          if(!row || row.length < 3) continue;
+          let stage, clearance, clrH, clrV, selA, selB, taskName;
+          if(has7Col) {
+            stage = String(row[0]||'').trim();
+            clearance = String(row[1]||'').trim().toUpperCase() || 'HC';
+            clrH = parseInt(row[2]) || 0;
+            clrV = parseInt(row[3]) || 0;
+            selA = String(row[4]||'').trim();
+            selB = String(row[5]||'').trim();
+            taskName = String(row[6]||'').trim();
+          } else {
+            const cat = row[0];
+            const rawClr = row[1];
+            clearance = toCode(rawClr);
+            if(!clearance) continue;
+            const clrMm = String(rawClr).toUpperCase()==='HC' ? 0 : (parseInt(rawClr)||0);
+            stage = catToStage[cat] !== undefined ? catToStage[cat] : (String(cat).match(/^T[1-4]$/) ? String(cat) : 'T2');
+            clrH = clrMm; clrV = clrMm;
+            selA = String(row[2]||'').trim();
+            selB = String(row[3]||'').trim();
+            taskName = String(row[4]||'').trim() || (clearance + '-' + selA + ' vs ' + selB);
+          }
+          if(selA && selB && stage.match(/^T[1-4]$/)) tasks.push([stage, clearance, clrH, clrV, selA, selB, taskName]);
         }
-        if(selA && selB) newTasks.push([stage, clearance, clrH, clrV, selA, selB, taskName]);
+        return tasks;
       }
+
+      showUploadToast('Building tasks…', 70);
+      const newTasks = [];
+      const sheetLog = [];
+      const seenKeys = new Set();
+
+      // Prefer a dedicated rawdata sheet; otherwise read ALL sheets and merge
+      const rawSheet = wb.SheetNames.find(n => n.toLowerCase().includes('rawdata'));
+      const sheetsToRead = rawSheet ? [rawSheet] : wb.SheetNames;
+
+      for(const sName of sheetsToRead) {
+        const sh = wb.Sheets[sName];
+        if(!sh) continue;
+        const rows = XLSX.utils.sheet_to_json(sh, {header:1});
+        const parsed = parseSheetRows(rows);
+        let added = 0;
+        for(const t of parsed) {
+          const key = t[0]+'|'+t[4]+'|'+t[5]; // stage|selA|selB
+          if(!seenKeys.has(key)) { seenKeys.add(key); newTasks.push(t); added++; }
+        }
+        if(added > 0 || parsed.length > 0) sheetLog.push(sName + ':' + added);
+      }
+
       BASE_TASKS = newTasks;
+      const sheetDetail = sheetLog.length > 1 ? ' [' + sheetLog.join(', ') + ']' : '';
       showUploadToast('✅ Loaded ' + newTasks.length + ' tasks from ' + file.name, 100);
-      document.getElementById('matrixStatus').textContent = '✅ ' + file.name + ' · ' + newTasks.length + ' tasks · ' + new Date().toLocaleTimeString();
+      document.getElementById('matrixStatus').textContent = '✅ ' + file.name + ' · ' + newTasks.length + ' tasks' + sheetDetail + ' · ' + new Date().toLocaleTimeString();
       saveState();
       ['T1','T2','T3','T4'].forEach(s => renderTable(s));
       renderGapMatrix();
@@ -1200,7 +1277,7 @@ function loadClaudeOutput(input) {
   reader.onload = function(e) {
     try {
       const data = JSON.parse(e.target.result);
-      let appliedOverrides = 0, appliedCustom = 0;
+      let appliedOverrides = 0;
 
       // Apply overrides — match by taskPattern substring against task names
       if(Array.isArray(data.overrides)) {
@@ -1223,23 +1300,8 @@ function loadClaudeOutput(input) {
         });
       }
 
-      // Apply custom tasks
-      if(Array.isArray(data.customTasks)) {
-        data.customTasks.forEach(ct => {
-          const id = 'claude-' + Date.now() + '-' + Math.random().toString(36).substr(2,5);
-          customTasks.push({
-            id, stage: ct.stage || 'T2',
-            task: ct.taskName, selA: ct.selA, selB: ct.selB,
-            clearance: ct.clearance || 'C50',
-            clr_h: ct.clrH !== undefined ? ct.clrH : (CLR_MAP[ct.clearance]||{h:50}).h,
-            clr_v: ct.clrV !== undefined ? ct.clrV : (CLR_MAP[ct.clearance]||{v:50}).v,
-            priority: ct.priority || 'Major',
-            note: ct.reason || '',
-            isCustom: true
-          });
-          appliedCustom++;
-        });
-      }
+      // Note: New clash tasks identified in Claude output are NOT applied here.
+      // Add them to the G05 matrix and re-upload to keep all tasks in the master source.
 
       // Build project notes append
       let noteAppend = '';
@@ -1273,7 +1335,7 @@ function loadClaudeOutput(input) {
       const label = (data.project || file.name).substring(0, 30);
       document.getElementById('claudeStatus').textContent = '✅ ' + label + ' applied';
       const gateCount = (data.gateItems||[]).length;
-      showToast('✅ Applied: ' + appliedOverrides + ' overrides, ' + appliedCustom + ' custom tasks' + (gateCount ? ', ' + gateCount + ' gate items' : '') + ' — check Rules tab', 5000);
+      showToast('✅ Applied: ' + appliedOverrides + ' overrides' + (gateCount ? ', ' + gateCount + ' gate items' : '') + ' — check Rules tab for notes', 5000);
     } catch(err) {
       alert('Error reading Claude output file:\n' + err.message + '\n\nMake sure the file is valid JSON (.txt or .json).');
     }
@@ -1284,14 +1346,39 @@ function loadClaudeOutput(input) {
 
 function renderGapMatrix() {
   const discs = ['ARC','STR','HYD','MEC','ELE','FIR'];
+  // Priority: HC most restrictive → C50 → C100V → C150V → C600V → C1500 → CUSTOM
+  const CLR_PRI = {HC:0,C50:1,C100V:2,C150V:3,C600V:4,C1500:5,CUSTOM:6};
   const matrix = {};
   BASE_TASKS.forEach(t => {
     const d1 = (t[4]||'').split('_')[0];
     const d2 = (t[5]||'').split('_')[0];
-    const key = d1 + '|' + d2;
-    if(!matrix[key]) matrix[key] = t[1];
+    const key = d1+'|'+d2;
+    const clr = t[1];
+    if(!clr) return;
+    if(!(key in matrix) || (CLR_PRI[clr]??7) < (CLR_PRI[matrix[key]]??7)) matrix[key] = clr;
   });
-  const colors = {HC:'#1f2937',C50:'#0f2a1a',C100V:'#1e1b4b',C150V:'#2d1b69',C600V:'#450a0a',C1500:'#312e81'};
+  // Vivid background + contrasting text per clearance code
+  const STYLE = {
+    HC:    'background:#7f1d1d;color:#fca5a5;border:1px solid #ef4444',
+    C50:   'background:#78350f;color:#fcd34d;border:1px solid #f97316',
+    C100V: 'background:#1e3a5f;color:#93c5fd;border:1px solid #3b82f6',
+    C150V: 'background:#14532d;color:#86efac;border:1px solid #22c55e',
+    C600V: 'background:#312e81;color:#c4b5fd;border:1px solid #8b5cf6',
+    C1500: 'background:#4a044e;color:#f0abfc;border:1px solid #d946ef',
+    CUSTOM:'background:#374151;color:#d1d5db;border:1px solid #6b7280'
+  };
+  // Clearance breakdown summary
+  const breakdown = {};
+  BASE_TASKS.forEach(t => { const c = t[1]; if(c) breakdown[c] = (breakdown[c]||0) + 1; });
+  const bdEl = document.getElementById('clrBreakdown');
+  if(bdEl) {
+    bdEl.innerHTML = Object.keys(breakdown).length
+      ? Object.entries(breakdown).sort((a,b) => (CLR_PRI[a[0]]??9)-(CLR_PRI[b[0]]??9)).map(([c,n]) =>
+          '<span style="background:#1e2535;border:1px solid #2d3748;border-radius:4px;padding:3px 8px;color:#94a3b8"><span style="' + (STYLE[c]||STYLE.CUSTOM) + ';border-radius:3px;padding:1px 5px;font-weight:700;font-size:.68rem">' + c + '</span> <span style="color:#64748b">' + n + ' tasks</span></span>'
+        ).join('')
+      : '<span style="color:#475569">Upload your G05 matrix to see clearance breakdown</span>';
+  }
+
   const tbody = document.getElementById('gapMatrixBody');
   if(!tbody) return;
   tbody.innerHTML = discs.map(d1 =>
@@ -1299,8 +1386,8 @@ function renderGapMatrix() {
     discs.map(d2 => {
       if(d1 === d2) return '<td style="background:#0f1117;border:1px solid #1e2535;text-align:center;color:#374151">—</td>';
       const clr = matrix[d1+'|'+d2] || matrix[d2+'|'+d1];
-      if(!clr) return '<td style="background:#0f1117;border:1px solid #1e2535;text-align:center;color:#374151">n/a</td>';
-      return '<td style="background:' + (colors[clr]||'#1f2937') + ';border:1px solid #2d3748;text-align:center;font-size:.7rem;font-weight:700;color:#e2e8f0">' + clr + '</td>';
+      if(!clr) return '<td style="background:#0f1117;border:1px solid #1e2535;text-align:center;color:#475569;font-size:.65rem">n/a</td>';
+      return '<td style="' + (STYLE[clr]||STYLE.CUSTOM) + ';text-align:center;font-size:.72rem;font-weight:700;padding:4px">' + clr + '</td>';
     }).join('') + '</tr>'
   ).join('');
 }
@@ -1325,7 +1412,6 @@ function hideToast() { document.getElementById('uploadToast').style.display = 'n
 function saveState() {
   try {
     localStorage.setItem('bimOverrides', JSON.stringify(overrides));
-    localStorage.setItem('bimCustomTasks', JSON.stringify(customTasks));
     localStorage.setItem('bimLoaded', JSON.stringify(loaded));
     localStorage.setItem('bimLog', JSON.stringify(logEntries));
     if(BASE_TASKS.length) localStorage.setItem('bimBaseTasks', JSON.stringify(BASE_TASKS));
@@ -1336,8 +1422,6 @@ function loadState() {
   try {
     const so = localStorage.getItem('bimOverrides');
     if(so) overrides = JSON.parse(so);
-    const sc = localStorage.getItem('bimCustomTasks');
-    if(sc) customTasks = JSON.parse(sc);
     const sl = localStorage.getItem('bimLoaded');
     if(sl) loaded = JSON.parse(sl);
     const sg = localStorage.getItem('bimLog');
@@ -1345,15 +1429,98 @@ function loadState() {
     const savedBase = localStorage.getItem('bimBaseTasks');
     if(savedBase) BASE_TASKS = JSON.parse(savedBase);
     else BASE_TASKS = TASKS.slice();
+    const sp = localStorage.getItem('projInfo');
+    if(sp) {
+      const pi = JSON.parse(sp);
+      if(pi.name) document.getElementById('projName').value = pi.name;
+      if(pi.lead) document.getElementById('projLead').value = pi.lead;
+    }
   } catch(e) {}
+}
+
+// ─── Offline Export / Import Session ───────────────────────────────────────
+function exportSession() {
+  const projName = document.getElementById('projName').value || 'Project';
+  const state = {
+    version: '1.1',
+    exportDate: new Date().toISOString(),
+    projInfo: {
+      name: projName,
+      lead: document.getElementById('projLead').value,
+      date: document.getElementById('projDate').value
+    },
+    baseTasks: BASE_TASKS,
+    overrides,
+    loaded,
+    logEntries,
+    projectRules: document.getElementById('projectRules').value,
+    gateStates: {
+      T1: JSON.parse(localStorage.getItem('gate-T1') || '[]'),
+      T2: JSON.parse(localStorage.getItem('gate-T2') || '[]'),
+      T3: JSON.parse(localStorage.getItem('gate-T3') || '[]'),
+      T4: JSON.parse(localStorage.getItem('gate-T4') || '[]')
+    }
+  };
+  const blob = new Blob([JSON.stringify(state, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'BIM_Session_' + projName.replace(/\s+/g,'_') + '_' + new Date().toISOString().split('T')[0] + '.json';
+  a.click();
+  showToast('✅ Session exported — copy this file to your other PC and use Import Session', 4000);
+}
+
+function importSession(input) {
+  const file = input.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const state = JSON.parse(e.target.result);
+      if(state.baseTasks && state.baseTasks.length) BASE_TASKS = state.baseTasks;
+      if(state.overrides) overrides = state.overrides;
+      if(state.loaded) loaded = state.loaded;
+      if(state.logEntries) logEntries = state.logEntries;
+      if(state.projInfo) {
+        if(state.projInfo.name) document.getElementById('projName').value = state.projInfo.name;
+        if(state.projInfo.lead) document.getElementById('projLead').value = state.projInfo.lead;
+        if(state.projInfo.date) document.getElementById('projDate').value = state.projInfo.date;
+        localStorage.setItem('projInfo', JSON.stringify(state.projInfo));
+      }
+      if(state.projectRules) {
+        document.getElementById('projectRules').value = state.projectRules;
+        localStorage.setItem('projectRules', state.projectRules);
+      }
+      if(state.gateStates) {
+        ['T1','T2','T3','T4'].forEach(s => {
+          if(state.gateStates[s] && state.gateStates[s].length) {
+            localStorage.setItem('gate-' + s, JSON.stringify(state.gateStates[s]));
+          }
+        });
+      }
+      saveState();
+      ['T1','T2','T3','T4'].forEach(s => { renderTable(s); loadGateState(s); });
+      renderLog();
+      renderGapMatrix();
+      if(state.baseTasks && state.baseTasks.length) {
+        document.getElementById('matrixStatus').textContent = '✅ ' + state.baseTasks.length + ' tasks loaded from session file';
+      }
+      showToast('✅ Session imported — ' + (state.baseTasks||[]).length + ' tasks, ' + Object.keys(state.overrides||{}).length + ' overrides restored', 4000);
+    } catch(err) {
+      alert('Error reading session file:\n' + err.message + '\n\nMake sure the file is a valid BIM Session JSON export.');
+    }
+    input.value = '';
+  };
+  reader.readAsText(file);
 }
 
 window.onload = function() {
   loadState();
   ['T1','T2','T3','T4'].forEach(s => renderTable(s));
+  ['T1','T2','T3','T4'].forEach(s => loadGateState(s));
   renderLog();
   renderGapMatrix();
-  updateTabCounts();
+  const pr = localStorage.getItem('projectRules');
+  if(pr) document.getElementById('projectRules').value = pr;
   const d = document.getElementById('projDate');
   if(d && !d.value) d.valueAsDate = new Date();
   if(BASE_TASKS.length) {
