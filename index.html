@@ -149,6 +149,14 @@ footer{padding:20px 32px;border-top:1px solid #2d3748;text-align:center;font-siz
 .overrides-count{font-size:.7rem;padding:2px 7px;border-radius:10px;background:#78350f;color:#fde68a;font-weight:700;margin-left:4px}
 .btn-io{background:#1c2537;color:#94a3b8;border:1px solid #2d3748;padding:7px 14px;border-radius:6px;font-size:.78rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px}
 .btn-io:hover{background:#232a3b;color:#e2e8f0;border-color:#475569}
+.checklist-filter-row{display:flex;align-items:center;gap:8px;padding:6px 0 10px 0;border-bottom:1px solid #1e2d40;margin-bottom:8px}
+.checklist-filter-row label{font-size:.72rem;color:#64748b;white-space:nowrap}
+.checklist-disc-filter{background:#111827;color:#94a3b8;border:1px solid #2d3748;border-radius:5px;padding:3px 8px;font-size:.73rem;cursor:pointer}
+.checklist-disc-filter:focus{outline:none;border-color:#3b82f6}
+.check-item-project{border-left:3px solid #0ea5e9;padding-left:6px;background:rgba(14,165,233,.05)}
+.check-item-project .disc-tag{opacity:.9}
+.clr-meta{color:#475569;font-size:.72rem;margin-left:4px}
+.src-meta{color:#374151;font-size:.7rem;margin-left:4px}
 </style>
 </head>
 <body>
@@ -317,6 +325,14 @@ footer{padding:20px 32px;border-top:1px solid #2d3748;text-align:center;font-siz
         <span style="font-size:.72rem;color:#64748b" id="pct-T1">0%</span>
       </div>
       <div class="progress-bar-wrap"><div class="progress-bar" id="pb-T1" style="width:0%;background:var(--t1)"></div></div>
+      <div class="checklist-filter-row">
+        <label>Filter:</label>
+        <select class="checklist-disc-filter" id="discFilter-T1" onchange="filterChecklist('T1',this.value)">
+          <option value="">All Disciplines</option>
+          <option value="ARCH">ARCH</option><option value="STR">STR</option><option value="HYD">HYD</option>
+          <option value="MEC">MEC</option><option value="ELE">ELE</option><option value="FIR">FIR</option><option value="GEN">GEN</option>
+        </select>
+      </div>
       <ul class="checklist" id="cl-T1">
         <li class="check-item" data-stage="T1"><input type="checkbox" id="T1-1" onchange="updateGate('T1')"><label for="T1-1"><span class="disc-tag disc-ARCH">ARCH</span>Wall dimensions and positions verified — random point test from grids completed</label></li>
         <li class="check-item" data-stage="T1"><input type="checkbox" id="T1-2" onchange="updateGate('T1')"><label for="T1-2"><span class="disc-tag disc-ARCH">ARCH</span>Wall heights modelled correctly — full height elements identified and confirmed</label></li>
@@ -336,6 +352,7 @@ footer{padding:20px 32px;border-top:1px solid #2d3748;text-align:center;font-siz
         <li class="check-item" data-stage="T1"><input type="checkbox" id="T1-16" onchange="updateGate('T1')"><label for="T1-16"><span class="disc-tag disc-GEN">GEN</span>Placeholder geometry is only used where purpose, owner, and replacement trigger are clearly defined</label></li>
         <li class="check-item" data-stage="T1"><input type="checkbox" id="T1-17" onchange="updateGate('T1')"><label for="T1-17"><span class="disc-tag disc-GEN">GEN</span>All coordination issues assigned to the party responsible for action — not the party who raised the issue</label></li>
         <li class="check-item" data-stage="T1"><input type="checkbox" id="T1-18" onchange="updateGate('T1')"><label for="T1-18"><span class="disc-tag disc-GEN">GEN</span>Unresolved T1 constraints assigned to accountable owner with due date, or formally accepted as risk before progressing to T2</label></li>
+        <li class="check-item" data-stage="T1"><input type="checkbox" id="T1-19" onchange="updateGate('T1')"><label for="T1-19"><span class="disc-tag disc-STR">STR</span>Fire rating of steel through fire walls — checked against drawings (typically 2D, confirm modelled)</label></li>
         </ul>
     </div>
     <div class="card">
@@ -408,6 +425,14 @@ footer{padding:20px 32px;border-top:1px solid #2d3748;text-align:center;font-siz
         <span style="font-size:.72rem;color:#64748b" id="pct-T2">0%</span>
       </div>
       <div class="progress-bar-wrap"><div class="progress-bar" id="pb-T2" style="width:0%;background:var(--t2)"></div></div>
+      <div class="checklist-filter-row">
+        <label>Filter:</label>
+        <select class="checklist-disc-filter" id="discFilter-T2" onchange="filterChecklist('T2',this.value)">
+          <option value="">All Disciplines</option>
+          <option value="ARCH">ARCH</option><option value="STR">STR</option><option value="HYD">HYD</option>
+          <option value="MEC">MEC</option><option value="ELE">ELE</option><option value="FIR">FIR</option><option value="GEN">GEN</option>
+        </select>
+      </div>
       <ul class="checklist" id="cl-T2">
         <li class="check-item"><input type="checkbox" id="T2-1" onchange="updateGate('T2')"><label for="T2-1"><span class="disc-tag disc-ARCH">ARCH</span>Service walkways modelled in ceiling space — min 900mm wide × 2000mm height, egress routes compliant</label></li>
         <li class="check-item"><input type="checkbox" id="T2-2" onchange="updateGate('T2')"><label for="T2-2"><span class="disc-tag disc-ARCH">ARCH</span>Ceiling heights modelled correctly — Clearance Matrix adjusted to suit</label></li>
@@ -431,6 +456,7 @@ footer{padding:20px 32px;border-top:1px solid #2d3748;text-align:center;font-siz
         <li class="check-item" data-stage="T2"><input type="checkbox" id="T2-20" onchange="updateGate('T2')"><label for="T2-20"><span class="disc-tag disc-GEN">GEN</span>Maintenance access volumes initiated for major valves, dampers, FCUs, VAVs, switchboards, pumps, and plant</label></li>
         <li class="check-item" data-stage="T2"><input type="checkbox" id="T2-21" onchange="updateGate('T2')"><label for="T2-21"><span class="disc-tag disc-GEN">GEN</span>High-risk seismic and support modelling commenced, or responsibility and timing formally agreed with accountable party</label></li>
         <li class="check-item" data-stage="T2"><input type="checkbox" id="T2-22" onchange="updateGate('T2')"><label for="T2-22"><span class="disc-tag disc-GEN">GEN</span>All unresolved T2 issues assigned to correct responsible party with due date, status, and priority recorded</label></li>
+        <li class="check-item" data-stage="T2"><input type="checkbox" id="T2-23" onchange="updateGate('T2')"><label for="T2-23"><span class="disc-tag disc-ARCH">ARCH</span>Firewall layout verified against the fire report — no discrepancies</label></li>
         </ul>
     </div>
     <div class="card">
@@ -501,6 +527,14 @@ footer{padding:20px 32px;border-top:1px solid #2d3748;text-align:center;font-siz
         <span style="font-size:.72rem;color:#64748b" id="pct-T3">0%</span>
       </div>
       <div class="progress-bar-wrap"><div class="progress-bar" id="pb-T3" style="width:0%;background:var(--t3)"></div></div>
+      <div class="checklist-filter-row">
+        <label>Filter:</label>
+        <select class="checklist-disc-filter" id="discFilter-T3" onchange="filterChecklist('T3',this.value)">
+          <option value="">All Disciplines</option>
+          <option value="ARCH">ARCH</option><option value="STR">STR</option><option value="HYD">HYD</option>
+          <option value="MEC">MEC</option><option value="ELE">ELE</option><option value="FIR">FIR</option><option value="GEN">GEN</option>
+        </select>
+      </div>
       <ul class="checklist" id="cl-T3">
         <li class="check-item"><input type="checkbox" id="T3-1" onchange="updateGate('T3')"><label for="T3-1"><span class="disc-tag disc-ARCH">ARCH</span>Acoustic report reviewed — unusual requirements and acoustic wall requirements colour-coded</label></li>
         <li class="check-item"><input type="checkbox" id="T3-2" onchange="updateGate('T3')"><label for="T3-2"><span class="disc-tag disc-ARCH">ARCH</span>RCP coordination complete — ceiling types and fixtures colour-coded, common geometries across trades highlighted</label></li>
@@ -521,6 +555,8 @@ footer{padding:20px 32px;border-top:1px solid #2d3748;text-align:center;font-siz
         <li class="check-item" data-stage="T3"><input type="checkbox" id="T3-17" onchange="updateGate('T3')"><label for="T3-17"><span class="disc-tag disc-GEN">GEN</span>Outstanding T3 issues assigned with construction priority, due date, and responsible party</label></li>
         <li class="check-item" data-stage="T3"><input type="checkbox" id="T3-18" onchange="updateGate('T3')"><label for="T3-18"><span class="disc-tag disc-GEN">GEN</span>T3 outputs are suitable to support trade installation, commissioning planning, and site verification</label></li>
         <li class="check-item" data-stage="T3"><input type="checkbox" id="T3-19" onchange="updateGate('T3')"><label for="T3-19"><span class="disc-tag disc-GEN">GEN</span>Field change affecting fire, acoustic, egress, seismic, structure, or maintainability — re-clash scope confirmed and responsibility assigned</label></li>
+        <li class="check-item" data-stage="T3"><input type="checkbox" id="T3-20" onchange="updateGate('T3')"><label for="T3-20"><span class="disc-tag disc-MEC">MEC</span>Grilles aligned with louvres — no misalignment</label></li>
+        <li class="check-item" data-stage="T3"><input type="checkbox" id="T3-21" onchange="updateGate('T3')"><label for="T3-21"><span class="disc-tag disc-MEC">MEC</span>Service penetration placeholders — all used or removed; none incorrectly placed</label></li>
         </ul>
     </div>
     <div class="card">
@@ -591,20 +627,24 @@ footer{padding:20px 32px;border-top:1px solid #2d3748;text-align:center;font-siz
         <span style="font-size:.72rem;color:#64748b" id="pct-T4">0%</span>
       </div>
       <div class="progress-bar-wrap"><div class="progress-bar" id="pb-T4" style="width:0%;background:var(--t4)"></div></div>
+      <div class="checklist-filter-row">
+        <label>Filter:</label>
+        <select class="checklist-disc-filter" id="discFilter-T4" onchange="filterChecklist('T4',this.value)">
+          <option value="">All Disciplines</option>
+          <option value="ARCH">ARCH</option><option value="STR">STR</option><option value="HYD">HYD</option>
+          <option value="MEC">MEC</option><option value="ELE">ELE</option><option value="FIR">FIR</option><option value="GEN">GEN</option>
+        </select>
+      </div>
       <ul class="checklist" id="cl-T4">
-        <li class="check-item"><input type="checkbox" id="T4-1" onchange="updateGate('T4')"><label for="T4-1"><span class="disc-tag disc-ARCH">ARCH</span>Firewall layout verified against the fire report — no discrepancies</label></li>
-        <li class="check-item"><input type="checkbox" id="T4-2" onchange="updateGate('T4')"><label for="T4-2"><span class="disc-tag disc-ARCH">ARCH</span>Roof walkways — confirmed aligned with plant and services routing</label></li>
-        <li class="check-item"><input type="checkbox" id="T4-3" onchange="updateGate('T4')"><label for="T4-3"><span class="disc-tag disc-STR">STR</span>Fire rating of steel through fire walls — checked against drawings (typically 2D, confirm modelled)</label></li>
-        <li class="check-item"><input type="checkbox" id="T4-4" onchange="updateGate('T4')"><label for="T4-4"><span class="disc-tag disc-MEC">MEC</span>Grilles aligned with louvres — no misalignment</label></li>
-        <li class="check-item"><input type="checkbox" id="T4-5" onchange="updateGate('T4')"><label for="T4-5"><span class="disc-tag disc-MEC">MEC</span>Service penetration placeholders — all used or removed; none incorrectly placed</label></li>
-        <li class="check-item"><input type="checkbox" id="T4-6" onchange="updateGate('T4')"><label for="T4-6"><span class="disc-tag disc-GEN">GEN</span>Random check of each trade's 2D drawings against model — spot heights verified</label></li>
-        <li class="check-item"><input type="checkbox" id="T4-7" onchange="updateGate('T4')"><label for="T4-7"><span class="disc-tag disc-GEN">GEN</span>No services run between roof ridgeline and ridgeline steelwork — confirmed</label></li>
-        <li class="check-item" data-stage="T4"><input type="checkbox" id="T4-8" onchange="updateGate('T4')"><label for="T4-8"><span class="disc-tag disc-GEN">GEN</span>As-built modelling confirmed for mandatory scope — plantrooms, risers, main corridors, major plant, registered penetrations affecting compliance or FM handover</label></li>
-        <li class="check-item" data-stage="T4"><input type="checkbox" id="T4-9" onchange="updateGate('T4')"><label for="T4-9"><span class="disc-tag disc-GEN">GEN</span>Material deviations from coordinated design captured where they affect operation, access, safety, compliance, or FM handover</label></li>
-        <li class="check-item" data-stage="T4"><input type="checkbox" id="T4-10" onchange="updateGate('T4')"><label for="T4-10"><span class="disc-tag disc-GEN">GEN</span>Penetrations and supports finalised and aligned between model, register, and site records where required</label></li>
-        <li class="check-item" data-stage="T4"><input type="checkbox" id="T4-11" onchange="updateGate('T4')"><label for="T4-11"><span class="disc-tag disc-GEN">GEN</span>Final access and compliance checks completed — egress, access hatches, service clearances, seismic no-go zones, and maintenance access</label></li>
-        <li class="check-item" data-stage="T4"><input type="checkbox" id="T4-12" onchange="updateGate('T4')"><label for="T4-12"><span class="disc-tag disc-GEN">GEN</span>Key equipment and handover assets have correct dimensions, location, identifier, and required asset data per project brief</label></li>
-        <li class="check-item" data-stage="T4"><input type="checkbox" id="T4-13" onchange="updateGate('T4')"><label for="T4-13"><span class="disc-tag disc-GEN">GEN</span>Residual issues closed, formally accepted, or transferred to defects, commissioning, or handover process — none left unassigned</label></li>
+        <li class="check-item"><input type="checkbox" id="T4-1" onchange="updateGate('T4')"><label for="T4-1"><span class="disc-tag disc-ARCH">ARCH</span>Roof walkways — confirmed aligned with plant and services routing</label></li>
+        <li class="check-item"><input type="checkbox" id="T4-2" onchange="updateGate('T4')"><label for="T4-2"><span class="disc-tag disc-GEN">GEN</span>Random check of each trade's 2D drawings against model — spot heights verified</label></li>
+        <li class="check-item"><input type="checkbox" id="T4-3" onchange="updateGate('T4')"><label for="T4-3"><span class="disc-tag disc-GEN">GEN</span>No services run between roof ridgeline and ridgeline steelwork — confirmed</label></li>
+        <li class="check-item" data-stage="T4"><input type="checkbox" id="T4-4" onchange="updateGate('T4')"><label for="T4-4"><span class="disc-tag disc-GEN">GEN</span>As-built modelling confirmed for mandatory scope — plantrooms, risers, main corridors, major plant, registered penetrations affecting compliance or FM handover</label></li>
+        <li class="check-item" data-stage="T4"><input type="checkbox" id="T4-5" onchange="updateGate('T4')"><label for="T4-5"><span class="disc-tag disc-GEN">GEN</span>Material deviations from coordinated design captured where they affect operation, access, safety, compliance, or FM handover</label></li>
+        <li class="check-item" data-stage="T4"><input type="checkbox" id="T4-6" onchange="updateGate('T4')"><label for="T4-6"><span class="disc-tag disc-GEN">GEN</span>Penetrations and supports finalised and aligned between model, register, and site records where required</label></li>
+        <li class="check-item" data-stage="T4"><input type="checkbox" id="T4-7" onchange="updateGate('T4')"><label for="T4-7"><span class="disc-tag disc-GEN">GEN</span>Final access and compliance checks completed — egress, access hatches, service clearances, seismic no-go zones, and maintenance access</label></li>
+        <li class="check-item" data-stage="T4"><input type="checkbox" id="T4-8" onchange="updateGate('T4')"><label for="T4-8"><span class="disc-tag disc-GEN">GEN</span>Key equipment and handover assets have correct dimensions, location, identifier, and required asset data per project brief</label></li>
+        <li class="check-item" data-stage="T4"><input type="checkbox" id="T4-9" onchange="updateGate('T4')"><label for="T4-9"><span class="disc-tag disc-GEN">GEN</span>Residual issues closed, formally accepted, or transferred to defects, commissioning, or handover process — none left unassigned</label></li>
         </ul>
     </div>
     <div class="card">
@@ -869,6 +909,7 @@ let overrides = {};
 let loaded = {};
 let logEntries = [];
 let activeFilters = {};
+let projectGateItems = []; // Additional gate items loaded from Claude analysis JSON
 
 const CLR_MAP = {HC:{h:0,v:0},C50:{h:50,v:50},C100V:{h:50,v:100},C150V:{h:50,v:150},C600V:{h:50,v:600},C1500:{h:50,v:1500}};
 
@@ -994,6 +1035,39 @@ function loadGateState(stage) {
   const checks = document.querySelectorAll('#cl-' + stage + ' input[type=checkbox]');
   checks.forEach((c, i) => { if(state[i]) c.checked = true; });
   updateGate(stage);
+}
+
+function filterChecklist(stage, val) {
+  const items = document.querySelectorAll('#cl-' + stage + ' .check-item');
+  items.forEach(li => {
+    if(!val) { li.style.display = ''; return; }
+    const tag = li.querySelector('.disc-tag');
+    const disc = tag ? tag.textContent.trim() : '';
+    li.style.display = (disc === val) ? '' : 'none';
+  });
+}
+
+function injectGateItems(items) {
+  items.forEach(gi => {
+    const stage = (gi.stage || 'T1').toUpperCase();
+    const ul = document.getElementById('cl-' + stage);
+    if(!ul) return;
+    if(gi.id && document.getElementById(gi.id)) return; // already in DOM
+    const uid = gi.id || ('proj-' + Date.now() + '-' + Math.random().toString(36).substr(2,6));
+    gi.id = uid;
+    // Normalise discipline: ARC→ARCH
+    const discRaw = (gi.discipline || 'GEN').toUpperCase();
+    const disc = discRaw === 'ARC' ? 'ARCH' : discRaw;
+    const clrText = (gi.clearanceH != null) ? ' <span class="clr-meta">H:' + gi.clearanceH + ' V:' + (gi.clearanceV != null ? gi.clearanceV : gi.clearanceH) + 'mm</span>' : '';
+    const srcText = gi.source ? ' <span class="src-meta">[' + gi.source + ']</span>' : '';
+    const li = document.createElement('li');
+    li.className = 'check-item check-item-project';
+    li.setAttribute('data-stage', stage);
+    li.id = 'li-' + uid;
+    li.innerHTML = '<input type="checkbox" id="' + uid + '" onchange="updateGate(\'' + stage + '\')"><label for="' + uid + '"><span class="disc-tag disc-' + disc + '">' + disc + '</span>' + gi.item + clrText + srcText + '</label>';
+    ul.appendChild(li);
+    updateGate(stage);
+  });
 }
 
 function filterTable(stage, q) {
@@ -1264,42 +1338,31 @@ function loadClaudeOutput(input) {
   reader.onload = function(e) {
     try {
       const data = JSON.parse(e.target.result);
-      let appliedOverrides = 0;
 
-      // Apply overrides — match by taskPattern substring against task names
-      if(Array.isArray(data.overrides)) {
-        data.overrides.forEach(ov => {
-          const pattern = (ov.taskPattern||'').toLowerCase();
-          BASE_TASKS.forEach(t => {
-            const nameMatch = t[6].toLowerCase().includes(pattern);
-            const pairMatch = (t[4] + ' vs ' + t[5]).toLowerCase().includes(pattern);
-            if(nameMatch || pairMatch) {
-              overrides[t[6]] = {
-                clearance: ov.clearance || t[1],
-                clr_h: ov.clrH !== undefined ? ov.clrH : t[2],
-                clr_v: ov.clrV !== undefined ? ov.clrV : t[3],
-                priority: ov.priority || '',
-                note: [ov.reason, ov.source].filter(Boolean).join(' | ')
-              };
-              appliedOverrides++;
-            }
-          });
+      // Inject gate items as checkboxes into the correct stage checklist
+      let gateCount = 0;
+      if(Array.isArray(data.gateItems) && data.gateItems.length) {
+        data.gateItems.forEach(gi => {
+          const item = {
+            stage: gi.stage || 'T1',
+            discipline: gi.discipline || 'GEN',
+            item: gi.item || '',
+            clearanceH: gi.clearanceH != null ? gi.clearanceH : null,
+            clearanceV: gi.clearanceV != null ? gi.clearanceV : null,
+            source: gi.source || '',
+            clashPair: gi.clashPair || '',
+            id: null // assigned by injectGateItems
+          };
+          projectGateItems.push(item);
+          injectGateItems([item]);
+          gateCount++;
         });
       }
 
-      // Note: New clash tasks identified in Claude output are NOT applied here.
-      // Add them to the G05 matrix and re-upload to keep all tasks in the master source.
-
-      // Build project notes append
+      // Build notes for procurement flags and risk summary only
       let noteAppend = '';
       if(data.project || data.report) {
         noteAppend += '\n\n── Claude Analysis: ' + [data.project, data.report, data.date].filter(Boolean).join(' · ') + ' ──';
-      }
-      if(Array.isArray(data.gateItems) && data.gateItems.length) {
-        noteAppend += '\n\n\U0001F4CB GATE CHECKLIST ITEMS:';
-        data.gateItems.forEach(gi => {
-          noteAppend += '\n[' + (gi.stage||'') + '][' + (gi.discipline||'') + '] ' + gi.item + ' | H:' + (gi.clearanceH||'?') + 'mm V:' + (gi.clearanceV||'?') + 'mm | ' + (gi.clashPair||'') + ' | ' + (gi.source||'');
-        });
       }
       if(Array.isArray(data.procurementFlags) && data.procurementFlags.length) {
         noteAppend += '\n\n⚠️ PROCUREMENT FLAGS:';
@@ -1308,7 +1371,7 @@ function loadClaudeOutput(input) {
         });
       }
       if(data.projectNotes) {
-        noteAppend += '\n\n\U0001F4CC RISK SUMMARY:\n' + data.projectNotes;
+        noteAppend += '\n\n📌 RISK SUMMARY:\n' + data.projectNotes;
       }
 
       if(noteAppend) {
@@ -1318,11 +1381,9 @@ function loadClaudeOutput(input) {
       }
 
       saveState();
-      ['T1','T2','T3','T4'].forEach(s => renderTable(s));
       const label = (data.project || file.name).substring(0, 30);
       document.getElementById('claudeStatus').textContent = '✅ ' + label + ' applied';
-      const gateCount = (data.gateItems||[]).length;
-      showToast('✅ Applied: ' + appliedOverrides + ' overrides' + (gateCount ? ', ' + gateCount + ' gate items' : '') + ' — check Rules tab for notes', 5000);
+      showToast('✅ ' + gateCount + ' gate checklist item' + (gateCount !== 1 ? 's' : '') + ' added' + (noteAppend ? ' — see Rules tab for procurement notes' : ''), 5000);
     } catch(err) {
       alert('Error reading Claude output file:\n' + err.message + '\n\nMake sure the file is valid JSON (.txt or .json).');
     }
@@ -1402,6 +1463,7 @@ function saveState() {
     localStorage.setItem('bimLoaded', JSON.stringify(loaded));
     localStorage.setItem('bimLog', JSON.stringify(logEntries));
     if(BASE_TASKS.length) localStorage.setItem('bimBaseTasks', JSON.stringify(BASE_TASKS));
+    localStorage.setItem('bimProjectGateItems', JSON.stringify(projectGateItems));
   } catch(e) {}
 }
 
@@ -1416,6 +1478,8 @@ function loadState() {
     const savedBase = localStorage.getItem('bimBaseTasks');
     if(savedBase) BASE_TASKS = JSON.parse(savedBase);
     else BASE_TASKS = TASKS.slice();
+    const spgi = localStorage.getItem('bimProjectGateItems');
+    if(spgi) projectGateItems = JSON.parse(spgi);
     const sp = localStorage.getItem('projInfo');
     if(sp) {
       const pi = JSON.parse(sp);
@@ -1440,6 +1504,7 @@ function exportSession() {
     overrides,
     loaded,
     logEntries,
+    projectGateItems,
     projectRules: document.getElementById('projectRules').value,
     gateStates: {
       T1: JSON.parse(localStorage.getItem('gate-T1') || '[]'),
@@ -1484,6 +1549,10 @@ function importSession(input) {
           }
         });
       }
+      if(Array.isArray(state.projectGateItems) && state.projectGateItems.length) {
+        projectGateItems = state.projectGateItems;
+        injectGateItems(projectGateItems);
+      }
       saveState();
       ['T1','T2','T3','T4'].forEach(s => { renderTable(s); loadGateState(s); });
       renderLog();
@@ -1491,7 +1560,8 @@ function importSession(input) {
       if(state.baseTasks && state.baseTasks.length) {
         document.getElementById('matrixStatus').textContent = '✅ ' + state.baseTasks.length + ' tasks loaded from session file';
       }
-      showToast('✅ Session imported — ' + (state.baseTasks||[]).length + ' tasks, ' + Object.keys(state.overrides||{}).length + ' overrides restored', 4000);
+      const gateItemCount = (state.projectGateItems||[]).length;
+      showToast('✅ Session imported — ' + (state.baseTasks||[]).length + ' tasks' + (gateItemCount ? ', ' + gateItemCount + ' project gate items' : '') + ' restored', 4000);
     } catch(err) {
       alert('Error reading session file:\n' + err.message + '\n\nMake sure the file is a valid BIM Session JSON export.');
     }
@@ -1529,6 +1599,8 @@ async function autoLoadMatrix() {
 window.onload = async function() {
   loadState();
   ['T1','T2','T3','T4'].forEach(s => renderTable(s));
+  // Inject project gate items before loadGateState so checkbox indices align
+  if(projectGateItems.length) injectGateItems(projectGateItems);
   ['T1','T2','T3','T4'].forEach(s => loadGateState(s));
   renderLog();
   renderGapMatrix();
