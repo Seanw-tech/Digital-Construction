@@ -1188,8 +1188,7 @@ function loadMatrixFromExcel(input) {
         const s = String(v||'').toUpperCase().trim();
         if(s==='HC') return 'HC';
         const n = parseInt(v);
-        if(isNaN(n)) return null;
-        if(n===0) return 'HC'; // 0mm clearance = hard clash
+        if(isNaN(n) || n===0) return null; // 0 = not a clash, skip row entirely
         if(n<=50) return 'C50';
         if(n<=100) return 'C100V';
         if(n<=150) return 'C150V';
@@ -1208,7 +1207,10 @@ function loadMatrixFromExcel(input) {
           let stage, clearance, clrH, clrV, selA, selB, taskName;
           if(has7Col) {
             stage = String(row[0]||'').trim();
-            clearance = String(row[1]||'').trim().toUpperCase() || 'HC';
+            const rawClr7 = String(row[1]||'').trim();
+            // 0 or empty = not a clash in this matrix format — skip row
+            if(!rawClr7 || rawClr7 === '0') continue;
+            clearance = rawClr7.toUpperCase();
             clrH = parseInt(row[2]) || 0;
             clrV = parseInt(row[3]) || 0;
             selA = String(row[4]||'').trim();
