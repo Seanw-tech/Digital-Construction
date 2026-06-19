@@ -1,8 +1,8 @@
 # BIM Clash Coordination Toolkit
 
 **Owner:** Sean Wang — BIM Manager  
-**Version:** 1.0  
-**Last updated:** 2026-06-16
+**Version:** 1.4  
+**Last updated:** 2026-06-20
 
 A project-agnostic toolkit for structured, stage-gated clash detection and digital coordination. Deploy once per project. Built around NZS4219:2009, Revizto Clash Automation, and a T1–T4 staged coordination framework.
 
@@ -44,113 +44,155 @@ Open `Platform/Clash_Coordination_Platform.html` in Chrome. No installation requ
 Click **📂 Upload Updated Matrix** in the top right. Select your project's G05 Clash Detection Matrix Excel file. The platform reads the `Rawdata (Do not edit)` sheet and loads all T1–T4 tasks automatically.
 
 **Step 4 — Analyse your project reports**  
-Go to [claude.ai](https://claude.ai) on any computer (no Cowork needed). Copy the prompt below, paste it into a new Claude chat, then attach your project reports (PDF or Word). Claude returns structured gate checklist items, clearance overrides, and custom tasks — copy them directly into the platform.
+Use the prompt below on Claude, Copilot, or ChatGPT — no Cowork needed, works on any computer. Attach your project reports (PDF or Word). The AI returns structured gate checklist items and a JSON block you upload directly to the platform.
 
 <details>
-<summary>📋 Click to expand — Copy this prompt into claude.ai</summary>
+<summary>📋 Click to expand — Copy this prompt into Claude / Copilot / ChatGPT</summary>
 
 ```
-You are a senior BIM Coordination Manager with 15+ years of experience across commercial, residential, and specialist construction. You are reviewing a project-specific engineering report or design document. Your job is to extract every coordination requirement, clearance rule, and clash-relevant constraint from this document, and output them as structured pre-clash gate checklist items.
-
-## Context
-
-The project uses a staged clash detection framework with four coordination stages:
-
-- **T1 — Strategic Constraints & Early Locks**: Prevent irreversible errors in structure, civil works, seismic performance, egress protection, major penetrations, and primary service routing before detailed services coordination is developed.
-- **T2 — Main Services & Plantroom Coordination**: Resolve service viability, congestion, and compliance in the areas that drive construction risk before ceilings, finishes, and detailed device layouts are finalised.
-- **T3 — Fit-Out, Devices & Maintainability**: Confirm installed coordination where it affects ceilings, room layouts, device locations, access, commissioning, maintenance, and compliance — without expanding modelling beyond the agreed project scope.
-- **T4 — As-Built & Handover Readiness**: Confirm installed reality where required for commissioning, compliance evidence, asset information, and FM handover. Not a second design stage — a controlled close-out and verification stage.
-
-The platform already has standard NZS4219:2009 seismic clearances and general BIM coordination rules. Your task is to extract **project-specific** requirements — things that override, supplement, or add to the standard rules based on what this particular report specifies.
-
-## Your Task
-
-Read the attached project report carefully. Then:
-
-1. **Extract every coordination-relevant requirement** — clearances, offsets, access zones, installation sequences, penetration rules, material conflicts, procurement dependencies, and any clause that affects how services should be modelled or coordinated.
-
-2. **Assign each item a stage** (T1, T2, T3, or T4) based on when the clash must be resolved in the construction programme.
-
-3. **Identify the discipline pair** most affected — use the format: `[DISC_A] vs [DISC_B]`, where disciplines are: ARC, STR, HYD, MEC, ELE, FIR.
-
-4. **State the minimum clearance** if specified — horizontal (H mm) and vertical (V mm) separately. If hard physical clash applies, note HC (Hard Clash, 0mm).
-
-5. **Flag any procurement dependencies** — items where the clash cannot be properly resolved until a supplier or subcontractor is confirmed.
-
-## Output Format
-
-Return results in this exact structure:
+You are a senior BIM Coordination Manager with 15+ years of experience. Review the attached project report and extract all coordination requirements, clearance rules, and clash-relevant constraints. Output them as structured pre-clash gate checklist items for a staged clash detection platform.
 
 ---
+
+## STAGE DEFINITIONS
+
+- T1 — Strategic Constraints & Early Locks: Structure, civil, seismic zones, underground, major penetrations, primary service routing — things that cannot be changed once construction starts.
+- T2 — Main Services & Plantroom Coordination: Main service distribution, ceiling zones, fire walls, plantroom layout — resolved before ceilings and finishes are locked.
+- T3 — Fit-Out, Devices & Maintainability: Devices, fit-out, access hatches, specialist equipment positions, ceiling-mounted items.
+- T4 — As-Built & Handover Readiness: Final verification for commissioning, compliance evidence, and FM handover.
+
+The platform already has standard NZS4219:2009 seismic clearances. Extract only PROJECT-SPECIFIC requirements that add to or differ from standard rules.
+
+---
+
+## DISCIPLINE CODES
+
+Use these codes exactly — no variations:
+- ARCH (Architectural)
+- STR (Structural)
+- HYD (Hydraulic/Plumbing)
+- MEC (Mechanical)
+- ELE (Electrical)
+- FIR (Fire)
+- GEN (General / multi-discipline)
+
+---
+
+## INSTRUCTIONS
+
+1. Extract every coordination-relevant requirement — clearances, offsets, access zones, installation sequences, penetration rules, material conflicts, and procurement dependencies.
+
+2. Assign each item to T1, T2, T3, or T4.
+
+3. Write each checklist item in plain, buildable language — one sentence, actionable, no jargon.
+
+4. State clearances as integers in millimetres. Use null if not specified. If it is a hard physical clash (zero clearance), use 0 for both H and V.
+
+5. Flag procurement dependencies where coordination cannot be finalised until a supplier or subcontractor is confirmed.
+
+---
+
+## PART 1 — HUMAN-READABLE TABLES
+
+Output the following four tables. Group items within each stage by discipline in this order: STR → HYD → MEC → ELE → FIR → ARCH → GEN.
 
 ### T1 — Strategic Constraints Gate Items
-
-| # | Discipline | Checklist Item | Clearance (H / V) | Clash Pair | Source (clause/page) |
-|---|---|---|---|---|---|
+| # | Discipline | Checklist Item | H (mm) | V (mm) | Clash Pair | Source |
+|---|---|---|---|---|---|---|
 
 ### T2 — Main Services Gate Items
-
-| # | Discipline | Checklist Item | Clearance (H / V) | Clash Pair | Source |
-|---|---|---|---|---|---|
+| # | Discipline | Checklist Item | H (mm) | V (mm) | Clash Pair | Source |
+|---|---|---|---|---|---|---|
 
 ### T3 — Fit-Out & Devices Gate Items
-
-| # | Discipline | Checklist Item | Clearance (H / V) | Clash Pair | Source |
-|---|---|---|---|---|---|
+| # | Discipline | Checklist Item | H (mm) | V (mm) | Clash Pair | Source |
+|---|---|---|---|---|---|---|
 
 ### T4 — Handover Gate Items
-
-| # | Discipline | Checklist Item | Clearance (H / V) | Clash Pair | Source |
-|---|---|---|---|---|---|
-
----
-
-### Clash Task Overrides
-
-| Task Pattern | Original Clearance | New Clearance (H / V) | Reason | Source |
-|---|---|---|---|---|
-
----
+| # | Discipline | Checklist Item | H (mm) | V (mm) | Clash Pair | Source |
+|---|---|---|---|---|---|---|
 
 ### Procurement Flags
-
 | Item | Discipline | What is pending | When needed by | Stage |
 |---|---|---|---|---|
 
+### Top 3 Coordination Risks
+Write 3–5 sentences summarising the most significant coordination risks this report introduces.
+
 ---
 
-## Tone and Approach
+## PART 2 — JSON OUTPUT FILE
 
-- Be specific. Use exact dimensions from the report — do not substitute generic values.
-- If the report is ambiguous, flag it for clarification rather than assuming.
-- Write checklist items in plain, buildable language.
-- Group items by stage, then by discipline: HYD → MEC → ELE → FIR → ARC.
-- End with a 3–5 sentence summary of the top 3 coordination risks this report introduces.
+After the tables above, output a section that starts with this exact line on its own line:
+
+=== CLASH COORDINATION PLATFORM — JSON OUTPUT (copy everything between the braces) ===
+
+Then output a single valid JSON object with EXACTLY this structure. Do not add extra fields. Do not remove fields. Do not use comments inside the JSON. Do not use trailing commas.
+
+{
+  "project": "Project name from report, or Unknown if not stated",
+  "report": "Document title and version from report",
+  "date": "Today's date in YYYY-MM-DD format",
+  "gateItems": [
+    {
+      "stage": "T1",
+      "discipline": "STR",
+      "item": "One sentence checklist item in plain language",
+      "clearanceH": 50,
+      "clearanceV": 100,
+      "clashPair": "STR vs MEC",
+      "source": "Section 4.2 or page number"
+    }
+  ],
+  "procurementFlags": [
+    {
+      "item": "Short description of what is pending",
+      "discipline": "MEC",
+      "pending": "What must be confirmed before coordination can proceed",
+      "targetDate": "YYYY-MM-DD or null",
+      "stage": "T2"
+    }
+  ],
+  "projectNotes": "Your 3-5 sentence coordination risk summary goes here as a single string."
+}
+
+STRICT RULES FOR THE JSON:
+- "stage" must be exactly one of: T1, T2, T3, T4
+- "discipline" must be exactly one of: ARCH, STR, HYD, MEC, ELE, FIR, GEN
+- "clearanceH" and "clearanceV" must be integers in millimetres, or null if not specified
+- Use 0 for hard clash (physical contact, zero clearance)
+- "clashPair" format is "DISC vs DISC" — for example: "MEC vs STR"
+- "targetDate" must be "YYYY-MM-DD" format or null
+- "projectNotes" must be a single string — no line breaks inside it
+- If there are no procurementFlags, output: "procurementFlags": []
+- Every string value must use double quotes — no single quotes anywhere in the JSON
+- The JSON must be valid — test it mentally before outputting
 ```
 
 **What to do with the output:**
 
-Fastest path — Claude outputs a JSON block at the end of its response (labelled `=== CLAUDE OUTPUT FILE ===`). Copy that JSON into a `.txt` file and click **📋 Additional Gate Rules** in the platform — clearance overrides, gate notes, and procurement flags are applied automatically.
+1. Review the human-readable tables for accuracy
+2. Copy everything between the outer `{` and `}` braces of the JSON block
+3. Paste into a plain text file and save as `[ProjectCode]_gate_rules.txt`
+4. In the platform, click **📤 Pre-Clash Gate Updates Upload** — gate items appear immediately as checkboxes in the correct stage checklist
 
-Manual fallback:
-- Gate checklist items → **Rules & Standards** tab → Project Notes field
-- Clearance overrides → click ✏️ **Edit** on the relevant task row
-- Procurement flags → note in the Run Log tab
+If the JSON doesn't load, paste it into [jsonlint.com](https://jsonlint.com) to find the error, or ask the AI: *"Please recheck the JSON and output a corrected version with no trailing commas and all string values in double quotes."*
 
-> **Important:** If Claude identifies new clash task pairs not in your matrix, do **not** add them through the platform. Update the G05 Clash Matrix in Excel and re-upload via **📂 Upload Updated Matrix**. The matrix is the single source of truth for all clash tasks.
+> **Important:** Clash task updates (clearance overrides, new task pairs) must always be made in the G05 Clash Matrix first, then re-uploaded. Do not include clash task data in the JSON.
 
 </details>
 
 **Step 5 — Work through the gates**  
 For each stage (T1 → T2 → T3 → T4):
-- Complete the Pre-Clash Gate Checklist (left panel) — gate status changes from 🔒 to ✅ automatically
+- Use the discipline filter on the Pre-Clash Gate Checklist to focus on one trade at a time
+- Complete the checklist — gate status changes from 🔒 to ✅ automatically
 - Use ✏️ Edit on any task row to override clearance values for this project
 - If a new clash pair is identified, update the G05 Matrix in Excel and re-upload
 - Click **⬇ Export CSV** to get the Revizto-ready task list
 - Log each coordination run in the Run Log tab
 
 **Step 6 — Transfer to another PC (optional)**  
-Click **⬆ Export Session** to save all tasks, overrides, gate progress, and log to a JSON file.  
+Click **⬆ Export Session** to save all tasks, gate progress, project gate items, and log to a JSON file.  
 On the other PC, open the platform and click **⬇ Import Session** to restore everything instantly.
 
 ---
@@ -181,13 +223,13 @@ G05 Clash Matrix (Excel)
 
         │
         ▼  Project Report (PDF/Word)
-   Claude Analysis Prompt
-   (claude.ai — any computer)
+   Claude / Copilot / ChatGPT Prompt
+   (any computer, no Cowork needed)
         │
-        ▼  Download JSON output
-   📋 Additional Gate Rules upload
-   → Applies clearance overrides
-   → Adds gate notes & procurement flags
+        ▼  Copy JSON output block
+   📤 Pre-Clash Gate Updates Upload
+   → Gate items injected as checkboxes
+   → Procurement flags → Rules tab notes
    → New task pairs? Update G05 Matrix
      and re-upload — NOT through platform
 ```
@@ -199,14 +241,14 @@ G05 Clash Matrix (Excel)
 | Feature | What it does |
 |---|---|
 | T1–T4 Stage tabs | Tasks from your uploaded G05 matrix split by coordination stage |
-| Pre-Clash Gate Checklist | Discipline-tagged checklist (left panel) — must be ✅ before running each stage in Revizto |
+| Pre-Clash Gate Checklist | Discipline-tagged checklist with filter dropdown — must be ✅ before running each stage in Revizto |
 | Revizto Clash Task Output | Task table (right panel) — search, filter by discipline or clearance, mark as loaded, export CSV |
 | Gate Status | Automatically shows 🔒 Locked / ⚠️ Partial / ✅ Open based on checklist progress |
 | ✏️ Edit Task | Override clearance code, H/V values, Revizto priority, and add a reason note per task |
 | 📐 Rules & Standards | NZS4219:2009 seismic table, clearance code reference, discipline gap matrix with breakdown, project notes |
-| 📂 Upload Updated Matrix | Upload updated G05 Excel → platform rebuilds all tasks automatically; overrides preserved |
-| 📋 Additional Gate Rules | Upload JSON from Claude analysis → applies clearance overrides, gate notes, procurement flags |
-| ⬆ Export Session | Save all tasks, overrides, gate states, and run log to a portable JSON file |
+| 📂 Upload Updated Matrix | Upload updated G05 Excel → platform rebuilds all tasks automatically |
+| 📤 Pre-Clash Gate Updates Upload | Upload JSON from Claude/Copilot/ChatGPT → gate items injected as checkboxes into the correct stage |
+| ⬆ Export Session | Save all tasks, gate states, project gate items, and run log to a portable JSON file |
 | ⬇ Import Session | Load a session file on any PC to restore a project's full setup instantly |
 | ⬇ Export CSV | Revizto-ready export including overrides, type flag, and notes |
 | Run Log | Dated record of each coordination session |
@@ -220,7 +262,7 @@ The platform reads from your Excel G05 matrix — you keep working in Excel as n
 When you update the matrix (new tasks, changed clearances, new project scope):
 1. Save the Excel file
 2. Click **📂 Upload Updated Matrix** in the platform
-3. Platform rebuilds everything — your custom edits and overrides are preserved
+3. Platform rebuilds everything — your task edits are preserved
 
 The platform always shows which matrix is loaded and when it was last uploaded.
 
