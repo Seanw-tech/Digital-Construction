@@ -2,6 +2,40 @@
 
 ---
 
+## v1.4 — 2026-06-20
+
+### Platform
+- Pre-Clash Gate Checklist: added discipline filter dropdown (ARCH / STR / HYD / MEC / ELE / FIR / GEN) across all four stages
+- Gate items from Claude/Copilot/ChatGPT JSON upload now inject directly as checkboxes into the correct stage checklist (highlighted with blue left border)
+- Project gate items persist in localStorage and survive page reload and session export/import
+- Removed clash task override processing from the Claude output upload — overrides must be made in the G05 matrix
+- Toast messages updated to reflect gate item count only (no override count)
+
+### Checklists (Framework Alignment)
+- T4 cleaned: removed 4 misplaced items (firewall layout, fire rating of steel, grilles/louvres alignment, service penetration placeholders); T4 renumbered to 9 items
+- T1: added T1-19 (STR — fire rating of steel through fire walls)
+- T2: added T2-23 (ARCH — firewall layout verified against fire report)
+- T3: added T3-20 (MEC — grilles aligned with louvres), T3-21 (MEC — service penetration placeholders)
+
+### Colours & Tags
+- HC clearance badge changed to red (`#7f1d1d / #fca5a5`)
+- C600V clearance badge changed to green (`#064e3b / #6ee7b7`)
+- All fire discipline tags standardised to `.disc-FIR` / `FIR` (red `#b91c1c`) — `.disc-FIRE` removed
+
+### Prompts
+- `01_ProjectReport_ClashGate_Analysis.md` updated: removed Clash Task Overrides and New Custom Clash Tasks sections; JSON schema simplified to `gateItems` + `procurementFlags` + `projectNotes`; prompt rewritten for cross-platform compatibility (Claude / Copilot / ChatGPT)
+
+---
+
+## v1.2 / v1.3 — 2026-06-19
+
+### Platform
+- Parsing helpers (`parseSheetRows`, `toCode`, `CLR_HV`, `catToStage`, `parseWorkbook`) extracted to top level — both upload and auto-load use identical logic
+- HC and C600V colours updated throughout (CSS badges + gap matrix STYLE object + legend)
+- `disc-FIRE` standardised to `disc-FIR` across platform HTML and all local copies
+
+---
+
 ## v1.0 — 2026-06-16
 
 **Initial release.**
