@@ -7,6 +7,7 @@
 ### Platform
 - Button renamed: "Additional Gate Rules" → "Updated Gate Rules"
 - Header layout fixed: white-space:nowrap on btn-io and btn-theme; button row set to flex-wrap:nowrap — no more text wrapping
+- Upload Matrix and Updated Gate Rules buttons moved from header to Revizto Clash Task Output card header in all four stage panels (T1–T4) — buttons now sit parallel to the checklist at stage level; hidden file inputs remain in DOM for JavaScript targeting
 
 ### Prompts
 - `01_ProjectReport_ClashGate_Analysis.md` rewritten as v2.0: full Hub default reference (T1–T4, 58 items) embedded in prompt; AI compares extracted items against defaults and assigns RETAINED / SUPERSEDED / SUPPLEMENTED / NEW status; Part 1 output now includes Rule Status Summary table; JSON updated with `status` and `replacesDefault` fields; deprecated `overrides` and `customTasks` removed; discipline codes corrected to ARCH
