@@ -147,7 +147,7 @@ footer{padding:20px 32px;border-top:1px solid #e2e8f0;text-align:center;font-siz
 .reset-link{font-size:.72rem;color:#94a3b8;cursor:pointer;text-decoration:underline;margin-top:6px;display:inline-block}
 .reset-link:hover{color:#b91c1c}
 .overrides-count{font-size:.7rem;padding:2px 7px;border-radius:10px;background:#fef3c7;color:#92400e;font-weight:700;margin-left:4px}
-.btn-io{background:#f8fafc;color:#475569;border:1px solid #e2e8f0;padding:7px 14px;border-radius:6px;font-size:.78rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px}
+.btn-io{background:#f8fafc;color:#475569;border:1px solid #e2e8f0;padding:7px 14px;border-radius:6px;font-size:.78rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;white-space:nowrap}
 .btn-io:hover{background:#f1f5f9;color:#1e293b;border-color:#cbd5e1}
 .checklist-filter-row{display:flex;align-items:center;gap:8px;padding:6px 0 10px 0;border-bottom:1px solid #f1f5f9;margin-bottom:8px}
 .checklist-filter-row label{font-size:.72rem;color:#94a3b8;white-space:nowrap}
@@ -171,7 +171,7 @@ footer{padding:20px 32px;border-top:1px solid #e2e8f0;text-align:center;font-siz
 .card-signoff-badge{font-size:.65rem;font-weight:700;padding:2px 8px;border-radius:10px;background:#dcfce7;color:#166634;border:1px solid #86efac;display:none}
 .card-signoff-badge.visible{display:inline-flex;align-items:center;gap:3px}
 /* ── Theme toggle button ── */
-.btn-theme{padding:6px 11px;border-radius:6px;font-size:.78rem;font-weight:700;cursor:pointer;border:1px solid #e2e8f0;background:#f8fafc;color:#475569;display:inline-flex;align-items:center;gap:5px;transition:all .15s}
+.btn-theme{padding:6px 11px;border-radius:6px;font-size:.78rem;font-weight:700;cursor:pointer;border:1px solid #e2e8f0;background:#f8fafc;color:#475569;display:inline-flex;align-items:center;gap:5px;transition:all .15s;white-space:nowrap}
 .btn-theme:hover{background:#e2e8f0;color:#1e293b}
 /* ── Dark theme overrides ── */
 [data-theme="dark"] body{background:#0f1117;color:#e2e8f0}
@@ -283,7 +283,7 @@ footer{padding:20px 32px;border-top:1px solid #e2e8f0;text-align:center;font-siz
           <input type="file" id="claudeUpload" accept=".txt,.json" style="display:none" onchange="loadClaudeOutput(this)">
         </label>
       </div>
-      <div style="display:flex;gap:8px;margin-top:4px">
+      <div style="display:flex;gap:6px;margin-top:4px;flex-wrap:nowrap;align-items:center">
         <button class="btn-io" onclick="exportSession()">⬆ Export Session</button>
         <label class="btn-io" style="cursor:pointer">
           ⬇ Import Session
@@ -851,10 +851,10 @@ footer{padding:20px 32px;border-top:1px solid #e2e8f0;text-align:center;font-siz
         <table style="width:100%;border-collapse:collapse;font-size:.8rem">
           <thead>
             <tr>
-              <th style="text-align:left;padding:8px 12px;background:#232a3b;color:#94a3b8;border-bottom:1px solid #2d3748;font-size:.72rem;text-transform:uppercase">Code</th>
-              <th style="text-align:left;padding:8px 12px;background:#232a3b;color:#94a3b8;border-bottom:1px solid #2d3748;font-size:.72rem;text-transform:uppercase">H Gap (mm)</th>
-              <th style="text-align:left;padding:8px 12px;background:#232a3b;color:#94a3b8;border-bottom:1px solid #2d3748;font-size:.72rem;text-transform:uppercase">V Gap (mm)</th>
-              <th style="text-align:left;padding:8px 12px;background:#232a3b;color:#94a3b8;border-bottom:1px solid #2d3748;font-size:.72rem;text-transform:uppercase">Description</th>
+              <th style="text-align:left;padding:8px 12px;background:#f8fafc;color:#64748b;border-bottom:1px solid #e2e8f0;font-size:.72rem;text-transform:uppercase">Code</th>
+              <th style="text-align:left;padding:8px 12px;background:#f8fafc;color:#64748b;border-bottom:1px solid #e2e8f0;font-size:.72rem;text-transform:uppercase">H Gap (mm)</th>
+              <th style="text-align:left;padding:8px 12px;background:#f8fafc;color:#64748b;border-bottom:1px solid #e2e8f0;font-size:.72rem;text-transform:uppercase">V Gap (mm)</th>
+              <th style="text-align:left;padding:8px 12px;background:#f8fafc;color:#64748b;border-bottom:1px solid #e2e8f0;font-size:.72rem;text-transform:uppercase">Description</th>
             </tr>
           </thead>
           <tbody>
@@ -884,9 +884,9 @@ footer{padding:20px 32px;border-top:1px solid #e2e8f0;text-align:center;font-siz
         <table style="width:100%;border-collapse:collapse;font-size:.8rem;margin-bottom:14px">
           <thead>
             <tr>
-              <th style="text-align:left;padding:8px 12px;background:#232a3b;color:#94a3b8;border-bottom:1px solid #2d3748;font-size:.72rem;text-transform:uppercase">Condition</th>
-              <th style="text-align:center;padding:8px 12px;background:#232a3b;color:#94a3b8;border-bottom:1px solid #2d3748;font-size:.72rem;text-transform:uppercase">Min H (mm)</th>
-              <th style="text-align:center;padding:8px 12px;background:#232a3b;color:#94a3b8;border-bottom:1px solid #2d3748;font-size:.72rem;text-transform:uppercase">Min V (mm)</th>
+              <th style="text-align:left;padding:8px 12px;background:#f8fafc;color:#64748b;border-bottom:1px solid #e2e8f0;font-size:.72rem;text-transform:uppercase">Condition</th>
+              <th style="text-align:center;padding:8px 12px;background:#f8fafc;color:#64748b;border-bottom:1px solid #e2e8f0;font-size:.72rem;text-transform:uppercase">Min H (mm)</th>
+              <th style="text-align:center;padding:8px 12px;background:#f8fafc;color:#64748b;border-bottom:1px solid #e2e8f0;font-size:.72rem;text-transform:uppercase">Min V (mm)</th>
             </tr>
           </thead>
           <tbody>
