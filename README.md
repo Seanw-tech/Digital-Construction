@@ -1,7 +1,7 @@
 # BIM Clash Coordination Toolkit
 
 **Owner:** Sean Wang — BIM Manager  
-**Version:** 1.5  
+**Version:** 1.7  
 **Last updated:** 2026-06-20
 
 A project-agnostic toolkit for structured, stage-gated clash detection and digital coordination. Deploy once per project. Built around NZS4219:2009, Revizto Clash Automation, and a T1–T4 staged coordination framework.
