@@ -2,6 +2,17 @@
 
 ---
 
+## v1.8 — 2026-06-20
+
+### Platform
+- Button renamed: "Additional Gate Rules" → "Updated Gate Rules"
+- Header layout fixed: white-space:nowrap on btn-io and btn-theme; button row set to flex-wrap:nowrap — no more text wrapping
+
+### Prompts
+- `01_ProjectReport_ClashGate_Analysis.md` rewritten as v2.0: full Hub default reference (T1–T4, 58 items) embedded in prompt; AI compares extracted items against defaults and assigns RETAINED / SUPERSEDED / SUPPLEMENTED / NEW status; Part 1 output now includes Rule Status Summary table; JSON updated with `status` and `replacesDefault` fields; deprecated `overrides` and `customTasks` removed; discipline codes corrected to ARCH
+
+---
+
 ## v1.7 — 2026-06-20
 
 ### Platform
