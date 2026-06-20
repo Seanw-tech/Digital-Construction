@@ -1,7 +1,7 @@
 # BIM Clash Coordination Toolkit
 
 **Owner:** Sean Wang — BIM Manager  
-**Version:** 1.7  
+**Version:** 1.8  
 **Last updated:** 2026-06-20
 
 A project-agnostic toolkit for structured, stage-gated clash detection and digital coordination. Deploy once per project. Built around NZS4219:2009, Revizto Clash Automation, and a T1–T4 staged coordination framework.
@@ -20,7 +20,7 @@ BIM_Clash_Coordination_Toolkit/
 │   └── Clash_Coordination_Platform.html  ← Main coordination dashboard (open in Chrome)
 │
 ├── Prompts/
-│   ├── 01_ProjectReport_ClashGate_Analysis.md  ← Analyse any project report → gate rules
+│   ├── 01_ProjectReport_ClashGate_Analysis.md  ← Analyse project report → updated gate rules
 │   └── 02_NewProject_Setup.md                  ← Configure the platform for a new project
 │
 └── Projects/
@@ -43,31 +43,39 @@ Open `Platform/Clash_Coordination_Platform.html` in Chrome. No installation requ
 **Step 3 — Upload your Clash Matrix**  
 Click **📂 Upload Updated Matrix** in the top right. Select your project's G05 Clash Detection Matrix Excel file. The platform reads the `Rawdata (Do not edit)` sheet and loads all T1–T4 tasks automatically.
 
-**Step 4 — Analyse your project reports**  
-Use the prompt below on Claude, Copilot, or ChatGPT — no Cowork needed, works on any computer. Attach your project reports (PDF or Word). The AI returns structured gate checklist items and a JSON block you upload directly to the platform.
+**Step 4 — Analyse your project reports and update gate rules**  
+Use the prompt below on Claude, Copilot, or ChatGPT — no Cowork needed, works on any computer. Attach your project report (PDF or Word).
+
+The AI compares the report against the **Hub default gate checklist** (58 built-in items across T1–T4) and applies the following logic:
+
+- **RETAINED** — The report confirms a Hub default. No action needed; item already in platform.
+- **SUPPLEMENTED** — The report adds project-specific detail to a Hub default. New item added.
+- **SUPERSEDED** — The report overrides a Hub default with stricter or different requirements. New item replaces the default.
+- **NEW** — No Hub default covers this. New project-specific item added.
+
+The AI returns a Rule Status Summary (showing what happened to every Hub default), the filtered gate items (SUPPLEMENTED, SUPERSEDED, and NEW only), and a JSON block you upload directly to the platform.
 
 <details>
 <summary>📋 Click to expand — Copy this prompt into Claude / Copilot / ChatGPT</summary>
 
 ```
-You are a senior BIM Coordination Manager with 15+ years of experience. Review the attached project report and extract all coordination requirements, clearance rules, and clash-relevant constraints. Output them as structured pre-clash gate checklist items for a staged clash detection platform.
+You are a senior BIM Coordination Manager with 15+ years of experience across commercial, residential, and specialist construction. Your task is to analyse a project-specific engineering report against an existing Hub default gate checklist, identify what is genuinely new or different, and produce a filtered, non-redundant set of updated gate rules.
 
 ---
 
-## STAGE DEFINITIONS
+## COORDINATION FRAMEWORK — STAGE DEFINITIONS
 
-- T1 — Strategic Constraints & Early Locks: Structure, civil, seismic zones, underground, major penetrations, primary service routing — things that cannot be changed once construction starts.
-- T2 — Main Services & Plantroom Coordination: Main service distribution, ceiling zones, fire walls, plantroom layout — resolved before ceilings and finishes are locked.
-- T3 — Fit-Out, Devices & Maintainability: Devices, fit-out, access hatches, specialist equipment positions, ceiling-mounted items.
-- T4 — As-Built & Handover Readiness: Final verification for commissioning, compliance evidence, and FM handover.
-
-The platform already has standard NZS4219:2009 seismic clearances. Extract only PROJECT-SPECIFIC requirements that add to or differ from standard rules.
+- **T1 — Strategic Constraints & Early Locks**: Structure, civil, seismic, egress, underground, major penetrations, primary service routing — things that cannot be changed once construction starts.
+- **T2 — Main Services & Plantroom Coordination**: Main service distribution, ceiling zones, fire walls, plantroom layout — resolved before ceilings and finishes are locked.
+- **T3 — Fit-Out, Devices & Maintainability**: Devices, fit-out, access hatches, specialist equipment positions, ceiling-mounted items.
+- **T4 — As-Built & Handover Readiness**: Final verification for commissioning, compliance evidence, and FM handover.
 
 ---
 
 ## DISCIPLINE CODES
 
 Use these codes exactly — no variations:
+
 - ARCH (Architectural)
 - STR (Structural)
 - HYD (Hydraulic/Plumbing)
@@ -78,70 +86,210 @@ Use these codes exactly — no variations:
 
 ---
 
-## INSTRUCTIONS
+## HUB DEFAULT GATE CHECKLIST — REFERENCE (do not output these again unless they are modified)
 
-1. Extract every coordination-relevant requirement — clearances, offsets, access zones, installation sequences, penetration rules, material conflicts, and procurement dependencies.
+These items are already loaded into the platform. Do not add them again. Use their IDs when flagging overlaps or replacements.
 
-2. Assign each item to T1, T2, T3, or T4.
+### T1 — Default Items
 
-3. Write each checklist item in plain, buildable language — one sentence, actionable, no jargon.
+| ID | Disc | Default Item |
+|---|---|---|
+| T1-01 | ARCH | Wall dimensions and positions verified — random point test from grids completed |
+| T1-02 | ARCH | Wall heights modelled correctly — full height elements identified and confirmed |
+| T1-03 | STR | Cross bracing (donobraces) are modelled — check against risers and cushion heads |
+| T1-04 | STR | Slab thickness between floors verified (random point test) |
+| T1-05 | STR | Intumescent painting on steelwork — service penetration clearances checked (100mm TYP) |
+| T1-06 | STR | Structural model included in federated environment for plantrooms, risers, main corridors, and all primary service areas |
+| T1-07 | STR | Structural and civil hard constraints modelled or documented sufficiently to support main service route decisions |
+| T1-08 | HYD | In-ground foundation beams vs services — pipes in middle third if penetrating; falls on long runs confirmed |
+| T1-09 | GEN | Services reticulation strategy aligned with construction build sequence |
+| T1-10 | GEN | Major penetrations controlled via a live register — owner, status, and approval authority recorded for each |
+| T1-11 | GEN | Primary services use realistic external dimensions, conservative envelopes, or agreed route zones (design-to-install intent) |
+| T1-12 | GEN | Major plant placeholders replaced with realistic dimensions or conservative access and maintenance envelopes |
+| T1-13 | GEN | Seismic no-go zones, egress protection volumes, and minimum clearance rules defined as model volumes, rules, or documented constraints |
+| T1-14 | GEN | New clash tasks can be mapped to G05 Clash Matrix categories before T2 automation or reporting begins |
+| T1-15 | GEN | Each system element has one accountable authoring party confirmed for this coordination stage |
+| T1-16 | GEN | Placeholder geometry is only used where purpose, owner, and replacement trigger are clearly defined |
+| T1-17 | GEN | All coordination issues assigned to the party responsible for action — not the party who raised the issue |
+| T1-18 | GEN | Unresolved T1 constraints assigned to accountable owner with due date, or formally accepted as risk before progressing to T2 |
+| T1-19 | STR | Fire rating of steel through fire walls — checked against drawings (typically 2D, confirm modelled) |
 
-4. State clearances as integers in millimetres. Use null if not specified. If it is a hard physical clash (zero clearance), use 0 for both H and V.
+### T2 — Default Items
 
-5. Flag procurement dependencies where coordination cannot be finalised until a supplier or subcontractor is confirmed.
+| ID | Disc | Default Item |
+|---|---|---|
+| T2-01 | ARCH | Service walkways modelled in ceiling space — min 900mm wide × 2000mm height, egress routes compliant |
+| T2-02 | ARCH | Ceiling heights modelled correctly — Clearance Matrix adjusted to suit |
+| T2-03 | ARCH | No services penetrate architect-modelled deflection heads (seismic movement clearance) |
+| T2-04 | ARCH | Ceiling/slab thermal or acoustic insulation modelled — spec confirmed |
+| T2-05 | ARCH | Acoustic walls with insulation — diagonal brackets modelled, ceiling clearance increased to 100mm |
+| T2-06 | HYD | Pipes in walls checked — no hydraulic pipes exceeding wall width |
+| T2-07 | HYD | Equal junctions connecting to main drain at ≥15° angle or vertically — confirmed |
+| T2-08 | MEC | Duct sizes correct — internal dimensions match design drawings |
+| T2-09 | MEC | Services >150mm from ceilings — no installation/access impediment |
+| T2-10 | MEC | Fire dampers not within 200mm of each other — spacing confirmed |
+| T2-11 | ELE | 150mm clearance between all cable trays confirmed (min 125mm where constrained) |
+| T2-12 | ELE | Cable separation between power (LV) and low voltage (data, AV, security) modelled correctly |
+| T2-13 | FIR | Fire model transition rule confirmed — when re-coordination is required and who is responsible when subcontractor model replaces design model |
+| T2-14 | GEN | Deflection heads on partitions confirmed — services not routing through them |
+| T2-15 | GEN | All elements 50mm clear from each other and structure — checked |
+| T2-16 | GEN | Insulation thickness modelled correctly on ducts/pipes/mech/hydraulic |
+| T2-17 | GEN | Ceiling control surfaces defined by zone, room, or agreed construction area before device and fit-out coordination begins |
+| T2-18 | GEN | Main and branch distribution services modelled in active construction zones to agreed coordination accuracy |
+| T2-19 | GEN | Insulation, clearance, fire, acoustic, and access assumptions agreed and applied where they drive clash outcomes |
+| T2-20 | GEN | Maintenance access volumes initiated for major valves, dampers, FCUs, VAVs, switchboards, pumps, and plant |
+| T2-21 | GEN | High-risk seismic and support modelling commenced, or responsibility and timing formally agreed with accountable party |
+| T2-22 | GEN | All unresolved T2 issues assigned to correct responsible party with due date, status, and priority recorded |
+| T2-23 | ARCH | Firewall layout verified against the fire report — no discrepancies |
+
+### T3 — Default Items
+
+| ID | Disc | Default Item |
+|---|---|---|
+| T3-01 | ARCH | Acoustic report reviewed — unusual requirements and acoustic wall requirements colour-coded |
+| T3-02 | ARCH | RCP coordination complete — ceiling types and fixtures colour-coded, common geometries across trades highlighted |
+| T3-03 | HYD | Excess tundish flagged in Revizto — MEC and HYD tundishes identified for team discussion |
+| T3-04 | MEC | Flexible duct length ≤3m (target 2.5m) — confirmed |
+| T3-05 | MEC | Cooling tower access ladder modelled per AS1657 — spatial requirements confirmed |
+| T3-06 | ELE | BMS, Dry Fire, and AV cable trays modelled and confirmed |
+| T3-07 | ELE | AV equipment modelled — type and dimensions confirmed against procurement schedule |
+| T3-08 | ELE | Floor box numbers and positions align with architectural floor layout |
+| T3-09 | FIR | Fire egress routes — minimum widths maintained in ceilings, walkways, and roofs |
+| T3-10 | GEN | Ceiling-mounted items modelled (speakers, detectors, sprinklers) — 150mm clearance above FCL confirmed (PCA A-Grade) |
+| T3-11 | GEN | Wall-mounted items modelled below ceilings — correctly positioned (not floating) |
+| T3-12 | GEN | Plant rooms — spatial check for access and maintenance clearances completed |
+| T3-13 | GEN | Final device and terminal layouts coordinated in active construction zones |
+| T3-14 | GEN | Access panels, inspection points, and maintenance clearances validated where required |
+| T3-15 | GEN | Local penetrations and builders work holes recorded, approved, or assigned for trade resolution as applicable |
+| T3-16 | GEN | No unresolved critical clashes remain that would prevent ceiling closure, commissioning, compliance, or safe access |
+| T3-17 | GEN | Outstanding T3 issues assigned with construction priority, due date, and responsible party |
+| T3-18 | GEN | T3 outputs are suitable to support trade installation, commissioning planning, and site verification |
+| T3-19 | GEN | Field change affecting fire, acoustic, egress, seismic, structure, or maintainability — re-clash scope confirmed and responsibility assigned |
+| T3-20 | MEC | Grilles aligned with louvres — no misalignment |
+| T3-21 | MEC | Service penetration placeholders — all used or removed; none incorrectly placed |
+
+### T4 — Default Items
+
+| ID | Disc | Default Item |
+|---|---|---|
+| T4-01 | ARCH | Roof walkways — confirmed aligned with plant and services routing |
+| T4-02 | GEN | Random check of each trade's 2D drawings against model — spot heights verified |
+| T4-03 | GEN | No services run between roof ridgeline and ridgeline steelwork — confirmed |
+| T4-04 | GEN | As-built modelling confirmed for mandatory scope — plantrooms, risers, main corridors, major plant, registered penetrations affecting compliance or FM handover |
+| T4-05 | GEN | Material deviations from coordinated design captured where they affect operation, access, safety, compliance, or FM handover |
+| T4-06 | GEN | Penetrations and supports finalised and aligned between model, register, and site records where required |
+| T4-07 | GEN | Final access and compliance checks completed — egress, access hatches, service clearances, seismic no-go zones, and maintenance access |
+| T4-08 | GEN | Key equipment and handover assets have correct dimensions, location, identifier, and required asset data per project brief |
+| T4-09 | GEN | Residual issues closed, formally accepted, or transferred to defects, commissioning, or handover process — none left unassigned |
 
 ---
 
-## PART 1 — HUMAN-READABLE TABLES
+## YOUR TASK — STEP-BY-STEP
 
-Output the following four tables. Group items within each stage by discipline in this order: STR → HYD → MEC → ELE → FIR → ARCH → GEN.
+**Step 1 — Extract from the report**
+Read the attached project report carefully. Extract every coordination-relevant requirement — clearances, offsets, access zones, installation sequences, penetration rules, material conflicts, and procurement dependencies.
 
-### T1 — Strategic Constraints Gate Items
-| # | Discipline | Checklist Item | H (mm) | V (mm) | Clash Pair | Source |
-|---|---|---|---|---|---|---|
+**Step 2 — Compare against Hub defaults**
+For each extracted item, compare it against the Hub default list above. Apply these rules strictly:
 
-### T2 — Main Services Gate Items
-| # | Discipline | Checklist Item | H (mm) | V (mm) | Clash Pair | Source |
-|---|---|---|---|---|---|---|
+- **RETAINED** — The extracted item is already covered by a Hub default. Do not output it again. Note which default ID covers it.
+- **SUPERSEDED** — A Hub default exists on the same topic, but the project-specific requirement is different, stricter, or contradicts the default. The project requirement takes precedence. Note which default ID is being replaced and why.
+- **SUPPLEMENTED** — A Hub default exists on the same general topic, but the project item adds project-specific detail that cannot be inferred from the default. Both the default and the new item apply. Note which default ID it relates to.
+- **NEW** — No Hub default covers this. It is a genuinely project-specific requirement.
 
-### T3 — Fit-Out & Devices Gate Items
-| # | Discipline | Checklist Item | H (mm) | V (mm) | Clash Pair | Source |
-|---|---|---|---|---|---|---|
+**Step 3 — Filter output**
+Only include SUPERSEDED, SUPPLEMENTED, and NEW items in the output tables and JSON. Do not list RETAINED items in the output tables — they are already in the platform.
 
-### T4 — Handover Gate Items
-| # | Discipline | Checklist Item | H (mm) | V (mm) | Clash Pair | Source |
-|---|---|---|---|---|---|---|
+**Step 4 — Assign attributes**
+For each output item:
+- Assign the correct stage (T1/T2/T3/T4)
+- Assign the correct discipline code (ARCH, STR, HYD, MEC, ELE, FIR, GEN)
+- State the minimum clearance if specified — H (mm) and V (mm) separately. Use null if not specified. Use 0 for hard physical clash (HC).
+- Identify the most relevant clash pair (format: DISC vs DISC)
+- Cite the source clause or page number
+
+**Step 5 — Flag ambiguities**
+If a report clause is ambiguous, note it explicitly rather than assuming. If a project-specific rule conflicts with NZS4219:2009 or standard practice, flag it.
+
+---
+
+## PART 1 — HUMAN-READABLE OUTPUT
+
+### Rule Status Summary
+
+| Hub Default ID | Default Item (short) | Status | Reason / Project Notes |
+|---|---|---|---|
+| T1-01 | Wall dimensions verified | RETAINED / SUPERSEDED / SUPPLEMENTED | [reason or blank if retained] |
+| ... | ... | ... | ... |
+
+Status definitions:
+- **RETAINED** — Hub default applies unchanged. Not added to output.
+- **SUPERSEDED** — Project report overrides this default. New item in output tables.
+- **SUPPLEMENTED** — Project report adds detail to this default. Additional item in output tables.
+- **NEW** — No corresponding Hub default. New item in output tables.
+
+Only include SUPERSEDED, SUPPLEMENTED, and NEW items in the gate item tables below.
+
+---
+
+### Updated Gate Items — T1
+
+| # | Status | Disc | Gate Item | H (mm) | V (mm) | Clash Pair | Replaces / Relates to | Source |
+|---|---|---|---|---|---|---|---|---|
+
+### Updated Gate Items — T2
+
+| # | Status | Disc | Gate Item | H (mm) | V (mm) | Clash Pair | Replaces / Relates to | Source |
+|---|---|---|---|---|---|---|---|---|
+
+### Updated Gate Items — T3
+
+| # | Status | Disc | Gate Item | H (mm) | V (mm) | Clash Pair | Replaces / Relates to | Source |
+|---|---|---|---|---|---|---|---|---|
+
+### Updated Gate Items — T4
+
+| # | Status | Disc | Gate Item | H (mm) | V (mm) | Clash Pair | Replaces / Relates to | Source |
+|---|---|---|---|---|---|---|---|---|
+
+---
 
 ### Procurement Flags
+
 | Item | Discipline | What is pending | When needed by | Stage |
 |---|---|---|---|---|
 
+---
+
 ### Top 3 Coordination Risks
-Write 3–5 sentences summarising the most significant coordination risks this report introduces.
+
+Write 3–5 sentences summarising the most significant coordination risks this report introduces, focusing on items that are new to this project and not covered by Hub defaults.
 
 ---
 
 ## PART 2 — JSON OUTPUT FILE
 
-After the tables above, output a section that starts with this exact line on its own line:
+After the human-readable output above, output a section starting with this exact line on its own:
 
 === CLASH COORDINATION PLATFORM — JSON OUTPUT (copy everything between the braces) ===
 
-Then output a single valid JSON object with EXACTLY this structure. Do not add extra fields. Do not remove fields. Do not use comments inside the JSON. Do not use trailing commas.
+Then output a single valid JSON object with EXACTLY this structure. Do not add extra fields. Do not remove fields. Do not use comments. No trailing commas.
 
 {
   "project": "Project name from report, or Unknown if not stated",
-  "report": "Document title and version from report",
+  "report": "Document title and version",
   "date": "Today's date in YYYY-MM-DD format",
   "gateItems": [
     {
       "stage": "T1",
       "discipline": "STR",
-      "item": "One sentence checklist item in plain language",
+      "item": "One sentence gate item in plain language",
       "clearanceH": 50,
       "clearanceV": 100,
       "clashPair": "STR vs MEC",
-      "source": "Section 4.2 or page number"
+      "source": "Section 4.2",
+      "status": "NEW",
+      "replacesDefault": null
     }
   ],
   "procurementFlags": [
@@ -153,28 +301,30 @@ Then output a single valid JSON object with EXACTLY this structure. Do not add e
       "stage": "T2"
     }
   ],
-  "projectNotes": "Your 3-5 sentence coordination risk summary goes here as a single string."
+  "projectNotes": "Your 3-5 sentence coordination risk summary as a single string."
 }
 
 STRICT RULES FOR THE JSON:
+- Include only SUPERSEDED, SUPPLEMENTED, and NEW items in gateItems. Do not include RETAINED items.
 - "stage" must be exactly one of: T1, T2, T3, T4
 - "discipline" must be exactly one of: ARCH, STR, HYD, MEC, ELE, FIR, GEN
 - "clearanceH" and "clearanceV" must be integers in millimetres, or null if not specified
 - Use 0 for hard clash (physical contact, zero clearance)
-- "clashPair" format is "DISC vs DISC" — for example: "MEC vs STR"
+- "clashPair" format is "DISC vs DISC" — example: "MEC vs STR"
+- "status" must be exactly one of: NEW, SUPERSEDED, SUPPLEMENTED
+- "replacesDefault" is the Hub default ID being superseded or supplemented (e.g., "T1-05"), or null if NEW
 - "targetDate" must be "YYYY-MM-DD" format or null
 - "projectNotes" must be a single string — no line breaks inside it
 - If there are no procurementFlags, output: "procurementFlags": []
-- Every string value must use double quotes — no single quotes anywhere in the JSON
 - The JSON must be valid — test it mentally before outputting
 ```
 
 **What to do with the output:**
 
-1. Review the human-readable tables for accuracy
+1. Review the Rule Status Summary in Part 1 — note any SUPERSEDED Hub defaults; you will need to manually uncheck those in the platform checklist
 2. Copy everything between the outer `{` and `}` braces of the JSON block
 3. Paste into a plain text file and save as `[ProjectCode]_gate_rules.txt`
-4. In the platform, click **📤 Pre-Clash Gate Updates Upload** — gate items appear immediately as checkboxes in the correct stage checklist
+4. In the platform, click **📋 Updated Gate Rules** — gate items appear immediately as checkboxes in the correct stage checklist
 
 If the JSON doesn't load, paste it into [jsonlint.com](https://jsonlint.com) to find the error, or ask the AI: *"Please recheck the JSON and output a corrected version with no trailing commas and all string values in double quotes."*
 
@@ -227,8 +377,9 @@ G05 Clash Matrix (Excel)
    (any computer, no Cowork needed)
         │
         ▼  Copy JSON output block
-   📤 Pre-Clash Gate Updates Upload
-   → Gate items injected as checkboxes
+   📋 Updated Gate Rules
+   → Compares against 58 Hub defaults
+   → Adds only NEW / SUPPLEMENTED / SUPERSEDED items
    → Procurement flags → Rules tab notes
    → New task pairs? Update G05 Matrix
      and re-upload — NOT through platform
@@ -247,7 +398,9 @@ G05 Clash Matrix (Excel)
 | ✏️ Edit Task | Override clearance code, H/V values, Revizto priority, and add a reason note per task |
 | 📐 Rules & Standards | NZS4219:2009 seismic table, clearance code reference, discipline gap matrix with breakdown, project notes |
 | 📂 Upload Updated Matrix | Upload updated G05 Excel → platform rebuilds all tasks automatically |
-| 📤 Pre-Clash Gate Updates Upload | Upload JSON from Claude/Copilot/ChatGPT → gate items injected as checkboxes into the correct stage |
+| 📋 Updated Gate Rules | Upload JSON from Claude/Copilot/ChatGPT → adds only project-specific gate items (NEW, SUPPLEMENTED, SUPERSEDED) — Hub defaults already in platform are not duplicated |
+| 📋 Export for Review | Generates a formatted Excel with all gate checklist items for Services Coordinator offline sign-off |
+| 🌙 / ☀️ Theme toggle | Switch between light and dark mode — preference saved between sessions |
 | ⬆ Export Session | Save all tasks, gate states, project gate items, and run log to a portable JSON file |
 | ⬇ Import Session | Load a session file on any PC to restore a project's full setup instantly |
 | ⬇ Export CSV | Revizto-ready export including overrides, type flag, and notes |
