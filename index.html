@@ -168,8 +168,78 @@ footer{padding:20px 32px;border-top:1px solid #e2e8f0;text-align:center;font-siz
 .signoff-done-comment{font-size:.72rem;color:#64748b;margin-top:6px;font-style:italic;line-height:1.4}
 .signoff-revoke{font-size:.7rem;color:#94a3b8;cursor:pointer;text-decoration:underline;margin-top:8px;display:inline-block}
 .signoff-revoke:hover{color:#b91c1c}
-.card-signoff-badge{font-size:.65rem;font-weight:700;padding:2px 8px;border-radius:10px;background:#dcfce7;color:#166534;border:1px solid #86efac;display:none}
+.card-signoff-badge{font-size:.65rem;font-weight:700;padding:2px 8px;border-radius:10px;background:#dcfce7;color:#166634;border:1px solid #86efac;display:none}
 .card-signoff-badge.visible{display:inline-flex;align-items:center;gap:3px}
+/* ── Theme toggle button ── */
+.btn-theme{padding:6px 11px;border-radius:6px;font-size:.78rem;font-weight:700;cursor:pointer;border:1px solid #e2e8f0;background:#f8fafc;color:#475569;display:inline-flex;align-items:center;gap:5px;transition:all .15s}
+.btn-theme:hover{background:#e2e8f0;color:#1e293b}
+/* ── Dark theme overrides ── */
+[data-theme="dark"] body{background:#0f1117;color:#e2e8f0}
+[data-theme="dark"] header{background:linear-gradient(135deg,#1a1f2e 0%,#232a3b 100%);border-color:#2d3748}
+[data-theme="dark"] h1{color:#e2e8f0}
+[data-theme="dark"] .subtitle{color:#64748b}
+[data-theme="dark"] .project-field input{background:#232a3b;border-color:#2d3748;color:#e2e8f0}
+[data-theme="dark"] nav{background:#1a1f2e;border-color:#2d3748}
+[data-theme="dark"] .tab{color:#64748b}
+[data-theme="dark"] .tab:hover{color:#e2e8f0;background:#232a3b}
+[data-theme="dark"] .tab.active{color:#e2e8f0}
+[data-theme="dark"] .card{background:#1a1f2e;border-color:#2d3748;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+[data-theme="dark"] .card-header{background:#232a3b;border-color:#2d3748}
+[data-theme="dark"] .card-title{color:#e2e8f0}
+[data-theme="dark"] .checklist::-webkit-scrollbar-track{background:#1a1f2e}
+[data-theme="dark"] .checklist::-webkit-scrollbar-thumb{background:#374151}
+[data-theme="dark"] .check-item{border-color:#2d3748}
+[data-theme="dark"] .check-item:hover{background:#232a3b}
+[data-theme="dark"] .check-item label{color:#94a3b8}
+[data-theme="dark"] .check-item.done label{color:#475569}
+[data-theme="dark"] .disc-GEN{background:#374151;color:#d1d5db}
+[data-theme="dark"] .progress-bar-wrap{background:#2d3748}
+[data-theme="dark"] .toolbar{background:#232a3b;border-color:#2d3748}
+[data-theme="dark"] .search-input{background:#1a1f2e;border-color:#2d3748;color:#e2e8f0}
+[data-theme="dark"] select.filter{background:#1a1f2e;border-color:#2d3748;color:#94a3b8}
+[data-theme="dark"] .btn-ghost{color:#94a3b8;border-color:#2d3748}
+[data-theme="dark"] .btn-ghost:hover{background:#232a3b;color:#e2e8f0}
+[data-theme="dark"] .table-wrap::-webkit-scrollbar-track{background:#1a1f2e}
+[data-theme="dark"] .table-wrap::-webkit-scrollbar-thumb{background:#374151}
+[data-theme="dark"] th{background:#232a3b;color:#64748b;border-color:#2d3748}
+[data-theme="dark"] td{border-color:#2d3748;color:#cbd5e1}
+[data-theme="dark"] tr:hover td{background:#232a3b}
+[data-theme="dark"] .task-name{color:#e2e8f0}
+[data-theme="dark"] .mm-val{color:#64748b}
+[data-theme="dark"] .sel-all-row{background:#232a3b;border-color:#2d3748}
+[data-theme="dark"] .sel-all-row label{color:#64748b}
+[data-theme="dark"] .log-entry{background:#232a3b;border-color:#2d3748}
+[data-theme="dark"] .log-entry input{background:#1a1f2e;border-color:#2d3748;color:#e2e8f0}
+[data-theme="dark"] .stat-card{background:#1a1f2e;border-color:#2d3748}
+[data-theme="dark"] footer{border-color:#2d3748}
+[data-theme="dark"] .modal{background:#1a1f2e;border-color:#2d3748;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+[data-theme="dark"] .modal h3{color:#e2e8f0}
+[data-theme="dark"] .modal-sub{color:#64748b}
+[data-theme="dark"] .form-group label{color:#94a3b8}
+[data-theme="dark"] .form-group input,[data-theme="dark"] .form-group select,[data-theme="dark"] .form-group textarea{background:#232a3b;border-color:#2d3748;color:#e2e8f0}
+[data-theme="dark"] .modal-actions{border-color:#2d3748}
+[data-theme="dark"] .divider{background:#2d3748}
+[data-theme="dark"] .btn-io{background:#232a3b;color:#94a3b8;border-color:#2d3748}
+[data-theme="dark"] .btn-io:hover{background:#2d3748;color:#e2e8f0}
+[data-theme="dark"] .checklist-filter-row{border-color:#2d3748}
+[data-theme="dark"] .checklist-disc-filter{background:#232a3b;color:#94a3b8;border-color:#2d3748}
+[data-theme="dark"] .check-item-project{background:rgba(14,165,233,.08)}
+[data-theme="dark"] .signoff-panel{border-color:#2d3748}
+[data-theme="dark"] .btn-theme{background:#232a3b;border-color:#2d3748;color:#94a3b8}
+[data-theme="dark"] .btn-theme:hover{background:#2d3748;color:#e2e8f0}
+/* Rules tab dark overrides (inline style elements) */
+[data-theme="dark"] #gapMatrixInfoBox{background:#0f172a !important;border-color:#2d3748 !important;color:#64748b !important}
+[data-theme="dark"] #gapMatrixInfoBox strong{color:#e2e8f0 !important}
+[data-theme="dark"] #gapMatrixInfoBox span:first-child{color:#94a3b8 !important}
+[data-theme="dark"] #projectRulesTextarea{background:#0f1117 !important;border-color:#2d3748 !important;color:#cbd5e1 !important}
+[data-theme="dark"] #serviceRulesGrid li{border-bottom-color:#2d3748 !important}
+[data-theme="dark"] #gapMatrixTable thead th:first-child{background:#0f1117 !important;border-color:#2d3748 !important;color:#475569 !important}
+[data-theme="dark"] #gapMatrixTable thead th:nth-child(2){background:#1e3a5f !important;color:#93c5fd !important;border-color:#2d3748 !important}
+[data-theme="dark"] #gapMatrixTable thead th:nth-child(3){background:#78350f !important;color:#fde68a !important;border-color:#2d3748 !important}
+[data-theme="dark"] #gapMatrixTable thead th:nth-child(4){background:#164e63 !important;color:#a5f3fc !important;border-color:#2d3748 !important}
+[data-theme="dark"] #gapMatrixTable thead th:nth-child(5){background:#4c1d95 !important;color:#e9d5ff !important;border-color:#2d3748 !important}
+[data-theme="dark"] #gapMatrixTable thead th:nth-child(6){background:#713f12 !important;color:#fef3c7 !important;border-color:#2d3748 !important}
+[data-theme="dark"] #gapMatrixTable thead th:nth-child(7){background:#7f1d1d !important;color:#fee2e2 !important;border-color:#2d3748 !important}
 </style>
 </head>
 <body>
@@ -214,6 +284,7 @@ footer{padding:20px 32px;border-top:1px solid #e2e8f0;text-align:center;font-siz
           <input type="file" id="sessionImport" accept=".json" style="display:none" onchange="importSession(this)">
         </label>
         <button class="btn-io" onclick="exportChecklistForReview()" style="background:#fef9c3;color:#92400e;border-color:#fde68a" title="Export all gate checklists as Excel for Services Coordinator review">📋 Export for Review</button>
+        <button class="btn-theme" id="themeToggle" onclick="toggleTheme()" title="Switch between light and dark theme">🌙 Dark</button>
       </div>
       <div style="display:flex;gap:16px">
         <div id="matrixStatus" style="font-size:.68rem;color:#64748b;text-align:right"></div>
@@ -839,45 +910,45 @@ footer{padding:20px 32px;border-top:1px solid #e2e8f0;text-align:center;font-siz
       <span style="font-size:.72rem;color:#64748b">Dominant clearance requirement per discipline pair — use to set Revizto tolerances</span>
     </div>
     <div class="card-body" style="padding:18px;overflow-x:auto">
-      <table style="border-collapse:collapse;font-size:.73rem;min-width:700px">
+      <table id="gapMatrixTable" style="border-collapse:collapse;font-size:.73rem;min-width:700px">
         <thead>
           <tr>
-            <th style="padding:8px 12px;background:#0f1117;text-align:left;color:#475569;font-size:.7rem;border:1px solid #2d3748">A \ B</th>
-            <th style="padding:8px 16px;background:#1d4ed8;color:#bfdbfe;border:1px solid #2d3748;text-align:center">ARC</th>
-            <th style="padding:8px 16px;background:#b45309;color:#fde68a;border:1px solid #2d3748;text-align:center">STR</th>
-            <th style="padding:8px 16px;background:#0e7490;color:#a5f3fc;border:1px solid #2d3748;text-align:center">HYD</th>
-            <th style="padding:8px 16px;background:#7c3aed;color:#e9d5ff;border:1px solid #2d3748;text-align:center">MEC</th>
-            <th style="padding:8px 16px;background:#d97706;color:#fef3c7;border:1px solid #2d3748;text-align:center">ELE</th>
-            <th style="padding:8px 16px;background:#b91c1c;color:#fee2e2;border:1px solid #2d3748;text-align:center">FIR</th>
+            <th style="padding:8px 12px;background:#f1f5f9;text-align:left;color:#64748b;font-size:.7rem;border:1px solid #e2e8f0">A \ B</th>
+            <th style="padding:8px 16px;background:#dbeafe;color:#1d4ed8;border:1px solid #bfdbfe;text-align:center">ARC</th>
+            <th style="padding:8px 16px;background:#fef3c7;color:#92400e;border:1px solid #fde68a;text-align:center">STR</th>
+            <th style="padding:8px 16px;background:#e0f2fe;color:#0e7490;border:1px solid #bae6fd;text-align:center">HYD</th>
+            <th style="padding:8px 16px;background:#ede9fe;color:#5b21b6;border:1px solid #c4b5fd;text-align:center">MEC</th>
+            <th style="padding:8px 16px;background:#fef9c3;color:#b45309;border:1px solid #fde68a;text-align:center">ELE</th>
+            <th style="padding:8px 16px;background:#fee2e2;color:#b91c1c;border:1px solid #fca5a5;text-align:center">FIR</th>
           </tr>
         </thead>
         <tbody id="gapMatrixBody"></tbody>
       </table>
       <div style="margin-top:12px;display:flex;gap:16px;flex-wrap:wrap;font-size:.72rem">
-        <span style="color:#fca5a5">🟥 HC = Hard Clash (0mm)</span>
-        <span style="color:#fcd34d">🟨 C50 = 50mm all dir</span>
-        <span style="color:#a5b4fc">🟦 C100V = 100mm vertical</span>
-        <span style="color:#c4b5fd">🟪 C150V = 150mm vertical</span>
-        <span style="color:#6ee7b7">🟩 C600V = 600mm (access panel)</span>
-        <span style="color:#f0abfc">🟣 C1500 = 1500mm (air terminal)</span>
-        <span style="color:#475569">— = Not applicable / same discipline</span>
+        <span style="color:#991b1b">🟥 HC = Hard Clash (0mm)</span>
+        <span style="color:#92400e">🟨 C50 = 50mm all dir</span>
+        <span style="color:#1d4ed8">🟦 C100V = 100mm vertical</span>
+        <span style="color:#5b21b6">🟪 C150V = 150mm vertical</span>
+        <span style="color:#065f46">🟩 C600V = 600mm (access panel)</span>
+        <span style="color:#86198f">🟣 C1500 = 1500mm (air terminal)</span>
+        <span style="color:#64748b">— = Not applicable / same discipline</span>
       </div>
-      <div style="margin-top:10px;padding:10px 14px;background:#0f172a;border-radius:6px;font-size:.74rem;color:#64748b;line-height:1.6">
-        <span style="color:#94a3b8;font-weight:700">ℹ️ How this matrix works: </span>Each cell shows the <strong style="color:#e2e8f0">most restrictive</strong> clearance code for that discipline pair from your uploaded G05 matrix. HC dominates because any single hard clash task between two disciplines overrides softer clearance codes. This is correct coordination logic — HC means physical intersection is never acceptable. If all your discipline pairs include at least one HC task, every cell will show HC. To see the full range of clearances in use, upload your G05 matrix and check the clearance filter in each T1–T4 panel.
+      <div id="gapMatrixInfoBox" style="margin-top:10px;padding:10px 14px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;font-size:.74rem;color:#475569;line-height:1.6">
+        <span style="color:#334155;font-weight:700">ℹ️ How this matrix works: </span>Each cell shows the <strong style="color:#1e293b">most restrictive</strong> clearance code for that discipline pair from your uploaded G05 matrix. HC dominates because any single hard clash task between two disciplines overrides softer clearance codes. This is correct coordination logic — HC means physical intersection is never acceptable. If all your discipline pairs include at least one HC task, every cell will show HC. To see the full range of clearances in use, upload your G05 matrix and check the clearance filter in each T1–T4 panel.
         <div id="clrBreakdown" style="margin-top:8px;display:flex;gap:16px;flex-wrap:wrap"></div>
       </div>
     </div>
   </div>
 
   <!-- Row 3: Key service rules -->
-  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px">
+  <div id="serviceRulesGrid" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px">
     <div class="card">
       <div class="card-header"><span class="card-title">🔵 ELE Service Rules</span></div>
       <div class="card-body" style="padding:16px">
         <ul style="list-style:none;font-size:.78rem;line-height:2">
-          <li style="border-bottom:1px solid #1e2535;padding-bottom:6px;margin-bottom:6px"><span style="color:#d97706;font-weight:700">150mm</span> min clearance between cable trays (125mm where constrained)</li>
-          <li style="border-bottom:1px solid #1e2535;padding-bottom:6px;margin-bottom:6px"><span style="color:#d97706;font-weight:700">150–300mm</span> separation between ELV and LV cable trays</li>
-          <li style="border-bottom:1px solid #1e2535;padding-bottom:6px;margin-bottom:6px"><span style="color:#d97706;font-weight:700">150mm</span> clearance above FCL for ceiling-mounted devices (PCA A-Grade)</li>
+          <li style="border-bottom:1px solid #e2e8f0;padding-bottom:6px;margin-bottom:6px"><span style="color:#d97706;font-weight:700">150mm</span> min clearance between cable trays (125mm where constrained)</li>
+          <li style="border-bottom:1px solid #e2e8f0;padding-bottom:6px;margin-bottom:6px"><span style="color:#d97706;font-weight:700">150–300mm</span> separation between ELV and LV cable trays</li>
+          <li style="border-bottom:1px solid #e2e8f0;padding-bottom:6px;margin-bottom:6px"><span style="color:#d97706;font-weight:700">150mm</span> clearance above FCL for ceiling-mounted devices (PCA A-Grade)</li>
           <li><span style="color:#d97706;font-weight:700">25mm</span> penetration clearance at cable tray through structure</li>
         </ul>
       </div>
@@ -886,10 +957,10 @@ footer{padding:20px 32px;border-top:1px solid #e2e8f0;text-align:center;font-siz
       <div class="card-header"><span class="card-title">🟣 MEC Service Rules</span></div>
       <div class="card-body" style="padding:16px">
         <ul style="list-style:none;font-size:.78rem;line-height:2">
-          <li style="border-bottom:1px solid #1e2535;padding-bottom:6px;margin-bottom:6px"><span style="color:#a855f7;font-weight:700">≤3m</span> flexible duct length (target 2.5m)</li>
-          <li style="border-bottom:1px solid #1e2535;padding-bottom:6px;margin-bottom:6px"><span style="color:#a855f7;font-weight:700">150mm</span> min clearance between services and ceiling face</li>
-          <li style="border-bottom:1px solid #1e2535;padding-bottom:6px;margin-bottom:6px"><span style="color:#a855f7;font-weight:700">&gt;200mm</span> spacing between fire dampers</li>
-          <li style="border-bottom:1px solid #1e2535;padding-bottom:6px;margin-bottom:6px"><span style="color:#a855f7;font-weight:700">12mm</span> penetration clearance at ductwork through structure</li>
+          <li style="border-bottom:1px solid #e2e8f0;padding-bottom:6px;margin-bottom:6px"><span style="color:#a855f7;font-weight:700">≤3m</span> flexible duct length (target 2.5m)</li>
+          <li style="border-bottom:1px solid #e2e8f0;padding-bottom:6px;margin-bottom:6px"><span style="color:#a855f7;font-weight:700">150mm</span> min clearance between services and ceiling face</li>
+          <li style="border-bottom:1px solid #e2e8f0;padding-bottom:6px;margin-bottom:6px"><span style="color:#a855f7;font-weight:700">&gt;200mm</span> spacing between fire dampers</li>
+          <li style="border-bottom:1px solid #e2e8f0;padding-bottom:6px;margin-bottom:6px"><span style="color:#a855f7;font-weight:700">12mm</span> penetration clearance at ductwork through structure</li>
           <li>Attenuators wider than parent duct — check spatial fit</li>
         </ul>
       </div>
@@ -898,10 +969,10 @@ footer{padding:20px 32px;border-top:1px solid #e2e8f0;text-align:center;font-siz
       <div class="card-header"><span class="card-title">🔴 HYD &amp; FIR Service Rules</span></div>
       <div class="card-body" style="padding:16px">
         <ul style="list-style:none;font-size:.78rem;line-height:2">
-          <li style="border-bottom:1px solid #1e2535;padding-bottom:6px;margin-bottom:6px"><span style="color:#0e7490;font-weight:700">50mm</span> general clearance, all services to structure</li>
-          <li style="border-bottom:1px solid #1e2535;padding-bottom:6px;margin-bottom:6px"><span style="color:#0e7490;font-weight:700">15mm</span> penetration clearance at pipework through structure</li>
-          <li style="border-bottom:1px solid #1e2535;padding-bottom:6px;margin-bottom:6px"><span style="color:#0e7490;font-weight:700">&gt;50mm</span> Ø pipe → Major priority in Revizto &nbsp;|&nbsp; ≤50mm → Minor</li>
-          <li style="border-bottom:1px solid #1e2535;padding-bottom:6px;margin-bottom:6px">Equal junctions → connect to main drain at ≥15° angle</li>
+          <li style="border-bottom:1px solid #e2e8f0;padding-bottom:6px;margin-bottom:6px"><span style="color:#0e7490;font-weight:700">50mm</span> general clearance, all services to structure</li>
+          <li style="border-bottom:1px solid #e2e8f0;padding-bottom:6px;margin-bottom:6px"><span style="color:#0e7490;font-weight:700">15mm</span> penetration clearance at pipework through structure</li>
+          <li style="border-bottom:1px solid #e2e8f0;padding-bottom:6px;margin-bottom:6px"><span style="color:#0e7490;font-weight:700">&gt;50mm</span> Ø pipe → Major priority in Revizto &nbsp;|&nbsp; ≤50mm → Minor</li>
+          <li style="border-bottom:1px solid #e2e8f0;padding-bottom:6px;margin-bottom:6px">Equal junctions → connect to main drain at ≥15° angle</li>
           <li><span style="color:#ef4444;font-weight:700">1200mm</span> from fresh air grille → fire detector minimum offset (acoustic rule)</li>
         </ul>
       </div>
@@ -915,7 +986,7 @@ footer{padding:20px 32px;border-top:1px solid #e2e8f0;text-align:center;font-siz
       <span style="font-size:.72rem;color:#64748b">Add project-specific overrides, consultant notes, or BEP requirements here</span>
     </div>
     <div class="card-body" style="padding:18px">
-      <textarea id="projectRules" rows="6" placeholder="e.g. — Structural engineer requires 75mm min clearance around post-tensioned slabs&#10;— Fire engineer: all sprinkler branch lines min 300mm from structural beams&#10;— Acoustic consultant: hospital corridors require independent pipe isolation within 500mm of room penetration&#10;— BEP requirement: all conduit runs above ceiling to use STR_Conduit workset only" style="width:100%;background:#0f1117;border:1px solid #2d3748;color:#cbd5e1;padding:12px;border-radius:6px;font-size:.8rem;font-family:'Segoe UI',Arial,sans-serif;resize:vertical;line-height:1.6"></textarea>
+      <textarea id="projectRules" rows="6" placeholder="e.g. — Structural engineer requires 75mm min clearance around post-tensioned slabs&#10;— Fire engineer: all sprinkler branch lines min 300mm from structural beams&#10;— Acoustic consultant: hospital corridors require independent pipe isolation within 500mm of room penetration&#10;— BEP requirement: all conduit runs above ceiling to use STR_Conduit workset only" id="projectRulesTextarea" style="width:100%;background:#f8fafc;border:1px solid #e2e8f0;color:#1e293b;padding:12px;border-radius:6px;font-size:.8rem;font-family:'Segoe UI',Arial,sans-serif;resize:vertical;line-height:1.6"></textarea>
       <div style="margin-top:10px;display:flex;gap:8px">
         <button class="btn btn-primary" onclick="saveProjectRules()" style="font-size:.75rem">💾 Save Rules</button>
         <span id="rulesSaved" style="font-size:.75rem;color:#86efac;display:none;align-items:center">✅ Saved</span>
@@ -1632,7 +1703,16 @@ function renderGapMatrix() {
     if(!(key in matrix) || (CLR_PRI[clr]??7) < (CLR_PRI[matrix[key]]??7)) matrix[key] = clr;
   });
   // Vivid background + contrasting text per clearance code
-  const STYLE = {
+  const STYLE_LIGHT = {
+    HC:    'background:#fee2e2;color:#991b1b;border:1px solid #fca5a5',
+    C50:   'background:#fef9c3;color:#92400e;border:1px solid #fde68a',
+    C100V: 'background:#dbeafe;color:#1d4ed8;border:1px solid #93c5fd',
+    C150V: 'background:#dcfce7;color:#166534;border:1px solid #86efac',
+    C600V: 'background:#d1fae5;color:#065f46;border:1px solid #6ee7b7',
+    C1500: 'background:#fae8ff;color:#86198f;border:1px solid #e879f9',
+    CUSTOM:'background:#f3f4f6;color:#374151;border:1px solid #9ca3af'
+  };
+  const STYLE_DARK = {
     HC:    'background:#7f1d1d;color:#fca5a5;border:1px solid #ef4444',
     C50:   'background:#78350f;color:#fcd34d;border:1px solid #f97316',
     C100V: 'background:#1e3a5f;color:#93c5fd;border:1px solid #3b82f6',
@@ -1641,6 +1721,10 @@ function renderGapMatrix() {
     C1500: 'background:#4a044e;color:#f0abfc;border:1px solid #d946ef',
     CUSTOM:'background:#374151;color:#d1d5db;border:1px solid #6b7280'
   };
+  function getSTYLE() {
+    return document.documentElement.getAttribute('data-theme') === 'dark' ? STYLE_DARK : STYLE_LIGHT;
+  }
+  const STYLE = STYLE_LIGHT; // fallback reference for any direct uses
   // Clearance breakdown summary
   const breakdown = {};
   BASE_TASKS.forEach(t => { const c = t[1]; if(c) breakdown[c] = (breakdown[c]||0) + 1; });
@@ -1648,7 +1732,7 @@ function renderGapMatrix() {
   if(bdEl) {
     bdEl.innerHTML = Object.keys(breakdown).length
       ? Object.entries(breakdown).sort((a,b) => (CLR_PRI[a[0]]??9)-(CLR_PRI[b[0]]??9)).map(([c,n]) =>
-          '<span style="background:#1e2535;border:1px solid #2d3748;border-radius:4px;padding:3px 8px;color:#94a3b8"><span style="' + (STYLE[c]||STYLE.CUSTOM) + ';border-radius:3px;padding:1px 5px;font-weight:700;font-size:.68rem">' + c + '</span> <span style="color:#64748b">' + n + ' tasks</span></span>'
+          '<span style="background:#f1f5f9;border:1px solid #e2e8f0;border-radius:4px;padding:3px 8px;color:#475569"><span style="' + (getSTYLE()[c]||getSTYLE().CUSTOM) + ';border-radius:3px;padding:1px 5px;font-weight:700;font-size:.68rem">' + c + '</span> <span style="color:#64748b">' + n + ' tasks</span></span>'
         ).join('')
       : '<span style="color:#475569">Upload your G05 matrix to see clearance breakdown</span>';
   }
@@ -1656,14 +1740,23 @@ function renderGapMatrix() {
   const tbody = document.getElementById('gapMatrixBody');
   if(!tbody) return;
   tbody.innerHTML = discs.map(d1 =>
-    '<tr><td style="padding:8px 12px;background:#1a1f2e;color:#94a3b8;font-weight:700;border:1px solid #2d3748">' + d1 + '</td>' +
+    '<tr><td style="padding:8px 12px;background:#f8fafc;color:#334155;font-weight:700;border:1px solid #e2e8f0">' + d1 + '</td>' +
     discs.map(d2 => {
-      if(d1 === d2) return '<td style="background:#0f1117;border:1px solid #1e2535;text-align:center;color:#374151">—</td>';
+      if(d1 === d2) return '<td style="background:#f1f5f9;border:1px solid #e2e8f0;text-align:center;color:#94a3b8">—</td>';
       const clr = matrix[d1+'|'+d2] || matrix[d2+'|'+d1];
-      if(!clr) return '<td style="background:#0f1117;border:1px solid #1e2535;text-align:center;color:#475569;font-size:.65rem">n/a</td>';
-      return '<td style="' + (STYLE[clr]||STYLE.CUSTOM) + ';text-align:center;font-size:.72rem;font-weight:700;padding:4px">' + clr + '</td>';
+      if(!clr) return '<td style="background:#f8fafc;border:1px solid #e2e8f0;text-align:center;color:#94a3b8;font-size:.65rem">n/a</td>';
+      return '<td style="' + (getSTYLE()[clr]||getSTYLE().CUSTOM) + ';text-align:center;font-size:.72rem;font-weight:700;padding:4px">' + clr + '</td>';
     }).join('') + '</tr>'
   ).join('');
+}
+
+function toggleTheme() {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const next = isDark ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  localStorage.setItem('bimTheme', next);
+  document.getElementById('themeToggle').textContent = next === 'dark' ? '☀️ Light' : '🌙 Dark';
+  buildGapMatrix();
 }
 
 function showToast(msg, duration) {
@@ -1831,6 +1924,12 @@ async function autoLoadMatrix() {
 }
 
 window.onload = async function() {
+  // Restore theme preference
+  const savedTheme = localStorage.getItem('bimTheme') || 'light';
+  document.documentElement.setAttribute('data-theme', savedTheme);
+  const toggleBtn = document.getElementById('themeToggle');
+  if(toggleBtn) toggleBtn.textContent = savedTheme === 'dark' ? '☀️ Light' : '🌙 Dark';
+
   loadState();
   ['T1','T2','T3','T4'].forEach(s => renderTable(s));
   // Inject project gate items before loadGateState so checkbox indices align
