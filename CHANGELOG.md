@@ -2,6 +2,34 @@
 
 ---
 
+## v1.6 — 2026-06-20
+
+### Platform
+- Gate Sign-Off added to all four stage checklists (T1–T4): Services Coordinator signs off each gate before CSV export and clash detection can proceed
+- Sign-off modal records name, role, date, and optional comment — persisted in localStorage and session export/import
+- Sign-off badge appears in checklist card header once a stage is signed off
+- CSV Export now shows a warning toast if the stage has not been signed off
+- `revokeSignOff()` function allows sign-off to be corrected without losing checklist state
+- Execution map revised: Services Coordinator (Step 2) signs off gate before BIM Coordinator (Step 3) runs clash detection
+- **📋 Export for Review** button added to header — generates a formatted Excel file (one sheet per stage) with all gate checklist items pre-populated and a sign-off block at the bottom; intended for Services Coordinator offline review without needing to open the platform
+
+### Prompts
+- `01_ProjectReport_ClashGate_Analysis.md` updated: added full default checklist (T1–T4) as reference for AI to compare against before adding new items
+- Added instruction to avoid duplicating existing default items and to flag outdated/superseded defaults
+- Added "Checklist Review — Existing Default Items to Flag" table to PART 1 output
+
+---
+
+## v1.5 — 2026-06-20
+
+### Workflow
+- Added `UPDATE_PROTOCOL.md` — standing reference for the version-controlled update process; defines the 5-step protocol Claude follows before every push
+- Rewrote `push_to_github.ps1` — single `$VERSION`/`$CHANGES` header at the top; all 6 files now share one consistent commit message; added pre-push file existence check and Y/N confirmation prompt; added links to live site and commit history on completion
+- Updated Digital Construction `CLAUDE.md` — added Update Protocol section so Claude automatically follows the correct steps in every session
+- Updated `README.md` — version bumped to 1.5, last-updated date corrected
+
+---
+
 ## v1.4 — 2026-06-20
 
 ### Platform
