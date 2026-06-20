@@ -2,6 +2,17 @@
 
 ---
 
+## v1.7 — 2026-06-20
+
+### Platform
+- Dark / Light theme toggle added to header (🌙 Dark / ☀️ Light button) — preference persisted in localStorage
+- Full dark theme CSS overrides implemented across all structural elements (header, nav, cards, tables, modals, forms, checklist, log)
+- Rules tab dark overrides fixed: discipline-pair gap matrix, clearance breakdown chips, info box, service rules lists, project notes textarea
+- Matrix cell colours now theme-aware (pastel for light, vivid for dark) via `getSTYLE()` function
+- README updated to v1.6 (missed in previous push)
+
+---
+
 ## v1.6 — 2026-06-20
 
 ### Platform
