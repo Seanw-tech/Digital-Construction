@@ -240,6 +240,12 @@ footer{padding:20px 32px;border-top:1px solid #e2e8f0;text-align:center;font-siz
 [data-theme="dark"] #gapMatrixTable thead th:nth-child(5){background:#4c1d95 !important;color:#e9d5ff !important;border-color:#2d3748 !important}
 [data-theme="dark"] #gapMatrixTable thead th:nth-child(6){background:#713f12 !important;color:#fef3c7 !important;border-color:#2d3748 !important}
 [data-theme="dark"] #gapMatrixTable thead th:nth-child(7){background:#7f1d1d !important;color:#fee2e2 !important;border-color:#2d3748 !important}
+[data-theme="dark"] #revizoPriorityBox{background:#0f172a !important;border-color:#2d3748 !important;color:#64748b !important}
+[data-theme="dark"] #revizoPriorityBox strong{color:#94a3b8 !important}
+[data-theme="dark"] #seismicRulesBox{background:#0f172a !important;border-color:#2d3748 !important;color:#64748b !important}
+[data-theme="dark"] #seismicRulesBox div:first-child{color:#94a3b8 !important}
+[data-theme="dark"] #seismicRulesBox div[style*="border-top"]{border-color:#1e2535 !important;color:#94a3b8 !important}
+[data-theme="dark"] #seismicRulesBox div[style*="color:#b45309"]{color:#fbbf24 !important}
 </style>
 </head>
 <body>
@@ -860,10 +866,10 @@ footer{padding:20px 32px;border-top:1px solid #e2e8f0;text-align:center;font-siz
             <tr><td style="padding:9px 12px"><span class="clr-badge clr-C1500" style="background:#312e81;color:#e0e7ff;border:1px solid #4338ca">C1500</span></td><td style="padding:9px 12px;color:#cbd5e1">50</td><td style="padding:9px 12px;color:#cbd5e1">1500</td><td style="padding:9px 12px;color:#94a3b8;font-size:.75rem">1500mm vertical — Air terminal vs heat/smoke detector separation.</td></tr>
           </tbody>
         </table>
-        <div style="margin-top:14px;padding:12px;background:#0f172a;border-radius:6px;font-size:.75rem;color:#64748b;line-height:1.6">
-          <strong style="color:#94a3b8">Revizto Priority Logic:</strong><br>
-          Pipework &gt;50mm diameter → <span style="color:#fde68a">Major</span> &nbsp;|&nbsp; Pipework ≤50mm → <span style="color:#86efac">Minor</span><br>
-          Hard clashes (HC) on structural or fire elements → <span style="color:#fca5a5">Critical</span><br>
+        <div id="revizoPriorityBox" style="margin-top:14px;padding:12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;font-size:.75rem;color:#475569;line-height:1.6">
+          <strong style="color:#334155">Revizto Priority Logic:</strong><br>
+          Pipework &gt;50mm diameter → <span style="color:#92400e;font-weight:600">Major</span> &nbsp;|&nbsp; Pipework ≤50mm → <span style="color:#166534;font-weight:600">Minor</span><br>
+          Hard clashes (HC) on structural or fire elements → <span style="color:#991b1b;font-weight:600">Critical</span><br>
           T5 tasks (outside template) → manual entry required in Revizto Clash Automation
         </div>
       </div>
@@ -890,14 +896,14 @@ footer{padding:20px 32px;border-top:1px solid #e2e8f0;text-align:center;font-siz
             <tr><td style="padding:9px 12px;color:#cbd5e1;font-size:.75rem">Penetration through structure (walls / floors)</td><td style="padding:9px 12px;color:#86efac;text-align:center;font-weight:700">50</td><td style="padding:9px 12px;color:#86efac;text-align:center;font-weight:700">50</td></tr>
           </tbody>
         </table>
-        <div style="background:#0f172a;border-radius:6px;padding:12px;font-size:.74rem;color:#64748b;line-height:1.7">
-          <div style="color:#94a3b8;font-weight:700;margin-bottom:6px">Key Seismic Rules (NZS4219)</div>
+        <div id="seismicRulesBox" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:12px;font-size:.74rem;color:#475569;line-height:1.7">
+          <div style="color:#334155;font-weight:700;margin-bottom:6px">Key Seismic Rules (NZS4219)</div>
           <div>• Rigid ductwork with hanger &gt;200mm from structure → must be restrained</div>
           <div>• Pipework &gt;50mm Ø + located &gt;150mm from support → lateral bracing required</div>
           <div>• Equipment in ceiling &gt;10kg → independently fixed, 25mm clear of ceiling all round</div>
-          <div style="margin-top:6px;padding-top:6px;border-top:1px solid #1e2535;color:#94a3b8;font-weight:600">Penetration Clearances at Structure / Partition Walls:</div>
+          <div style="margin-top:6px;padding-top:6px;border-top:1px solid #e2e8f0;color:#334155;font-weight:600">Penetration Clearances at Structure / Partition Walls:</div>
           <div>• Ductwork: 12mm &nbsp;|&nbsp; Pipework: 15mm &nbsp;|&nbsp; Cable Tray: 25mm</div>
-          <div style="color:#fbbf24;margin-top:4px">⚠ Ceiling hangers and braces are considered restrained for this table.</div>
+          <div style="color:#b45309;margin-top:4px">⚠ Ceiling hangers and braces are considered restrained for this table.</div>
         </div>
       </div>
     </div>
