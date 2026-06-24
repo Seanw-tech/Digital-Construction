@@ -5,11 +5,14 @@
 ## v1.9 — 2026-06-24
 
 ### Platform
-- **Import Review** button added to header — uploads the completed coordinator review Excel back into the platform; no AI re-prompting needed
-- Import reads YES/NO/N/A per checklist item across all four stages (T1-T4), updates checkbox states (YES and N/A = checked, NO = unchecked)
-- Comment badges added inline on checklist items where coordinator entered a comment — hover to read full text
-- Sign-off block auto-imported: if the reviewer filled in their name and date in the Excel sign-off section, the stage gate is automatically signed off in the platform
-- Closes the round-trip loop: Export for Review -> Coordinator marks up Excel -> Import Review -> Platform updated
+- Import Review button removed — replaced by AI-mediated workflow (Prompt 02 below)
+- `loadClaudeOutput` (Updated Gate Rules button) now handles two additional JSON fields:
+  - `checklistReview` — updates checkbox states per item (YES/N/A = ticked, NO = unticked with comment badge)
+  - `gateSignOffs` — auto-signs off a stage gate when coordinator name and date are present
+- Comment badge (💬) added inline on checklist items where coordinator entered a NO with a reason — hover to read full text
+
+### Prompts
+- `02_ChecklistReview_Import.md` added (v1.0) — AI prompt that reads the completed coordinator review Excel and outputs a JSON file; user uploads the JSON via Updated Gate Rules to update all checklist states and sign-offs in one step
 
 ---
 
