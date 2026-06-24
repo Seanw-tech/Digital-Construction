@@ -275,7 +275,6 @@ footer{padding:8px 28px;border-top:1px solid #e2e8f0;text-align:center;font-size
     <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0">
       <input type="file" id="matrixUpload" accept=".xlsx" style="display:none" onchange="loadMatrixFromExcel(this)">
       <input type="file" id="claudeUpload" accept=".txt,.json" style="display:none" onchange="loadClaudeOutput(this)">
-      <input type="file" id="reviewUpload" accept=".xlsx" style="display:none" onchange="loadReviewExcel(this)">
       <div style="display:flex;gap:6px;flex-wrap:nowrap;align-items:center">
         <button class="btn-io" onclick="exportSession()">⬆ Export Session</button>
         <label class="btn-io" style="cursor:pointer">
@@ -283,7 +282,6 @@ footer{padding:8px 28px;border-top:1px solid #e2e8f0;text-align:center;font-size
           <input type="file" id="sessionImport" accept=".json" style="display:none" onchange="importSession(this)">
         </label>
         <button class="btn-io" onclick="exportChecklistForReview()" style="background:#fef9c3;color:#92400e;border-color:#fde68a" title="Export all gate checklists as Excel for Services Coordinator review">📋 Export for Review</button>
-        <button class="btn-io" onclick="document.getElementById('reviewUpload').click()" style="background:#f0fdf4;color:#166534;border-color:#86efac" title="Import completed review Excel — updates checklist and auto-populates sign-off">📥 Import Review</button>
         <button class="btn-theme" id="themeToggle" onclick="toggleTheme()" title="Switch between light and dark theme">🌙 Dark</button>
       </div>
       <div style="display:flex;gap:16px">
@@ -1408,102 +1406,6 @@ function exportChecklistForReview() {
   showToast('📋 Exported — send the Excel file to your Services Coordinator for review', 4000);
 }
 
-function loadReviewExcel(input) {
-  const file = input.files[0];
-  if(!file) return;
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    try {
-      const wb = XLSX.read(e.target.result, { type: 'array' });
-      const stages = ['T1','T2','T3','T4'];
-      let totalItems = 0, signedOff = 0;
-
-      stages.forEach(stage => {
-        const ws = wb.Sheets[stage];
-        if(!ws) return;
-        const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: null });
-
-        // Find the header row (col[0] === '#')
-        let headerIdx = -1;
-        for(let i = 0; i < rows.length; i++) {
-          if(rows[i] && String(rows[i][0]).trim() === '#') { headerIdx = i; break; }
-        }
-        if(headerIdx === -1) return;
-
-        const checks = Array.from(document.querySelectorAll('#cl-' + stage + ' input[type=checkbox]'));
-        let reviewerName = '', reviewerRole = '', reviewerDate = '', reviewerComment = '';
-
-        for(let i = headerIdx + 1; i < rows.length; i++) {
-          const row = rows[i];
-          if(!row) continue;
-          const col0 = row[0];
-
-          if(typeof col0 === 'number') {
-            // Data row
-            const idx = col0 - 1;
-            const reviewRaw = row[4];
-            const comment = row[5] ? String(row[5]).trim() : '';
-            const review = reviewRaw ? String(reviewRaw).trim().toUpperCase() : '';
-
-            if(idx >= 0 && idx < checks.length && review) {
-              const cb = checks[idx];
-              cb.checked = (review === 'YES' || review === 'N/A');
-              totalItems++;
-
-              // Add or update comment badge
-              if(comment) {
-                const li = cb.closest('.check-item');
-                if(li) {
-                  let badge = li.querySelector('.review-comment-badge');
-                  if(!badge) {
-                    badge = document.createElement('span');
-                    badge.className = 'review-comment-badge';
-                    badge.style.cssText = 'font-size:.65rem;background:#fef3c7;color:#92400e;border:1px solid #fde68a;padding:1px 6px;border-radius:3px;margin-left:6px;cursor:help;vertical-align:middle';
-                    li.querySelector('label').appendChild(badge);
-                  }
-                  badge.title = comment;
-                  badge.textContent = review === 'NO' ? '💬 NO: ' + comment.substring(0, 30) + (comment.length > 30 ? '…' : '') : '💬 ' + comment.substring(0, 30) + (comment.length > 30 ? '…' : '');
-                }
-              }
-            }
-          } else if(typeof col0 === 'string') {
-            // Sign-off block
-            const key = col0.trim();
-            const val = row[1] ? String(row[1]).trim() : '';
-            if(key === 'Reviewer Name') reviewerName = val;
-            else if(key === 'Reviewer Role / Company') reviewerRole = val;
-            else if(key === 'Date Reviewed') reviewerDate = val;
-            else if(key === 'Overall Comments') reviewerComment = val;
-          }
-        }
-
-        updateGate(stage);
-
-        // Auto sign-off if reviewer filled in their name and date
-        if(reviewerName && reviewerDate && !gateSignOffs[stage]) {
-          let dateISO = '';
-          const parsed = new Date(reviewerDate);
-          dateISO = isNaN(parsed.getTime())
-            ? new Date().toISOString().split('T')[0]
-            : parsed.toISOString().split('T')[0];
-          gateSignOffs[stage] = { name: reviewerName, role: reviewerRole, date: dateISO, comment: reviewerComment, timestamp: new Date().toISOString() };
-          renderSignOffPanel(stage);
-          signedOff++;
-        }
-      });
-
-      saveState();
-      let msg = '📥 Review imported — ' + totalItems + ' items updated';
-      if(signedOff > 0) msg += ', ' + signedOff + ' stage' + (signedOff > 1 ? 's' : '') + ' auto-signed off';
-      showToast(msg, 5000);
-    } catch(err) {
-      alert('Error reading review file:\n' + err.message);
-    }
-    input.value = '';
-  };
-  reader.readAsArrayBuffer(file);
-}
-
 function exportCSV(stage) {
   if(!gateSignOffs[stage]) {
     showToast('⚠️ Gate ' + stage + ' has not been signed off — exporting anyway. Ask your Services Coordinator to sign off before running clash detection.', 5000);
@@ -1792,10 +1694,57 @@ function loadClaudeOutput(input) {
         });
       }
 
+      // Handle checklist review updates (from Prompt 02 — coordinator Excel converted to JSON)
+      let reviewCount = 0, signOffCount = 0;
+      if(data.checklistReview && typeof data.checklistReview === 'object') {
+        ['T1','T2','T3','T4'].forEach(stage => {
+          const items = data.checklistReview[stage];
+          if(!Array.isArray(items) || !items.length) return;
+          const checks = Array.from(document.querySelectorAll('#cl-' + stage + ' input[type=checkbox]'));
+          items.forEach(item => {
+            const idx = (item.num || 0) - 1;
+            if(idx < 0 || idx >= checks.length) return;
+            const review = (item.review || '').toUpperCase().trim();
+            if(!review) return;
+            const cb = checks[idx];
+            cb.checked = (review === 'YES' || review === 'N/A');
+            reviewCount++;
+            if(item.comment) {
+              const li = cb.closest('.check-item');
+              if(li) {
+                let badge = li.querySelector('.review-comment-badge');
+                if(!badge) {
+                  badge = document.createElement('span');
+                  badge.className = 'review-comment-badge';
+                  badge.style.cssText = 'font-size:.65rem;background:#fef3c7;color:#92400e;border:1px solid #fde68a;padding:1px 6px;border-radius:3px;margin-left:6px;cursor:help;vertical-align:middle';
+                  li.querySelector('label').appendChild(badge);
+                }
+                const c = item.comment;
+                badge.title = c;
+                badge.textContent = review === 'NO' ? '💬 NO' : '💬';
+              }
+            }
+          });
+          updateGate(stage);
+        });
+      }
+
+      // Handle gate sign-offs from coordinator review
+      if(data.gateSignOffs && typeof data.gateSignOffs === 'object') {
+        ['T1','T2','T3','T4'].forEach(stage => {
+          const so = data.gateSignOffs[stage];
+          if(!so || !so.name || !so.date) return;
+          if(gateSignOffs[stage]) return; // never overwrite an existing sign-off
+          gateSignOffs[stage] = { name: so.name, role: so.role || '', date: so.date, comment: so.comment || '', timestamp: new Date().toISOString() };
+          renderSignOffPanel(stage);
+          signOffCount++;
+        });
+      }
+
       // Build notes for procurement flags and risk summary only
       let noteAppend = '';
       if(data.project || data.report) {
-        noteAppend += '\n\n── Claude Analysis: ' + [data.project, data.report, data.date].filter(Boolean).join(' · ') + ' ──';
+        noteAppend += '\n\n── AI Analysis: ' + [data.project, data.report, data.date].filter(Boolean).join(' · ') + ' ──';
       }
       if(Array.isArray(data.procurementFlags) && data.procurementFlags.length) {
         noteAppend += '\n\n⚠️ PROCUREMENT FLAGS:';
@@ -1816,7 +1765,12 @@ function loadClaudeOutput(input) {
       saveState();
       const label = (data.project || file.name).substring(0, 30);
       document.getElementById('claudeStatus').textContent = '✅ ' + label + ' applied';
-      showToast('✅ ' + gateCount + ' gate checklist item' + (gateCount !== 1 ? 's' : '') + ' added' + (noteAppend ? ' — see Rules tab for procurement notes' : ''), 5000);
+      let toastMsg = '';
+      if(gateCount) toastMsg += gateCount + ' gate item' + (gateCount !== 1 ? 's' : '') + ' added';
+      if(reviewCount) toastMsg += (toastMsg ? ' · ' : '') + reviewCount + ' checklist item' + (reviewCount !== 1 ? 's' : '') + ' updated';
+      if(signOffCount) toastMsg += (toastMsg ? ' · ' : '') + signOffCount + ' stage' + (signOffCount !== 1 ? 's' : '') + ' signed off';
+      if(noteAppend) toastMsg += ' — see Rules tab';
+      showToast('✅ ' + (toastMsg || 'Applied'), 5000);
     } catch(err) {
       alert('Error reading gate rules file:\n' + err.message);
     }
@@ -1968,122 +1922,4 @@ function exportSession() {
     gateStates: {
       T1: JSON.parse(localStorage.getItem('gate-T1') || '[]'),
       T2: JSON.parse(localStorage.getItem('gate-T2') || '[]'),
-      T3: JSON.parse(localStorage.getItem('gate-T3') || '[]'),
-      T4: JSON.parse(localStorage.getItem('gate-T4') || '[]')
-    }
-  };
-  const blob = new Blob([JSON.stringify(state, null, 2)], {type:'application/json'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'BIM_Session_' + projName.replace(/\s+/g,'_') + '_' + new Date().toISOString().split('T')[0] + '.json';
-  a.click();
-  showToast('✅ Session exported — copy this file to your other PC and use Import Session', 4000);
-}
-
-function importSession(input) {
-  const file = input.files[0];
-  if(!file) return;
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    try {
-      const state = JSON.parse(e.target.result);
-      if(state.baseTasks && state.baseTasks.length) BASE_TASKS = state.baseTasks;
-      if(state.overrides) overrides = state.overrides;
-      if(state.loaded) loaded = state.loaded;
-      if(state.logEntries) logEntries = state.logEntries;
-      if(state.projInfo) {
-        if(state.projInfo.name) document.getElementById('projName').value = state.projInfo.name;
-        if(state.projInfo.lead) document.getElementById('projLead').value = state.projInfo.lead;
-        if(state.projInfo.date) document.getElementById('projDate').value = state.projInfo.date;
-        localStorage.setItem('projInfo', JSON.stringify(state.projInfo));
-      }
-      if(state.projectRules) {
-        document.getElementById('projectRules').value = state.projectRules;
-        localStorage.setItem('projectRules', state.projectRules);
-      }
-      if(state.gateStates) {
-        ['T1','T2','T3','T4'].forEach(s => {
-          if(state.gateStates[s] && state.gateStates[s].length) {
-            localStorage.setItem('gate-' + s, JSON.stringify(state.gateStates[s]));
-          }
-        });
-      }
-      if(Array.isArray(state.projectGateItems) && state.projectGateItems.length) {
-        projectGateItems = state.projectGateItems;
-        injectGateItems(projectGateItems);
-      }
-      if(state.gateSignOffs && typeof state.gateSignOffs === 'object') {
-        gateSignOffs = state.gateSignOffs;
-      }
-      saveState();
-      ['T1','T2','T3','T4'].forEach(s => { renderTable(s); loadGateState(s); });
-      ['T1','T2','T3','T4'].forEach(s => renderSignOffPanel(s));
-      renderLog();
-      renderGapMatrix();
-      if(state.baseTasks && state.baseTasks.length) {
-        document.getElementById('matrixStatus').textContent = '✅ ' + state.baseTasks.length + ' tasks loaded from session file';
-      }
-      const gateItemCount = (state.projectGateItems||[]).length;
-      showToast('✅ Session imported — ' + (state.baseTasks||[]).length + ' tasks' + (gateItemCount ? ', ' + gateItemCount + ' project gate items' : '') + ' restored', 4000);
-    } catch(err) {
-      alert('Error reading session file:\n' + err.message + '\n\nMake sure the file is a valid BIM Session JSON export.');
-    }
-    input.value = '';
-  };
-  reader.readAsText(file);
-}
-
-async function autoLoadMatrix() {
-  // Only auto-load if no matrix already in localStorage
-  if(BASE_TASKS.length) return;
-  const MATRIX_URL = './DIG_G05_Clash_Detection_Matrix.xlsx';
-  try {
-    showUploadToast('Auto-loading matrix from GitHub…', 20);
-    const res = await fetch(MATRIX_URL);
-    if(!res.ok) { hideToast(); return; }
-    const buf = await res.arrayBuffer();
-    showUploadToast('Parsing matrix…', 60);
-    const wb = XLSX.read(buf, {type:'array'});
-    showUploadToast('Building tasks…', 80);
-    const newTasks = parseWorkbook(wb); // shared top-level helpers
-    if(!newTasks.length) { hideToast(); return; }
-    BASE_TASKS = newTasks;
-    localStorage.setItem('bimBaseTasks', JSON.stringify(BASE_TASKS));
-    ['T1','T2','T3','T4'].forEach(s => renderTable(s));
-    renderGapMatrix();
-    document.getElementById('matrixStatus').textContent = '✅ Auto-loaded from GitHub · ' + BASE_TASKS.length + ' tasks · ' + new Date().toLocaleTimeString();
-    showUploadToast('✅ Matrix auto-loaded — ' + BASE_TASKS.length + ' tasks', 100);
-    setTimeout(hideToast, 3000);
-  } catch(e) {
-    hideToast(); // Silent fail — user can upload manually
-  }
-}
-
-window.onload = async function() {
-  // Restore theme preference
-  const savedTheme = localStorage.getItem('bimTheme') || 'light';
-  document.documentElement.setAttribute('data-theme', savedTheme);
-  const toggleBtn = document.getElementById('themeToggle');
-  if(toggleBtn) toggleBtn.textContent = savedTheme === 'dark' ? '☀️ Light' : '🌙 Dark';
-
-  loadState();
-  ['T1','T2','T3','T4'].forEach(s => renderTable(s));
-  // Inject project gate items before loadGateState so checkbox indices align
-  if(projectGateItems.length) injectGateItems(projectGateItems);
-  ['T1','T2','T3','T4'].forEach(s => loadGateState(s));
-  ['T1','T2','T3','T4'].forEach(s => renderSignOffPanel(s));
-  renderLog();
-  renderGapMatrix();
-  const pr = localStorage.getItem('projectRules');
-  if(pr) document.getElementById('projectRules').value = pr;
-  const d = document.getElementById('projDate');
-  if(d && !d.value) d.valueAsDate = new Date();
-  if(BASE_TASKS.length) {
-    document.getElementById('matrixStatus').textContent = '✅ ' + BASE_TASKS.length + ' tasks loaded from last session';
-  }
-  // Auto-load matrix from GitHub if none in session
-  await autoLoadMatrix();
-};
-</script>
-</body>
-</html>
+      T3: JSON.parse(localStorage.getItem('gate-T3')
