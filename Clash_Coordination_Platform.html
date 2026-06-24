@@ -1638,7 +1638,41 @@ function loadClaudeOutput(input) {
   const reader = new FileReader();
   reader.onload = function(e) {
     try {
-      const data = JSON.parse(e.target.result);
+      const raw = e.target.result;
+      let data;
+
+      // Try 1: entire file is pure JSON (user copied just the JSON block)
+      try { data = JSON.parse(raw); } catch(_) {}
+
+      // Try 2: file contains the full AI response — find the === delimiter and extract JSON
+      if(!data) {
+        const delimIdx = raw.indexOf('=== CLASH COORDINATION PLATFORM');
+        if(delimIdx !== -1) {
+          const after = raw.slice(delimIdx);
+          const start = after.indexOf('{');
+          if(start !== -1) {
+            let depth = 0, end = -1;
+            const s = after.slice(start);
+            for(let i = 0; i < s.length; i++) {
+              if(s[i] === '{') depth++;
+              else if(s[i] === '}') { depth--; if(depth === 0) { end = i; break; } }
+            }
+            if(end !== -1) try { data = JSON.parse(s.slice(0, end + 1)); } catch(_) {}
+          }
+        }
+      }
+
+      // Try 3: find first { … last } in the whole file (fallback for simple pastes)
+      if(!data) {
+        const a = raw.indexOf('{'), b = raw.lastIndexOf('}');
+        if(a !== -1 && b > a) try { data = JSON.parse(raw.slice(a, b + 1)); } catch(_) {}
+      }
+
+      if(!data) throw new Error(
+        'No valid JSON found.\n\nOptions:\n' +
+        '• Save the entire AI response as a .txt file and upload it\n' +
+        '• Or copy just the JSON block (from { to }) and save as .txt'
+      );
 
       // Inject gate items as checkboxes into the correct stage checklist
       let gateCount = 0;
@@ -1686,7 +1720,7 @@ function loadClaudeOutput(input) {
       document.getElementById('claudeStatus').textContent = '✅ ' + label + ' applied';
       showToast('✅ ' + gateCount + ' gate checklist item' + (gateCount !== 1 ? 's' : '') + ' added' + (noteAppend ? ' — see Rules tab for procurement notes' : ''), 5000);
     } catch(err) {
-      alert('Error reading Claude output file:\n' + err.message + '\n\nMake sure the file is valid JSON (.txt or .json).');
+      alert('Error reading gate rules file:\n' + err.message);
     }
     input.value = '';
   };
