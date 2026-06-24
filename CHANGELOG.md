@@ -2,6 +2,17 @@
 
 ---
 
+## v1.9 — 2026-06-24
+
+### Platform
+- **Import Review** button added to header — uploads the completed coordinator review Excel back into the platform; no AI re-prompting needed
+- Import reads YES/NO/N/A per checklist item across all four stages (T1-T4), updates checkbox states (YES and N/A = checked, NO = unchecked)
+- Comment badges added inline on checklist items where coordinator entered a comment — hover to read full text
+- Sign-off block auto-imported: if the reviewer filled in their name and date in the Excel sign-off section, the stage gate is automatically signed off in the platform
+- Closes the round-trip loop: Export for Review -> Coordinator marks up Excel -> Import Review -> Platform updated
+
+---
+
 ## v1.8 — 2026-06-20
 
 ### Platform
