@@ -12,7 +12,8 @@
 - Comment badge (💬) added inline on checklist items where coordinator entered a NO with a reason — hover to read full text
 
 ### Prompts
-- `02_ChecklistReview_Import.md` added (v1.0) — AI prompt that reads the completed coordinator review Excel and outputs a JSON file; user uploads the JSON via Updated Gate Rules to update all checklist states and sign-offs in one step
+- `01_ProjectReport_ClashGate_Analysis.md` updated to v2.1: added Part 2 (Gate Items Review Table) output — Excel-ready table of proposed NEW/SUPPLEMENTED/SUPERSEDED items for coordinator sign-off before entering the platform; JSON moved to Part 3 and marked as reference only
+- `02_ChecklistReview_Import.md` added (v1.1) — handles two input formats: (A) Prompt 01 gate items review table (coordinator-approved items -> gateItems[]) and (B) Export for Review hub defaults Excel (checklistReview{} + gateSignOffs{}); both go through Updated Gate Rules
 
 ---
 
