@@ -1,8 +1,8 @@
 # BIM Clash Coordination Toolkit
 
 **Owner:** Sean Wang — BIM Manager  
-**Version:** 1.8  
-**Last updated:** 2026-06-20
+**Version:** 1.9  
+**Last updated:** 2026-06-24
 
 A project-agnostic toolkit for structured, stage-gated clash detection and digital coordination. Deploy once per project. Built around NZS4219:2009, Revizto Clash Automation, and a T1–T4 staged coordination framework.
 
@@ -20,8 +20,8 @@ BIM_Clash_Coordination_Toolkit/
 │   └── Clash_Coordination_Platform.html  ← Main coordination dashboard (open in Chrome)
 │
 ├── Prompts/
-│   ├── 01_ProjectReport_ClashGate_Analysis.md  ← Analyse project report → updated gate rules
-│   └── 02_NewProject_Setup.md                  ← Configure the platform for a new project
+│   ├── 01_ProjectReport_ClashGate_Analysis.md  ← Analyse project report → updated gate rules JSON
+│   └── 02_ChecklistReview_Import.md            ← Convert completed coordinator Excel → JSON for import
 │
 └── Projects/
     └── _Template/                        ← Copy this folder for each new project
@@ -32,7 +32,7 @@ BIM_Clash_Coordination_Toolkit/
 
 ---
 
-## Quick Start — New Project in 5 Steps
+## Quick Start — New Project in 6 Steps
 
 **Step 1 — Copy the Projects/_Template folder**  
 Rename it to your project code (e.g. `Projects/ABC_Tower/`).
@@ -43,8 +43,11 @@ Open `Platform/Clash_Coordination_Platform.html` in Chrome. No installation requ
 **Step 3 — Upload your Clash Matrix**  
 Click **📂 Upload Updated Matrix** in the top right. Select your project's G05 Clash Detection Matrix Excel file. The platform reads the `Rawdata (Do not edit)` sheet and loads all T1–T4 tasks automatically.
 
-**Step 4 — Analyse your project reports and update gate rules**  
-Use the prompt below on Claude, Copilot, or ChatGPT — no Cowork needed, works on any computer. Attach your project report (PDF or Word).
+**Step 4 — Analyse project reports → expert review → update gate checklist**  
+This step uses two AI prompts and an expert review in between. No direct JSON upload to the platform — all proposed items go through the coordinator first.
+
+**4a — Run Prompt 01 with your project report**  
+Open `Prompts/01_ProjectReport_ClashGate_Analysis.md`, copy it into Claude, Copilot, or ChatGPT, and attach your project report (PDF or Word). No Cowork needed — works on any computer.
 
 The AI compares the report against the **Hub default gate checklist** (58 built-in items across T1–T4) and applies the following logic:
 
@@ -53,7 +56,18 @@ The AI compares the report against the **Hub default gate checklist** (58 built-
 - **SUPERSEDED** — The report overrides a Hub default with stricter or different requirements. New item replaces the default.
 - **NEW** — No Hub default covers this. New project-specific item added.
 
-The AI returns a Rule Status Summary (showing what happened to every Hub default), the filtered gate items (SUPPLEMENTED, SUPERSEDED, and NEW only), and a JSON block you upload directly to the platform.
+The AI returns: a Rule Status Summary, and a **Gate Items Review Table** (Part 2 of the response) listing all proposed NEW / SUPPLEMENTED / SUPERSEDED items — formatted as a spreadsheet-ready table for expert sign-off.
+
+**4b — Send the review table to the coordinator**  
+Copy the Part 2 Gate Items Review Table from the AI response into Excel (or save the AI response and use it directly). Send the Excel to your Services Coordinator or subject-matter expert. The coordinator fills in the REVIEW column (YES / NO / N/A) and a COMMENT column, then completes the sign-off block.
+
+**4c — Run Prompt 02 to convert the reviewed Excel to JSON**  
+Once the coordinator returns the completed Excel, upload it to Claude, Copilot, or ChatGPT using **Prompt 02** (`02_ChecklistReview_Import.md`). The AI reads the review responses and outputs a JSON block.
+
+Save the entire AI response as a `.txt` file. In the platform, click **📋 Updated Gate Rules** → upload the file. The platform automatically:
+- Adds all coordinator-approved gate items (YES items) to the Pre-Clash Gate Checklist
+- Leaves NO items excluded, with a 💬 comment badge showing the coordinator's reason
+- Signs off the gate stage if the coordinator completed the sign-off block
 
 <details>
 <summary>📋 Click to expand — Copy this prompt into Claude / Copilot / ChatGPT</summary>
@@ -321,19 +335,31 @@ STRICT RULES FOR THE JSON:
 
 **What to do with the output:**
 
-1. Review the Rule Status Summary in Part 1 — note any SUPERSEDED Hub defaults and manually uncheck those in the platform checklist
-2. Save the **entire AI response** as a plain text file: `[ProjectCode]_gate_rules.txt`
-3. In the platform, click **📋 Updated Gate Rules** and select that file — the platform automatically finds and extracts the JSON block
+1. Review the **Rule Status Summary** (Part 1) — note any SUPERSEDED Hub defaults for the coordinator's awareness
+2. Copy the **Gate Items Review Table** (Part 2) into Excel — this is the file you send to the coordinator for sign-off (see Step 4b)
+3. Once the coordinator returns the reviewed Excel, run **Prompt 02** to convert it to JSON and upload via **📋 Updated Gate Rules** (see Step 4c)
 
-> **Alternative:** If you prefer, copy just the JSON block (from `{` to `}`) and save that as the file instead. Both methods work.
+> The JSON block is also included in the AI response (Part 3) for reference. Do not upload it directly — put it through coordinator review first via Prompt 02.
 
-If the gate rules don't load, ask the AI: *"Please recheck the JSON block and output a corrected version with no trailing commas and all string values in double quotes."*
+If the gate items don't load after Step 4c, ask the AI: *"Please recheck the JSON block and output a corrected version with no trailing commas and all string values in double quotes."*
 
 > **Important:** Clash task updates (clearance overrides, new task pairs) must always be made in the G05 Clash Matrix first, then re-uploaded. Do not include clash task data in the JSON.
 
 </details>
 
-**Step 5 — Work through the gates**  
+**Step 5 — Review hub defaults with the coordinator (optional but recommended)**  
+Step 4 covers project-specific gate items. This step reviews the 58 built-in hub defaults to confirm which apply to this project.
+
+1. In the platform, click **📋 Export for Review** — generates an Excel with all hub default checklist items for each stage (T1–T4), plus any items already added in Step 4
+2. Send the Excel to the Services Coordinator
+3. Coordinator fills in YES / NO / N/A for each item, adds comments for NO items, and completes the sign-off block
+4. Coordinator returns the completed Excel
+5. Upload the filled Excel to Claude, Copilot, or ChatGPT with **Prompt 02** (`02_ChecklistReview_Import.md`)
+6. Save the entire AI response as a `.txt` file → platform: **📋 Updated Gate Rules** → upload
+
+> Both Step 4 and Step 5 use the same Prompt 02 → Updated Gate Rules path. Prompt 02 handles both the project-specific items table (from Prompt 01) and the full checklist Excel (from Export for Review).
+
+**Step 6 — Work through the gates**  
 For each stage (T1 → T2 → T3 → T4):
 - Use the discipline filter on the Pre-Clash Gate Checklist to focus on one trade at a time
 - Complete the checklist — gate status changes from 🔒 to ✅ automatically
@@ -342,7 +368,7 @@ For each stage (T1 → T2 → T3 → T4):
 - Click **⬇ Export CSV** to get the Revizto-ready task list
 - Log each coordination run in the Run Log tab
 
-**Step 6 — Transfer to another PC (optional)**  
+**Step 7 — Transfer to another PC (optional)**  
 Click **⬆ Export Session** to save all tasks, gate progress, project gate items, and log to a JSON file.  
 On the other PC, open the platform and click **⬇ Import Session** to restore everything instantly.
 
@@ -351,39 +377,31 @@ On the other PC, open the platform and click **⬇ Import Session** to restore e
 ## Workflow Overview
 
 ```
-G05 Clash Matrix (Excel)
-        │
-        ▼  Upload Updated Matrix
-┌─────────────────────────────────┐
-│   BIM Clash Coordination        │
-│   Platform (HTML dashboard)     │
-│                                 │
-│  [Left]          [Right]        │
-│  Pre-Clash    Revizto Clash     │
+G05 Clash Matrix (Excel)          Project Report (PDF/Word)
+        │                                   │
+        ▼  Upload Updated Matrix             ▼  Prompt 01
+┌─────────────────────────────────┐   Claude / Copilot / ChatGPT
+│   BIM Clash Coordination        │         │
+│   Platform (HTML dashboard)     │         ▼  Save as .txt
+│                                 │   📋 Updated Gate Rules
+│  [Left]          [Right]        │   → Adds NEW / SUPPLEMENTED / SUPERSEDED items
+│  Pre-Clash    Revizto Clash     │   → Procurement flags → Rules tab
 │  Gate         Task Output       │
-│  Checklist    (filterable       │
-│  T1–T4        table, CSV        │
-│  gates        export)           │
-└─────────────────────────────────┘
-        │                   │
-        │ Gate = ✅          │ Export CSV
-        ▼                   ▼
-  Run Revizto          Revizto Clash
-  Clash Detection      Automation Tasks
-  for this stage       Loaded Manually
-
-        │
-        ▼  Project Report (PDF/Word)
-   Claude / Copilot / ChatGPT Prompt
-   (any computer, no Cowork needed)
-        │
-        ▼  Copy JSON output block
-   📋 Updated Gate Rules
-   → Compares against 58 Hub defaults
-   → Adds only NEW / SUPPLEMENTED / SUPERSEDED items
-   → Procurement flags → Rules tab notes
-   → New task pairs? Update G05 Matrix
-     and re-upload — NOT through platform
+│  Checklist    (filterable       │         │
+│  T1–T4        table, CSV        │         ▼  Export for Review
+│  gates        export)           │   Excel → Services Coordinator
+└─────────────────────────────────┘         │
+        │                   │               ▼  Coordinator fills YES/NO/N/A
+        │ Gate = ✅          │ Export CSV    │  + sign-off block
+        ▼                   ▼               │
+  Run Revizto          Revizto Clash        ▼  Prompt 02
+  Clash Detection      Automation Tasks  Claude / Copilot / ChatGPT
+  for this stage       Loaded Manually      │
+                                            ▼  Save as .txt
+                                      📋 Updated Gate Rules
+                                      → Ticks YES/N/A items
+                                      → Flags NO items with comment badge
+                                      → Auto signs off completed gates
 ```
 
 ---
@@ -399,8 +417,8 @@ G05 Clash Matrix (Excel)
 | ✏️ Edit Task | Override clearance code, H/V values, Revizto priority, and add a reason note per task |
 | 📐 Rules & Standards | NZS4219:2009 seismic table, clearance code reference, discipline gap matrix with breakdown, project notes |
 | 📂 Upload Updated Matrix | Upload updated G05 Excel → platform rebuilds all tasks automatically |
-| 📋 Updated Gate Rules | Upload JSON from Claude/Copilot/ChatGPT → adds only project-specific gate items (NEW, SUPPLEMENTED, SUPERSEDED) — Hub defaults already in platform are not duplicated |
-| 📋 Export for Review | Generates a formatted Excel with all gate checklist items for Services Coordinator offline sign-off |
+| 📋 Updated Gate Rules | Upload JSON from Claude/Copilot/ChatGPT → handles two workflows: (1) Prompt 01 output — adds project-specific gate items (NEW, SUPPLEMENTED, SUPERSEDED); (2) Prompt 02 output — updates checkbox states, adds comment badges, and auto-signs off completed gates from coordinator review |
+| 📋 Export for Review | Generates a formatted Excel (one sheet per stage) for Services Coordinator offline review — YES/NO/N/A columns, comment column, sign-off block; return the completed file through Prompt 02 |
 | 🌙 / ☀️ Theme toggle | Switch between light and dark mode — preference saved between sessions |
 | ⬆ Export Session | Save all tasks, gate states, project gate items, and run log to a portable JSON file |
 | ⬇ Import Session | Load a session file on any PC to restore a project's full setup instantly |
