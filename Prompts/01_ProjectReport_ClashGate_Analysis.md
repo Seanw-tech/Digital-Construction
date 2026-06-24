@@ -221,11 +221,30 @@ Write 3–5 sentences summarising the most significant coordination risks this r
 
 ---
 
-## PART 2 — JSON OUTPUT (save as .txt, upload to platform)
+## PART 2 — GATE ITEMS REVIEW TABLE (send to coordinator for sign-off)
 
-After the human-readable output above, output a section starting with this exact line on its own:
+After Part 1, output this review table. This is the file the BIM Manager will send to the Services Coordinator for review and approval before any items enter the platform.
 
-=== CLASH COORDINATION PLATFORM — JSON OUTPUT (copy everything between the braces) ===
+Output one row per NEW, SUPPLEMENTED, or SUPERSEDED item. Leave the REVIEW and COMMENT columns blank — the coordinator fills these in.
+
+| # | Stage | Disc | Proposed Gate Item | Status | Replaces Hub Default | H (mm) | V (mm) | Source | REVIEW (YES/NO/N/A) | COMMENT |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 1 | T1 | STR | [item text] | NEW | - | [H or blank] | [V or blank] | [Section X.X] | | |
+| 2 | T2 | MEC | [item text] | SUPPLEMENTED | T2-08 | 150 | 200 | [Section X.X] | | |
+
+- # is a sequential row number starting from 1
+- Status is one of: NEW, SUPERSEDED, SUPPLEMENTED
+- Replaces Hub Default is the Hub default ID (e.g. T2-08) for SUPERSEDED/SUPPLEMENTED items, or - for NEW
+- H and V are in millimetres; leave blank if not specified
+- REVIEW and COMMENT columns are intentionally blank — the coordinator fills them in
+
+---
+
+## PART 3 — JSON REFERENCE (included for completeness)
+
+After Part 2, output a section starting with this exact line on its own:
+
+=== CLASH COORDINATION PLATFORM JSON — PASTE INTO UPDATED GATE RULES ===
 
 Then output a single valid JSON object with EXACTLY this structure. Do not add extra fields. Do not remove fields. Do not use comments. No trailing commas.
 
@@ -278,19 +297,18 @@ STRICT RULES FOR THE JSON:
 
 ## What to Do with the Output
 
-**Step 1 — Review PART 1**
-Check the Rule Status Summary. Confirm any SUPERSEDED defaults — the BIM Manager will need to manually note or uncheck those Hub defaults in the platform since they've been replaced.
+**Step 1 — Review Part 1**
+Check the Rule Status Summary. Note any SUPERSEDED Hub defaults — these will be handled when the coordinator's review comes back.
 
-**Step 2 — Upload to platform**
-1. Save the **entire AI response** as a plain text file: `[ProjectCode]_gate_rules.txt`
-2. In the platform, click **📋 Updated Gate Rules** and select that file — the platform automatically finds and extracts the JSON block from the full response
+**Step 2 — Send Part 2 to the coordinator for review**
+Copy the Gate Items Review Table (Part 2) into Excel and send it to the Services Coordinator. The coordinator fills in YES / NO / N/A for each proposed item, adds comments, and signs the bottom.
 
-> **Alternative:** If you prefer, copy just the JSON block (from `{` to `}`) and save that as the file instead. Both methods work.
+**Step 3 — Run Prompt 02 after review**
+Once the coordinator returns the completed Excel, use **Prompt 02** (`02_ChecklistReview_Import.md`) to convert it to JSON. Save the AI response as `.txt` → upload via **📋 Updated Gate Rules** in the platform. The platform adds approved items to the gate checklist.
 
-**Step 3 — Handle SUPERSEDED defaults**
-The platform does not automatically hide superseded Hub defaults. After uploading, manually uncheck any Hub defaults flagged as SUPERSEDED in Part 1 — the new project-specific item takes their place.
+> **Part 3 JSON** is included for reference or advanced use. The recommended path is always Part 2 → coordinator review → Prompt 02 → platform.
 
-If the gate rules don't load: ask the AI: *"Please recheck the JSON block and output a corrected version with no trailing commas and all string values in double quotes."*
+If items don't load: ask the AI: *"Please recheck the JSON block and output a corrected version with no trailing commas and all string values in double quotes."*
 
 ---
 
