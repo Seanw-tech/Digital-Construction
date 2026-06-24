@@ -275,6 +275,7 @@ footer{padding:8px 28px;border-top:1px solid #e2e8f0;text-align:center;font-size
     <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0">
       <input type="file" id="matrixUpload" accept=".xlsx" style="display:none" onchange="loadMatrixFromExcel(this)">
       <input type="file" id="claudeUpload" accept=".txt,.json" style="display:none" onchange="loadClaudeOutput(this)">
+      <input type="file" id="reviewUpload" accept=".xlsx" style="display:none" onchange="loadReviewExcel(this)">
       <div style="display:flex;gap:6px;flex-wrap:nowrap;align-items:center">
         <button class="btn-io" onclick="exportSession()">⬆ Export Session</button>
         <label class="btn-io" style="cursor:pointer">
@@ -282,6 +283,7 @@ footer{padding:8px 28px;border-top:1px solid #e2e8f0;text-align:center;font-size
           <input type="file" id="sessionImport" accept=".json" style="display:none" onchange="importSession(this)">
         </label>
         <button class="btn-io" onclick="exportChecklistForReview()" style="background:#fef9c3;color:#92400e;border-color:#fde68a" title="Export all gate checklists as Excel for Services Coordinator review">📋 Export for Review</button>
+        <button class="btn-io" onclick="document.getElementById('reviewUpload').click()" style="background:#f0fdf4;color:#166534;border-color:#86efac" title="Import completed review Excel — updates checklist and auto-populates sign-off">📥 Import Review</button>
         <button class="btn-theme" id="themeToggle" onclick="toggleTheme()" title="Switch between light and dark theme">🌙 Dark</button>
       </div>
       <div style="display:flex;gap:16px">
@@ -1404,6 +1406,102 @@ function exportChecklistForReview() {
   const safeName = projName.replace(/[^a-zA-Z0-9_\-]/g, '-');
   XLSX.writeFile(wb, safeName + '_GateChecklist_Review_' + todayISO + '.xlsx');
   showToast('📋 Exported — send the Excel file to your Services Coordinator for review', 4000);
+}
+
+function loadReviewExcel(input) {
+  const file = input.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const wb = XLSX.read(e.target.result, { type: 'array' });
+      const stages = ['T1','T2','T3','T4'];
+      let totalItems = 0, signedOff = 0;
+
+      stages.forEach(stage => {
+        const ws = wb.Sheets[stage];
+        if(!ws) return;
+        const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: null });
+
+        // Find the header row (col[0] === '#')
+        let headerIdx = -1;
+        for(let i = 0; i < rows.length; i++) {
+          if(rows[i] && String(rows[i][0]).trim() === '#') { headerIdx = i; break; }
+        }
+        if(headerIdx === -1) return;
+
+        const checks = Array.from(document.querySelectorAll('#cl-' + stage + ' input[type=checkbox]'));
+        let reviewerName = '', reviewerRole = '', reviewerDate = '', reviewerComment = '';
+
+        for(let i = headerIdx + 1; i < rows.length; i++) {
+          const row = rows[i];
+          if(!row) continue;
+          const col0 = row[0];
+
+          if(typeof col0 === 'number') {
+            // Data row
+            const idx = col0 - 1;
+            const reviewRaw = row[4];
+            const comment = row[5] ? String(row[5]).trim() : '';
+            const review = reviewRaw ? String(reviewRaw).trim().toUpperCase() : '';
+
+            if(idx >= 0 && idx < checks.length && review) {
+              const cb = checks[idx];
+              cb.checked = (review === 'YES' || review === 'N/A');
+              totalItems++;
+
+              // Add or update comment badge
+              if(comment) {
+                const li = cb.closest('.check-item');
+                if(li) {
+                  let badge = li.querySelector('.review-comment-badge');
+                  if(!badge) {
+                    badge = document.createElement('span');
+                    badge.className = 'review-comment-badge';
+                    badge.style.cssText = 'font-size:.65rem;background:#fef3c7;color:#92400e;border:1px solid #fde68a;padding:1px 6px;border-radius:3px;margin-left:6px;cursor:help;vertical-align:middle';
+                    li.querySelector('label').appendChild(badge);
+                  }
+                  badge.title = comment;
+                  badge.textContent = review === 'NO' ? '💬 NO: ' + comment.substring(0, 30) + (comment.length > 30 ? '…' : '') : '💬 ' + comment.substring(0, 30) + (comment.length > 30 ? '…' : '');
+                }
+              }
+            }
+          } else if(typeof col0 === 'string') {
+            // Sign-off block
+            const key = col0.trim();
+            const val = row[1] ? String(row[1]).trim() : '';
+            if(key === 'Reviewer Name') reviewerName = val;
+            else if(key === 'Reviewer Role / Company') reviewerRole = val;
+            else if(key === 'Date Reviewed') reviewerDate = val;
+            else if(key === 'Overall Comments') reviewerComment = val;
+          }
+        }
+
+        updateGate(stage);
+
+        // Auto sign-off if reviewer filled in their name and date
+        if(reviewerName && reviewerDate && !gateSignOffs[stage]) {
+          let dateISO = '';
+          const parsed = new Date(reviewerDate);
+          dateISO = isNaN(parsed.getTime())
+            ? new Date().toISOString().split('T')[0]
+            : parsed.toISOString().split('T')[0];
+          gateSignOffs[stage] = { name: reviewerName, role: reviewerRole, date: dateISO, comment: reviewerComment, timestamp: new Date().toISOString() };
+          renderSignOffPanel(stage);
+          signedOff++;
+        }
+      });
+
+      saveState();
+      let msg = '📥 Review imported — ' + totalItems + ' items updated';
+      if(signedOff > 0) msg += ', ' + signedOff + ' stage' + (signedOff > 1 ? 's' : '') + ' auto-signed off';
+      showToast(msg, 5000);
+    } catch(err) {
+      alert('Error reading review file:\n' + err.message);
+    }
+    input.value = '';
+  };
+  reader.readAsArrayBuffer(file);
 }
 
 function exportCSV(stage) {
