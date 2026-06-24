@@ -321,12 +321,13 @@ STRICT RULES FOR THE JSON:
 
 **What to do with the output:**
 
-1. Review the Rule Status Summary in Part 1 — note any SUPERSEDED Hub defaults; you will need to manually uncheck those in the platform checklist
-2. Copy everything between the outer `{` and `}` braces of the JSON block
-3. Paste into a plain text file and save as `[ProjectCode]_gate_rules.txt`
-4. In the platform, click **📋 Updated Gate Rules** — gate items appear immediately as checkboxes in the correct stage checklist
+1. Review the Rule Status Summary in Part 1 — note any SUPERSEDED Hub defaults and manually uncheck those in the platform checklist
+2. Save the **entire AI response** as a plain text file: `[ProjectCode]_gate_rules.txt`
+3. In the platform, click **📋 Updated Gate Rules** and select that file — the platform automatically finds and extracts the JSON block
 
-If the JSON doesn't load, paste it into [jsonlint.com](https://jsonlint.com) to find the error, or ask the AI: *"Please recheck the JSON and output a corrected version with no trailing commas and all string values in double quotes."*
+> **Alternative:** If you prefer, copy just the JSON block (from `{` to `}`) and save that as the file instead. Both methods work.
+
+If the gate rules don't load, ask the AI: *"Please recheck the JSON block and output a corrected version with no trailing commas and all string values in double quotes."*
 
 > **Important:** Clash task updates (clearance overrides, new task pairs) must always be made in the G05 Clash Matrix first, then re-uploaded. Do not include clash task data in the JSON.
 
