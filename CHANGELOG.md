@@ -9,6 +9,7 @@
 - Header layout fixed: white-space:nowrap on btn-io and btn-theme; button row set to flex-wrap:nowrap — no more text wrapping
 - Upload Matrix and Updated Gate Rules buttons moved from header to Revizto Clash Task Output card header in all four stage panels (T1–T4) — buttons now sit parallel to the checklist at stage level; hidden file inputs remain in DOM for JavaScript targeting
 - A3 landscape layout: body/main/stage-panel now use full-height flex column chain (height:100vh, overflow:hidden); Gate Checklist and Clash Task table scroll within fixed-height panels; all chrome elements (card-header, toolbar, filter row, stats, signoff) set to flex-shrink:0; Rules tab and Run Log wrapped in scrollable containers; footer and nav also flex-shrink:0; page no longer grows vertically
+- Updated Gate Rules upload now accepts the full AI response file (not just the extracted JSON block) — parser tries JSON.parse first, then searches for the `=== CLASH COORDINATION PLATFORM ===` delimiter, then falls back to first-`{`/last-`}` extraction; works with Claude, Copilot, and ChatGPT output formats
 
 ### Prompts
 - `01_ProjectReport_ClashGate_Analysis.md` rewritten as v2.0: full Hub default reference (T1–T4, 58 items) embedded in prompt; AI compares extracted items against defaults and assigns RETAINED / SUPERSEDED / SUPPLEMENTED / NEW status; Part 1 output now includes Rule Status Summary table; JSON updated with `status` and `replacesDefault` fields; deprecated `overrides` and `customTasks` removed; discipline codes corrected to ARCH
