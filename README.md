@@ -38,24 +38,22 @@ Click **📂 Upload Updated Matrix** → select your company clash matrix. The p
 **Step 4 — Analyse design report → coordinator review → update gate checklist**
 
 **4a — Run Prompt 01 with your design report**
-Open a new Claude, Copilot, or ChatGPT session. Open Prompt 01 below, click **Raw**, select all, copy, paste in, then attach your design report (PDF or Word). The AI analyses the report against the hub default gate checklist and outputs a **Gate Items Review Table** — save or copy this table into Excel.
+Open a new Claude, Copilot, or ChatGPT session. Open Prompt 01 below, click **Raw**, select all, copy, paste in, then attach your design report (PDF or Word). The AI analyses the report against the hub default gate checklist and outputs a **Gate Items Review Table as CSV** — copy the CSV text, save as `GateReview.csv`, and open in Excel.
 
-> 📋 **[Prompt 01 — Analyse design report → gate items review table](Prompts/01_ProjectReport_ClashGate_Analysis.md)**
+> 📋 **[Prompt 01 — Analyse design report → gate items CSV for coordinator review](Prompts/01_ProjectReport_ClashGate_Analysis.md)**
 
 **4b — Services Coordinator review**
-Send the Excel to your Services Coordinator. The coordinator fills in YES / NO / N/A for each proposed gate item, adds comments for any rejected items, and signs off the bottom of the Excel. The completed Excel is returned to you.
+Send `GateReview.csv` (or the Excel) to your Services Coordinator. The coordinator fills in YES / NO / N/A for each proposed gate item, adds comments for rejected items, and signs off. The completed Excel is returned to you.
 
-**4c — Run Prompt 02 with the reviewed Excel**
-Open a new AI session. Open Prompt 02 below, click **Raw**, select all, copy, paste in, then attach the completed Excel from the coordinator. The AI reads the review responses and outputs a JSON block.
-
-> 📋 **[Prompt 02 — Reviewed Excel → JSON for platform import](Prompts/02_ChecklistReview_Import.md)**
+**4c — Attach the reviewed Excel to the same AI session**
+No new session needed. In the **same session** where you ran Prompt 01, attach the completed Excel from the coordinator. The AI automatically reads the review responses and outputs a JSON block — no prompt copy-paste required.
 
 Save the entire AI response as a `.txt` file → platform: **📋 Updated Gate Rules** → upload. The platform adds all approved items to the gate checklist and auto-signs off completed stages.
 
-> Step 4 and Step 5 both use Prompt 02. It handles the project-specific items table (from Prompt 01) and the full hub defaults checklist (from Export for Review) — same prompt, same upload path.
+> **Step 5** uses a separate Prompt 02 — only needed when reviewing the full hub defaults checklist (Export for Review path).
 
 **Step 5 — Review hub defaults with coordinator (optional but recommended)**
-Click **📋 Export for Review** → send Excel to coordinator → coordinator fills YES/NO/N/A and signs off → return Excel → Prompt 02 → save as `.txt` → **📋 Updated Gate Rules**.
+Click **📋 Export for Review** → send Excel to coordinator → coordinator fills YES/NO/N/A and signs off → return Excel → open a new AI session, paste **[Prompt 02](Prompts/02_ChecklistReview_Import.md)**, attach the Excel → save AI response as `.txt` → **📋 Updated Gate Rules**.
 
 **Step 6 — Work through the gates**
 For each stage T1 → T4: complete the Pre-Clash Gate Checklist → gate unlocks → **⬇ Export CSV** → run Revizto clash detection → log run in the Run Log tab.
