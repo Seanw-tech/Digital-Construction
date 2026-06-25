@@ -38,7 +38,7 @@ Click **📂 Upload Updated Matrix** → select your company clash matrix. The p
 **Step 4 — Analyse design report → coordinator review → update gate checklist**
 
 **4a — Run Prompt 01 with your design report**
-Open a new Claude, Copilot, or ChatGPT session. Open Prompt 01 below, click **Raw**, select all, copy, paste in, then attach your design report (PDF or Word). The AI analyses the report against the hub default gate checklist and outputs a **Gate Items Review Table as CSV** — copy the CSV text, save as `GateReview.csv`, and open in Excel.
+Open a new Claude, Copilot, or ChatGPT session. Click the Prompt 01 link below, click **Raw**, select all, copy, paste in, then attach your design report (PDF or Word). The AI analyses the report against the hub default gate checklist and outputs a **Gate Items Review Table as CSV** — copy the CSV text, save as `GateReview.csv`, and open in Excel.
 
 > 📋 **[Prompt 01 — Analyse design report → gate items CSV for coordinator review](Prompts/01_ProjectReport_ClashGate_Analysis.md)**
 
