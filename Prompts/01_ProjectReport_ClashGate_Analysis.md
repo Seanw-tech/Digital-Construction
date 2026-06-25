@@ -1,6 +1,6 @@
 # Prompt: Project Report → Updated Gate Rules Analysis
 
-**Version:** 2.0 (updated 2026-06-20)
+**Version:** 2.2 (updated 2026-06-25)
 
 **How to use:** Copy the full prompt block below. Paste it into a new Claude, Copilot, or ChatGPT session. Attach your project report (PDF, Word, or paste the text). The AI will compare the report against the Hub default checklist, filter duplicates and overlaps, and return only what needs to change — clearly showing what's retained, added, consolidated, or replaced.
 
@@ -300,57 +300,6 @@ JSON rules:
 
 ---
 
-## PART 4 — JSON REFERENCE (included for completeness)
-
-After Part 2, output a section starting with this exact line on its own:
-
-=== CLASH COORDINATION PLATFORM JSON — PASTE INTO UPDATED GATE RULES ===
-
-Then output a single valid JSON object with EXACTLY this structure. Do not add extra fields. Do not remove fields. Do not use comments. No trailing commas.
-
-{
-  "project": "Project name from report, or Unknown if not stated",
-  "report": "Document title and version",
-  "date": "Today's date in YYYY-MM-DD format",
-  "gateItems": [
-    {
-      "stage": "T1",
-      "discipline": "STR",
-      "item": "One sentence gate item in plain language",
-      "clearanceH": 50,
-      "clearanceV": 100,
-      "clashPair": "STR vs MEC",
-      "source": "Section 4.2",
-      "status": "NEW",
-      "replacesDefault": null
-    }
-  ],
-  "procurementFlags": [
-    {
-      "item": "Short description of what is pending",
-      "discipline": "MEC",
-      "pending": "What must be confirmed before coordination can proceed",
-      "targetDate": "YYYY-MM-DD or null",
-      "stage": "T2"
-    }
-  ],
-  "projectNotes": "Your 3-5 sentence coordination risk summary as a single string."
-}
-
-STRICT RULES FOR THE JSON:
-- Include only SUPERSEDED, SUPPLEMENTED, and NEW items in gateItems. Do not include RETAINED items.
-- "stage" must be exactly one of: T1, T2, T3, T4
-- "discipline" must be exactly one of: ARCH, STR, HYD, MEC, ELE, FIR, GEN
-- "clearanceH" and "clearanceV" must be integers in millimetres, or null if not specified
-- Use 0 for hard clash (physical contact, zero clearance)
-- "clashPair" format is "DISC vs DISC" — example: "MEC vs STR"
-- "status" must be exactly one of: NEW, SUPERSEDED, SUPPLEMENTED
-- "replacesDefault" is the Hub default ID being superseded or supplemented (e.g., "T1-05"), or null if NEW
-- "targetDate" must be "YYYY-MM-DD" format or null
-- "projectNotes" must be a single string — no line breaks inside it
-- If there are no procurementFlags, output: "procurementFlags": []
-- The JSON must be valid — test it mentally before outputting
-
 ```
 
 ---
@@ -358,15 +307,17 @@ STRICT RULES FOR THE JSON:
 ## What to Do with the Output
 
 **Step 1 — Review Part 1**
-Check the Rule Status Summary. Note any SUPERSEDED Hub defaults — these will be handled when the coordinator's review comes back.
+Check the Rule Status Summary. Note any SUPERSEDED Hub defaults — these will be visually marked in the platform once you upload the JSON.
 
-**Step 2 — Send Part 2 to the coordinator for review**
-Copy the Gate Items Review Table (Part 2) into Excel and send it to the Services Coordinator. The coordinator fills in YES / NO / N/A for each proposed item, adds comments, and signs the bottom.
+**Step 2 — Send the CSV to the coordinator**
+Save the Part 2 CSV as `GateReview.csv` and open it in Excel. Send it to the Services Coordinator. The coordinator fills in YES / NO / N/A for each proposed item, adds comments, and signs off. The completed Excel is returned to you.
 
-**Step 3 — Run Prompt 02 after review**
-Once the coordinator returns the completed Excel, use **Prompt 02** (`02_ChecklistReview_Import.md`) to convert it to JSON. Save the AI response as `.txt` → upload via **📋 Updated Gate Rules** in the platform. The platform adds approved items to the gate checklist.
+**Step 3 — Attach the reviewed Excel to THIS session**
+No new session needed. In the **same session** where you ran this prompt, attach the completed Excel from the coordinator. The AI automatically reads the review responses (Part 3) and outputs a JSON block — no prompt copy-paste required.
 
-> **Part 3 JSON** is included for reference or advanced use. The recommended path is always Part 2 → coordinator review → Prompt 02 → platform.
+Save the entire AI response as a `.txt` file → platform: **📋 Updated Gate Rules** → upload. The platform adds all approved items to the gate checklist, marks superseded/supplemented hub defaults, and auto-signs off completed stages.
+
+> **Fallback:** If you need to process the reviewed Excel in a new session, use `02_ChecklistReview_Import.md` (Prompt 02).
 
 If items don't load: ask the AI: *"Please recheck the JSON block and output a corrected version with no trailing commas and all string values in double quotes."*
 
