@@ -78,8 +78,6 @@ For each row where REVIEW = YES:
 
 For each row where REVIEW = NO or N/A: skip (exclude from JSON).
 
-Extract sign-off details if present (Reviewer Name, Role, Date, Comments).
-
 ### Step 2B — Format B: Extract checklist review responses
 
 For each stage (T1, T2, T3, T4), read every data row and extract:
@@ -89,17 +87,7 @@ For each stage (T1, T2, T3, T4), read every data row and extract:
 
 Only include items where the coordinator has entered a review value. Skip blank rows.
 
-Extract sign-off block details for each stage (Reviewer Name, Reviewer Role / Company, Date Reviewed, Overall Comments). Only include a sign-off if Reviewer Name AND Date Reviewed are both filled.
-
-### Step 3 — Summarise outstanding items
-
-List all items marked NO with their stage, item text, and coordinator comment. These need resolution before the gate closes.
-
-### Step 4 — Output
-
-Produce two parts:
-
-### Step 2 — Extract sign-off details
+### Step 2C — Extract sign-off details
 
 For each stage, find the SIGN-OFF block and extract:
 - Reviewer Name
