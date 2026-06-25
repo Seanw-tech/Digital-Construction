@@ -2,6 +2,23 @@
 
 ---
 
+## v2.4 — 2026-06-25
+
+### Audit fixes
+- **Prompt 01 v2.2:** Removed stale Part 4 (old JSON Reference section, now superseded by Part 3 single-session workflow). Updated "What to Do" section: Steps 2 and 3 now match the current CSV → attach-to-same-session workflow; Prompt 02 demoted to fallback only.
+- **Prompt 02 v1.2:** Removed reference to the deleted "Export for Review" button. Updated purpose block to clearly state it is a fallback for when the original Prompt 01 session is closed; How to Use steps revised to match CSV-based workflow.
+- **README:** Removed stale "Export for Review path" note from Step 4c; replaced with accurate fallback note about Prompt 02.
+- **Platform v2.3:** Checklist now sorted GEN > ARCH > STR > MEC > HYD > ELE > FIR on page load (previously only sorted after gate items were injected).
+
+---
+
+## v2.3 — 2026-06-25
+
+### Platform
+- Checklist discipline sort (GEN > ARCH > STR > MEC > HYD > ELE > FIR) now runs on page load via `init()` in addition to after gate item injection — hub default items are now correctly ordered before any project items are uploaded.
+
+---
+
 ## v2.2 — 2026-06-25
 
 ### Platform
