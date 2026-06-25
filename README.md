@@ -355,7 +355,7 @@ Once the coordinator returns the completed Excel, copy the prompt below into Cla
 <details>
 <summary>📋 Prompt 02 — click to copy</summary>
 
-```
+````
 # Prompt 02 — Gate Checklist Review Import
 ## BIM Clash Coordination Platform · v1.0
 
@@ -576,7 +576,7 @@ Output the JSON block preceded by the delimiter line exactly as shown. Use Forma
 ---
 
 *Platform: BIM Clash Coordination Platform · Prompt 02 v1.1 · 2026-06-24*
-```
+````
 
 </details>
 
