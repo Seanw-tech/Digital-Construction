@@ -1922,4 +1922,70 @@ function exportSession() {
     gateStates: {
       T1: JSON.parse(localStorage.getItem('gate-T1') || '[]'),
       T2: JSON.parse(localStorage.getItem('gate-T2') || '[]'),
-      T3: JSON.parse(localStorage.getItem('gate-T3')
+      T3: JSON.parse(localStorage.getItem('gate-T3') || '[]'),
+      T4: JSON.parse(localStorage.getItem('gate-T4') || '[]')
+    }
+  };
+  const blob = new Blob([JSON.stringify(state, null, 2)], {type: 'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = (projName.replace(/[^a-zA-Z0-9]/g, '_') || 'Session') + '_BIMCoord_' + new Date().toISOString().split('T')[0] + '.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
+function importSession(input) {
+  const file = input.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const state = JSON.parse(e.target.result);
+      if(state.projInfo) {
+        if(state.projInfo.name) {
+          document.getElementById('projName').value = state.projInfo.name;
+          localStorage.setItem('projInfo', JSON.stringify({ name: state.projInfo.name, lead: state.projInfo.lead || '' }));
+        }
+        if(state.projInfo.lead) document.getElementById('projLead').value = state.projInfo.lead;
+        if(state.projInfo.date) document.getElementById('projDate').value = state.projInfo.date;
+      }
+      if(Array.isArray(state.baseTasks) && state.baseTasks.length) {
+        BASE_TASKS = state.baseTasks;
+        localStorage.setItem('bimBaseTasks', JSON.stringify(BASE_TASKS));
+      }
+      if(state.overrides) { overrides = state.overrides; localStorage.setItem('bimOverrides', JSON.stringify(overrides)); }
+      if(state.loaded) { loaded = state.loaded; localStorage.setItem('bimLoaded', JSON.stringify(loaded)); }
+      if(state.logEntries) { logEntries = state.logEntries; localStorage.setItem('bimLog', JSON.stringify(logEntries)); }
+      if(state.projectGateItems) { projectGateItems = state.projectGateItems; localStorage.setItem('bimProjectGateItems', JSON.stringify(projectGateItems)); }
+      if(state.gateSignOffs) { gateSignOffs = state.gateSignOffs; localStorage.setItem('bimGateSignOffs', JSON.stringify(gateSignOffs)); }
+      if(state.projectRules != null) {
+        document.getElementById('projectRules').value = state.projectRules;
+        localStorage.setItem('projectRules', state.projectRules);
+      }
+      if(state.gateStates) {
+        ['T1','T2','T3','T4'].forEach(s => {
+          if(state.gateStates[s]) localStorage.setItem('gate-' + s, JSON.stringify(state.gateStates[s]));
+        });
+      }
+      ['T1','T2','T3','T4'].forEach(s => { renderTable(s); updateGate(s); renderSignOffPanel(s); });
+      renderLog();
+      renderGapMatrix();
+      const label = (state.projInfo && state.projInfo.name) ? state.projInfo.name : file.name;
+      document.getElementById('footer-status').textContent = 'Session imported - ' + label;
+      showToast('Session imported - ' + label, 4000);
+    } catch(err) {
+      alert('Error importing session:\n' + err.message);
+    }
+    input.value = '';
+  };
+  reader.readAsText(file);
+}
+
+// Alias so toggleTheme() can call buildGapMatrix() which was renamed to renderGapMatrix()
+const buildGapMatrix = renderGapMatrix;
+
+window.onload = init;
+</script>
+</body>
+</html>
