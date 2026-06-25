@@ -130,6 +130,8 @@ footer{padding:8px 28px;border-top:1px solid #e2e8f0;text-align:center;font-size
 .btn-danger{background:#fee2e2;color:#991b1b;border:1px solid #fca5a5;padding:3px 8px;font-size:.65rem;border-radius:4px;cursor:pointer;font-weight:700}
 .btn-danger:hover{background:#b91c1c;color:#fff}
 .badge-edited{font-size:.62rem;font-weight:700;padding:1px 5px;border-radius:3px;background:#fef3c7;color:#92400e;margin-right:4px;vertical-align:middle}
+.badge-gate-new{font-size:.62rem;font-weight:700;padding:1px 6px;border-radius:3px;background:#dcfce7;color:#166534;border:1px solid #86efac;margin-right:4px;vertical-align:middle;letter-spacing:.03em}
+.badge-gate-updated{font-size:.62rem;font-weight:700;padding:1px 6px;border-radius:3px;background:#fef3c7;color:#92400e;border:1px solid #fde68a;margin-right:4px;vertical-align:middle;letter-spacing:.03em}
 .row-edited td{border-left:3px solid #f59e0b}
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:1000;align-items:center;justify-content:center}
 .modal-overlay.open{display:flex}
@@ -281,7 +283,7 @@ footer{padding:8px 28px;border-top:1px solid #e2e8f0;text-align:center;font-size
           ⬇ Import Session
           <input type="file" id="sessionImport" accept=".json" style="display:none" onchange="importSession(this)">
         </label>
-        <button class="btn-io" onclick="exportChecklistForReview()" style="background:#fef9c3;color:#92400e;border-color:#fde68a" title="Export all gate checklists as Excel for Services Coordinator review">📋 Export for Review</button>
+
         <button class="btn-theme" id="themeToggle" onclick="toggleTheme()" title="Switch between light and dark theme">🌙 Dark</button>
       </div>
       <div style="display:flex;gap:16px">
@@ -1193,11 +1195,16 @@ function injectGateItems(items) {
     const disc = discRaw === 'ARC' ? 'ARCH' : discRaw;
     const clrText = (gi.clearanceH != null) ? ' <span class="clr-meta">H:' + gi.clearanceH + ' V:' + (gi.clearanceV != null ? gi.clearanceV : gi.clearanceH) + 'mm</span>' : '';
     const srcText = gi.source ? ' <span class="src-meta">[' + gi.source + ']</span>' : '';
+    const st = (gi.status || 'NEW').toUpperCase();
+    const isUpdated = (st === 'SUPPLEMENTED' || st === 'SUPERSEDED');
+    const statusBadge = isUpdated
+      ? '<span class="badge-gate-updated" title="' + st.charAt(0) + st.slice(1).toLowerCase() + ' — modifies an existing hub default">UPDATED</span>'
+      : '<span class="badge-gate-new" title="New item added by coordinator review">NEW</span>';
     const li = document.createElement('li');
     li.className = 'check-item check-item-project';
     li.setAttribute('data-stage', stage);
     li.id = 'li-' + uid;
-    li.innerHTML = '<input type="checkbox" id="' + uid + '" onchange="updateGate(\'' + stage + '\')"><label for="' + uid + '"><span class="disc-tag disc-' + disc + '">' + disc + '</span>' + gi.item + clrText + srcText + '</label>';
+    li.innerHTML = '<input type="checkbox" id="' + uid + '" onchange="updateGate(\'' + stage + '\')"><label for="' + uid + '"><span class="disc-tag disc-' + disc + '">' + disc + '</span>' + statusBadge + gi.item + clrText + srcText + '</label>';
     ul.appendChild(li);
     updateGate(stage);
   });
@@ -1686,6 +1693,7 @@ function loadClaudeOutput(input) {
             clearanceV: gi.clearanceV != null ? gi.clearanceV : null,
             source: gi.source || '',
             clashPair: gi.clashPair || '',
+            status: (gi.status || 'NEW').toUpperCase(),
             id: null // assigned by injectGateItems
           };
           projectGateItems.push(item);
