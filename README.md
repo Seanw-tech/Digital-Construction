@@ -1,6 +1,6 @@
 # BIM Clash Coordination Toolkit
 
-**Owner:** Sean Wang — BIM Manager | **Version:** 2.1 | **Last updated:** 2026-06-25
+**Owner:** Sean Wang — BIM Manager | **Version:** 2.4 | **Last updated:** 2026-06-25
 
 Stage-gated clash detection and digital coordination toolkit. Built around NZS4219:2009, Revizto Clash Automation, and a T1–T4 coordination framework.
 
@@ -50,7 +50,7 @@ No new session needed. In the **same session** where you ran Prompt 01, attach t
 
 Save the entire AI response as a `.txt` file → platform: **📋 Updated Gate Rules** → upload. The platform adds all approved items to the gate checklist and auto-signs off completed stages.
 
-> **Step 5** uses a separate Prompt 02 — only needed when reviewing the full hub defaults checklist (Export for Review path).
+> **Prompt 02** is a fallback — only needed if the original AI session was closed before you could attach the reviewed Excel.
 
 **Step 5 — Work through the gates**
 For each stage T1 → T4: complete the Pre-Clash Gate Checklist → gate unlocks → **⬇ Export CSV** → run Revizto clash detection → log run in the Run Log tab.
