@@ -2,6 +2,36 @@
 
 ---
 
+## v2.0 — 2026-06-25
+
+### Workflow
+- Single-session review: Prompt 01 now outputs Gate Items as CSV (save as GateReview.csv, open in Excel) — eliminates the copy-paste markdown table step
+- Reviewed Excel attaches to the **same** Prompt 01 session — no new session, no Prompt 02 copy-paste; AI auto-detects the attachment and outputs JSON directly
+- JSON conversion logic (formerly Part 3) embedded in Prompt 01 — Prompt 02 now covers only the legacy Export for Review path
+
+### Platform
+- Checklist items injected via Updated Gate Rules now show a status badge:
+  - **NEW** (green) — coordinator-approved items not in the hub defaults
+  - **UPDATED** (amber) — items with status SUPPLEMENTED or SUPERSEDED (modifies an existing hub default)
+- Hover tooltip on each badge shows the full status and description
+- `📋 Export for Review` button removed from header — workflow now routes through single-session CSV/AI path
+- G05 Clash Detection Matrix (`DIG_G05_Clash_Detection_Matrix.xlsx`) removed from push script — file is confidential and must not be published to the public repository
+
+### Prompts
+- `01_ProjectReport_ClashGate_Analysis.md` updated: Part 2 changed from markdown table to CSV format with exact column headers for Excel; Part 3 rewritten as "Await Coordinator Review then Convert to JSON" — AI waits for reviewed Excel to be attached in the same session before outputting JSON; JSON schema for Format A (gateItems[]) embedded directly in prompt
+- `02_ChecklistReview_Import.md` restructured: steps reorganised as Step 2A / 2B / 2C to remove duplicate step blocks introduced by a previous editing error
+
+### README
+- Rewritten as pure markdown (no HTML blocks) — fixes GitHub rendering where `<details>` + `<pre>` broke the entire parser and showed headers as `# text` and bold as `**text**`
+- Prompts linked as clickable file references instead of embedded content
+- Step 5 (hub defaults review) removed — no longer a required workflow step
+- Step text updated: "select your G05 Excel" → "select your company clash matrix"
+
+### Other
+- `Clash_Coordination_Workflow.svg` updated with swimlane diagram showing Digital Engineering Team and Pre Construction Team (Structure & Services) responsibilities with handoff arrows
+
+---
+
 ## v1.9 — 2026-06-24
 
 ### Platform
