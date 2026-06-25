@@ -2,6 +2,14 @@
 
 ---
 
+## v2.1 — 2026-06-25
+
+### Platform — Hotfix
+- Updated Gate Rules upload now handles `data.project` being an object (AI sometimes returns it as `{name, project_no, ...}` instead of a plain string) — extracts `.name` field; no longer crashes with `.substring is not a function`
+- Upload now accepts the alternate AI JSON schema where gate items are under `data.items[]` with fields `gate_item` (instead of `item`), `clearance.h_mm` / `clearance.v_mm` (instead of `clearanceH` / `clearanceV`), and `clash_pair` (instead of `clashPair`) — both schemas now work interchangeably
+
+---
+
 ## v2.0 — 2026-06-25
 
 ### Workflow
