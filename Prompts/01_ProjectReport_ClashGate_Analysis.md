@@ -2,7 +2,7 @@
 
 **Version:** 2.0 (updated 2026-06-20)
 
-**How to use:** Copy the full prompt block below. Paste it into a new Claude / Copilot / ChatGPT session. Attach your project report (PDF, Word, or paste the text). Claude will compare the report against the Hub default checklist, filter duplicates and overlaps, and return only what needs to change — clearly showing what's retained, added, consolidated, or replaced.
+**How to use:** Copy the full prompt block below. Paste it into a new Claude, Copilot, or ChatGPT session. Attach your project report (PDF, Word, or paste the text). The AI will compare the report against the Hub default checklist, filter duplicates and overlaps, and return only what needs to change — clearly showing what's retained, added, consolidated, or replaced.
 
 Works with: Mechanical Services Report, Hydraulic Design Report, Acoustic Report, Fire Engineering Report, Structural Report, BEP, Coordination Drawings Package, Specification Sections.
 
