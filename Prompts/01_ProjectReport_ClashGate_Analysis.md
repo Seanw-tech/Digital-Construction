@@ -221,26 +221,86 @@ Write 3–5 sentences summarising the most significant coordination risks this r
 
 ---
 
-## PART 2 — GATE ITEMS REVIEW TABLE (send to coordinator for sign-off)
+## PART 2 — GATE ITEMS REVIEW TABLE (CSV for coordinator sign-off)
 
-After Part 1, output this review table. This is the file the BIM Manager will send to the Services Coordinator for review and approval before any items enter the platform.
+After Part 1, output the review table as CSV so the BIM Manager can save it directly as a `.csv` file and open it in Excel. The coordinator fills in the REVIEW and COMMENT columns and returns the completed Excel.
 
-Output one row per NEW, SUPPLEMENTED, or SUPERSEDED item. Leave the REVIEW and COMMENT columns blank — the coordinator fills these in.
+Output the CSV with this exact header row, followed by one data row per NEW, SUPPLEMENTED, or SUPERSEDED item:
 
-| # | Stage | Disc | Proposed Gate Item | Status | Replaces Hub Default | H (mm) | V (mm) | Source | REVIEW (YES/NO/N/A) | COMMENT |
-|---|---|---|---|---|---|---|---|---|---|---|
-| 1 | T1 | STR | [item text] | NEW | - | [H or blank] | [V or blank] | [Section X.X] | | |
-| 2 | T2 | MEC | [item text] | SUPPLEMENTED | T2-08 | 150 | 200 | [Section X.X] | | |
+```
+#,Stage,Disc,Proposed Gate Item,Status,Replaces Hub Default,H (mm),V (mm),Source,REVIEW (YES/NO/N/A),COMMENT
+1,T1,STR,[item text],NEW,-,[H or blank],[V or blank],[Section X.X],,
+2,T2,MEC,[item text],SUPPLEMENTED,T2-08,150,200,[Section X.X],,
+```
 
+CSV rules:
 - # is a sequential row number starting from 1
 - Status is one of: NEW, SUPERSEDED, SUPPLEMENTED
 - Replaces Hub Default is the Hub default ID (e.g. T2-08) for SUPERSEDED/SUPPLEMENTED items, or - for NEW
 - H and V are in millimetres; leave blank if not specified
+- If any field contains a comma, wrap it in double quotes
 - REVIEW and COMMENT columns are intentionally blank — the coordinator fills them in
+- Output the CSV block with no extra text above or below it so it can be copied cleanly
 
 ---
 
-## PART 3 — JSON REFERENCE (included for completeness)
+## PART 3 — AWAIT COORDINATOR REVIEW THEN CONVERT TO JSON
+
+After outputting the CSV, add this message:
+
+---
+Gate Items Review Table exported as CSV above.
+
+**Next step:** Send the coordinator the CSV (save as `GateReview.csv`, open in Excel). Once they return the completed Excel with REVIEW and COMMENT columns filled in, attach it to this session and I will automatically convert it to JSON for platform import.
+---
+
+When the user attaches the completed Excel in this session, process it as follows — do not wait for further instructions:
+
+- Detect the format: if column headers contain "Proposed Gate Item" and "Status" → Format A (coordinator-reviewed Prompt 01 table)
+- For each row where REVIEW = YES: extract Stage, Disc, Proposed Gate Item, Status, H (mm), V (mm), Source, Replaces Hub Default
+- For each row where REVIEW = NO or N/A: exclude from JSON
+- Extract sign-off details if present (Reviewer Name, Role, Date, Comments)
+- Output PART 1 — Review Summary (YES/NO/N/A counts per stage, list of NO items)
+- Output PART 2 — Platform JSON preceded by this exact delimiter line:
+
+=== CLASH COORDINATION PLATFORM JSON — PASTE INTO UPDATED GATE RULES ===
+
+Output a single valid JSON object with this structure:
+
+{
+  "project": "[project name from report]",
+  "date": "[today YYYY-MM-DD]",
+  "gateItems": [
+    {
+      "stage": "T1",
+      "discipline": "STR",
+      "item": "Approved gate item text here",
+      "clearanceH": 50,
+      "clearanceV": 100,
+      "clashPair": "STR vs MEC",
+      "source": "Section 4.2",
+      "status": "NEW",
+      "replacesDefault": null
+    }
+  ],
+  "gateSignOffs": {
+    "T1": { "name": "Reviewer name", "role": "Role / Company", "date": "YYYY-MM-DD", "comment": "" }
+  }
+}
+
+JSON rules:
+- Only include items where REVIEW = YES
+- "stage" must be exactly one of: T1, T2, T3, T4
+- "discipline" must be exactly one of: ARCH, STR, HYD, MEC, ELE, FIR, GEN
+- "clearanceH" and "clearanceV" must be integers in millimetres, or null if not specified
+- "status" must be exactly one of: NEW, SUPERSEDED, SUPPLEMENTED
+- "replacesDefault" is the Hub default ID (e.g. "T1-05") or null if NEW
+- Only include gateSignOffs entries where Reviewer Name AND Date are both filled; date must be YYYY-MM-DD
+- The JSON must be valid — no trailing commas
+
+---
+
+## PART 4 — JSON REFERENCE (included for completeness)
 
 After Part 2, output a section starting with this exact line on its own:
 
