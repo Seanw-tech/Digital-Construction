@@ -1068,7 +1068,7 @@ function priorityFor(selA, selB, clr) {
 function init() {
   BASE_TASKS = TASKS.slice();
   loadState();
-  ['T1','T2','T3','T4'].forEach(s => { renderTable(s); updateGate(s); });
+  ['T1','T2','T3','T4'].forEach(s => { renderTable(s); sortChecklist(s); updateGate(s); });
   renderGapMatrix();
   document.getElementById('projDate').value = new Date().toISOString().split('T')[0];
   ['projName','projLead'].forEach(id => {
