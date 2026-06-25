@@ -2,6 +2,17 @@
 
 ---
 
+## v2.2 — 2026-06-25
+
+### Platform
+- Hub default checklist items are now visually marked when a project gate item references them via `replacesDefault` / `replaces_relates`:
+  - **SUPERSEDED** → item dims to 45% opacity, label gets strikethrough, red left border, and a red **SUPERSEDED** badge (hover for tooltip)
+  - **SUPPLEMENTED** → amber left border and an amber **MODIFIED** badge indicating a project supplement applies
+- Project items are never marked — only the referenced hub defaults are affected
+- Dark theme variants added for both states
+
+---
+
 ## v2.1 — 2026-06-25
 
 ### Platform — Hotfix
