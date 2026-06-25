@@ -39,7 +39,7 @@ Copy `Projects/_Template/` and rename it to your project code (e.g. `Projects/AB
 Open `Platform/Clash_Coordination_Platform.html` in Chrome. Enter the Project Name and BIM Lead.
 
 **Step 3 — Upload your Clash Matrix**
-Click **📂 Upload Updated Matrix** → select your G05 Excel. The platform reads the `Rawdata (Do not edit)` sheet and loads all T1–T4 tasks automatically.
+Click **📂 Upload Updated Matrix** → select your company clash matrix. The platform reads the `Rawdata (Do not edit)` sheet and loads all T1–T4 tasks automatically.
 
 **Step 4 — Analyse project reports → coordinator review → update gate checklist**
 
@@ -593,7 +593,7 @@ Click **⬆ Export Session** to save everything to JSON. On the other PC, click 
 | Gate Status | Auto shows 🔒 Locked / ⚠️ Partial / ✅ Open based on checklist progress |
 | ✏️ Edit Task | Override clearance code, H/V values, Revizto priority, add a reason note |
 | 📐 Rules & Standards | NZS4219:2009 seismic table, clearance codes, gap matrix, project notes |
-| 📂 Upload Updated Matrix | Upload updated G05 Excel → platform rebuilds all tasks (edits preserved) |
+| 📂 Upload Updated Matrix | Upload updated company clash matrix → platform rebuilds all tasks (edits preserved) |
 | 📋 Updated Gate Rules | Upload `.txt` from AI → adds gate items, ticks checkboxes, auto-signs off stages |
 | 📋 Export for Review | Generates Excel for coordinator offline review (YES/NO/N/A + sign-off block) |
 | 🌙 / ☀️ Theme toggle | Light/dark mode — preference saved |
