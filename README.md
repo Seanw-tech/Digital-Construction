@@ -1,6 +1,6 @@
 # BIM Clash Coordination Toolkit
 
-**Owner:** Sean Wang — BIM Manager | **Version:** 1.9 | **Last updated:** 2026-06-24
+**Owner:** Sean Wang — BIM Manager | **Version:** 2.0 | **Last updated:** 2026-06-25
 
 Stage-gated clash detection and digital coordination toolkit. Built around NZS4219:2009, Revizto Clash Automation, and a T1–T4 coordination framework.
 
@@ -52,13 +52,10 @@ Save the entire AI response as a `.txt` file → platform: **📋 Updated Gate R
 
 > **Step 5** uses a separate Prompt 02 — only needed when reviewing the full hub defaults checklist (Export for Review path).
 
-**Step 5 — Review hub defaults with coordinator (optional but recommended)**
-Click **📋 Export for Review** → send Excel to coordinator → coordinator fills YES/NO/N/A and signs off → return Excel → open a new AI session, paste **[Prompt 02](Prompts/02_ChecklistReview_Import.md)**, attach the Excel → save AI response as `.txt` → **📋 Updated Gate Rules**.
-
-**Step 6 — Work through the gates**
+**Step 5 — Work through the gates**
 For each stage T1 → T4: complete the Pre-Clash Gate Checklist → gate unlocks → **⬇ Export CSV** → run Revizto clash detection → log run in the Run Log tab.
 
-**Step 7 — Transfer to another PC (optional)**
+**Step 6 — Transfer to another PC (optional)**
 Click **⬆ Export Session** to save everything to JSON. On the other PC click **⬇ Import Session** to restore.
 
 ---
@@ -75,7 +72,7 @@ Click **⬆ Export Session** to save everything to JSON. On the other PC click *
 | 📐 Rules & Standards | NZS4219:2009 seismic table, clearance codes, gap matrix, project notes |
 | 📂 Upload Updated Matrix | Upload updated company clash matrix → platform rebuilds all tasks (edits preserved) |
 | 📋 Updated Gate Rules | Upload `.txt` from AI → adds gate items, ticks checkboxes, auto-signs off stages |
-| 📋 Export for Review | Generates Excel for coordinator offline review (YES/NO/N/A + sign-off block) |
+
 | 🌙 / ☀️ Theme toggle | Light/dark mode — preference saved |
 | ⬆ Export Session / ⬇ Import Session | Portable JSON snapshot — restore any project on any PC |
 | ⬇ Export CSV | Revizto-ready task export with overrides and notes |
