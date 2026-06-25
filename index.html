@@ -1051,6 +1051,7 @@ let logEntries = [];
 let activeFilters = {};
 let projectGateItems = []; // Additional gate items loaded from Claude analysis JSON
 let gateSignOffs = {};    // { T1: { name, role, date, comment, timestamp }, ... }
+const DISC_ORDER = ['GEN','ARCH','STR','MEC','HYD','ELE','FIR'];
 let signOffActiveStage = null;
 
 const CLR_MAP = {HC:{h:0,v:0},C50:{h:50,v:50},C100V:{h:50,v:100},C150V:{h:50,v:150},C600V:{h:50,v:600},C1500:{h:50,v:1500}};
@@ -1190,6 +1191,22 @@ function filterChecklist(stage, val) {
   });
 }
 
+function sortChecklist(stage) {
+  const ul = document.getElementById('cl-' + stage);
+  if (!ul) return;
+  const items = Array.from(ul.querySelectorAll(':scope > li.check-item'));
+  items.sort((a, b) => {
+    const tagA = a.querySelector('.disc-tag');
+    const tagB = b.querySelector('.disc-tag');
+    const dA = tagA ? tagA.textContent.trim() : 'GEN';
+    const dB = tagB ? tagB.textContent.trim() : 'GEN';
+    const iA = DISC_ORDER.indexOf(dA);
+    const iB = DISC_ORDER.indexOf(dB);
+    return (iA === -1 ? 99 : iA) - (iB === -1 ? 99 : iB);
+  });
+  items.forEach(li => ul.appendChild(li));
+}
+
 function injectGateItems(items) {
   items.forEach(gi => {
     const stage = (gi.stage || 'T1').toUpperCase();
@@ -1214,6 +1231,7 @@ function injectGateItems(items) {
     li.id = 'li-' + uid;
     li.innerHTML = '<input type="checkbox" id="' + uid + '" onchange="updateGate(\'' + stage + '\')"><label for="' + uid + '"><span class="disc-tag disc-' + disc + '">' + disc + '</span>' + statusBadge + gi.item + clrText + srcText + '</label>';
     ul.appendChild(li);
+    sortChecklist(stage);
     updateGate(stage);
   });
 }
