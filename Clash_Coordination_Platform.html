@@ -1682,25 +1682,30 @@ function loadClaudeOutput(input) {
       );
 
       // Inject gate items as checkboxes into the correct stage checklist
+      // Accept two schemas:
+      //   Standard:  data.gateItems[]  with fields: item, clearanceH, clearanceV, clashPair
+      //   Alternate: data.items[]      with fields: gate_item, clearance.h_mm, clearance.v_mm, clash_pair
       let gateCount = 0;
-      if(Array.isArray(data.gateItems) && data.gateItems.length) {
-        data.gateItems.forEach(gi => {
-          const item = {
-            stage: gi.stage || 'T1',
-            discipline: gi.discipline || 'GEN',
-            item: gi.item || '',
-            clearanceH: gi.clearanceH != null ? gi.clearanceH : null,
-            clearanceV: gi.clearanceV != null ? gi.clearanceV : null,
-            source: gi.source || '',
-            clashPair: gi.clashPair || '',
-            status: (gi.status || 'NEW').toUpperCase(),
-            id: null // assigned by injectGateItems
-          };
-          projectGateItems.push(item);
-          injectGateItems([item]);
-          gateCount++;
-        });
-      }
+      const rawItems = Array.isArray(data.gateItems) && data.gateItems.length ? data.gateItems
+                     : Array.isArray(data.items)     && data.items.length     ? data.items
+                     : [];
+      rawItems.forEach(gi => {
+        const clr = gi.clearance || {};
+        const item = {
+          stage:      gi.stage || 'T1',
+          discipline: gi.discipline || 'GEN',
+          item:       gi.item || gi.gate_item || '',
+          clearanceH: gi.clearanceH != null ? gi.clearanceH : (clr.h_mm != null ? clr.h_mm : null),
+          clearanceV: gi.clearanceV != null ? gi.clearanceV : (clr.v_mm != null ? clr.v_mm : null),
+          source:     gi.source || '',
+          clashPair:  gi.clashPair || gi.clash_pair || '',
+          status:     (gi.status || 'NEW').toUpperCase(),
+          id:         null // assigned by injectGateItems
+        };
+        projectGateItems.push(item);
+        injectGateItems([item]);
+        gateCount++;
+      });
 
       // Handle checklist review updates (from Prompt 02 — coordinator Excel converted to JSON)
       let reviewCount = 0, signOffCount = 0;
@@ -1771,7 +1776,10 @@ function loadClaudeOutput(input) {
       }
 
       saveState();
-      const label = (data.project || file.name).substring(0, 30);
+      const projectLabel = (typeof data.project === 'string') ? data.project
+                         : (data.project && data.project.name) ? data.project.name
+                         : file.name;
+      const label = projectLabel.substring(0, 40);
       document.getElementById('claudeStatus').textContent = '✅ ' + label + ' applied';
       let toastMsg = '';
       if(gateCount) toastMsg += gateCount + ' gate item' + (gateCount !== 1 ? 's' : '') + ' added';
