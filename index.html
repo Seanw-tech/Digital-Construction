@@ -132,6 +132,11 @@ footer{padding:8px 28px;border-top:1px solid #e2e8f0;text-align:center;font-size
 .badge-edited{font-size:.62rem;font-weight:700;padding:1px 5px;border-radius:3px;background:#fef3c7;color:#92400e;margin-right:4px;vertical-align:middle}
 .badge-gate-new{font-size:.62rem;font-weight:700;padding:1px 6px;border-radius:3px;background:#dcfce7;color:#166534;border:1px solid #86efac;margin-right:4px;vertical-align:middle;letter-spacing:.03em}
 .badge-gate-updated{font-size:.62rem;font-weight:700;padding:1px 6px;border-radius:3px;background:#fef3c7;color:#92400e;border:1px solid #fde68a;margin-right:4px;vertical-align:middle;letter-spacing:.03em}
+.check-item-superseded{opacity:.45;background:rgba(239,68,68,.04)!important;border-left:3px solid #ef4444!important}
+.check-item-superseded label{text-decoration:line-through;color:#94a3b8!important}
+.check-item-supplemented{background:rgba(245,158,11,.05)!important;border-left:3px solid #f59e0b!important}
+.badge-hub-superseded{font-size:.6rem;font-weight:700;padding:1px 5px;border-radius:3px;background:#fee2e2;color:#991b1b;border:1px solid #fca5a5;margin-left:5px;vertical-align:middle;cursor:help}
+.badge-hub-supplemented{font-size:.6rem;font-weight:700;padding:1px 5px;border-radius:3px;background:#fef3c7;color:#92400e;border:1px solid #fde68a;margin-left:5px;vertical-align:middle;cursor:help}
 .row-edited td{border-left:3px solid #f59e0b}
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:1000;align-items:center;justify-content:center}
 .modal-overlay.open{display:flex}
@@ -226,6 +231,9 @@ footer{padding:8px 28px;border-top:1px solid #e2e8f0;text-align:center;font-size
 [data-theme="dark"] .checklist-filter-row{border-color:#2d3748}
 [data-theme="dark"] .checklist-disc-filter{background:#232a3b;color:#94a3b8;border-color:#2d3748}
 [data-theme="dark"] .check-item-project{background:rgba(14,165,233,.08)}
+[data-theme="dark"] .check-item-superseded{background:rgba(239,68,68,.06)!important}
+[data-theme="dark"] .check-item-superseded label{color:#64748b!important}
+[data-theme="dark"] .check-item-supplemented{background:rgba(245,158,11,.07)!important}
 [data-theme="dark"] .signoff-panel{border-color:#2d3748}
 [data-theme="dark"] .btn-theme{background:#232a3b;border-color:#2d3748;color:#94a3b8}
 [data-theme="dark"] .btn-theme:hover{background:#2d3748;color:#e2e8f0}
@@ -1210,6 +1218,46 @@ function injectGateItems(items) {
   });
 }
 
+// Mark hub default checklist items as superseded or supplemented by a project gate item.
+// replacesStr: raw string from JSON e.g. "Supersedes T1-05; relates T1-19" or "T2-10; T3-21"
+function markReplacedDefaults(status, replacesStr) {
+  if (!replacesStr || typeof replacesStr !== 'string') return;
+  // Extract hub default IDs: match T1-05 / T2-21 style, skip project-item refs like T1-N1
+  const matches = replacesStr.match(/T[1-4]-([0-9]+)/gi) || [];
+  matches.forEach(raw => {
+    const parts = raw.toUpperCase().split('-');
+    const stage = parts[0]; // T1
+    const num = parseInt(parts[1], 10); // strip leading zero: 05 → 5
+    if (isNaN(num)) return;
+    const id = stage + '-' + num; // T1-5
+    const cb = document.getElementById(id);
+    if (!cb) return;
+    const li = cb.closest('.check-item');
+    if (!li || li.classList.contains('check-item-project')) return; // don't mark project items
+    const label = li.querySelector('label');
+    if (!label) return;
+    if (status === 'SUPERSEDED') {
+      li.classList.add('check-item-superseded');
+      if (!li.querySelector('.badge-hub-superseded')) {
+        const b = document.createElement('span');
+        b.className = 'badge-hub-superseded';
+        b.title = 'This hub default has been superseded by a project-specific gate item above';
+        b.textContent = 'SUPERSEDED';
+        label.appendChild(b);
+      }
+    } else if (status === 'SUPPLEMENTED') {
+      if (!li.classList.contains('check-item-superseded')) li.classList.add('check-item-supplemented');
+      if (!li.querySelector('.badge-hub-supplemented')) {
+        const b = document.createElement('span');
+        b.className = 'badge-hub-supplemented';
+        b.title = 'A project-specific supplement applies — see the additional gate item above';
+        b.textContent = 'MODIFIED';
+        label.appendChild(b);
+      }
+    }
+  });
+}
+
 // ─── Gate Sign-Off ─────────────────────────────────────────────────────────
 function openSignOff(stage) {
   signOffActiveStage = stage;
@@ -1704,6 +1752,7 @@ function loadClaudeOutput(input) {
         };
         projectGateItems.push(item);
         injectGateItems([item]);
+        markReplacedDefaults(item.status, gi.replacesDefault || gi.replaces_relates || null);
         gateCount++;
       });
 
