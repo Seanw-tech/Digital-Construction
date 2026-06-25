@@ -1,25 +1,30 @@
 # Prompt 02 — Gate Checklist Review Import
-## BIM Clash Coordination Platform · v1.0
+## BIM Clash Coordination Platform · v1.2
 
 ---
 
 ## Purpose
 
-The Services Coordinator has completed the gate checklist review Excel and returned it to you. This prompt converts that filled Excel into a JSON file that the platform can import directly via the **📋 Updated Gate Rules** button — no manual checkbox clicking required.
+**Primary use case:** The recommended workflow is to attach the coordinator's reviewed Excel directly to the **same session** where you ran Prompt 01 — the AI converts it automatically without needing this prompt.
+
+**Use Prompt 02 when:**
+- You need to process the reviewed Excel in a new or separate AI session (e.g. the original session was closed)
+- You are processing a Format B file (legacy full hub-defaults review Excel from a previous project)
+
+This prompt converts a coordinator-reviewed Excel into a JSON block that the platform imports via **📋 Updated Gate Rules**.
 
 ---
 
 ## How to Use This Prompt
 
-1. Export the gate checklist Excel from the platform using **📋 Export for Review**
-2. Send the Excel to the Services Coordinator for review
-3. Coordinator fills in the REVIEW column (YES / NO / N/A) and COMMENT column, then completes the SIGN-OFF block at the bottom of each stage sheet
-4. Coordinator returns the completed Excel to you
-5. **Upload the completed Excel to this AI session** (attach the file, or paste its content below)
-6. Run this prompt — the AI will output a JSON file
-7. Save the entire AI response as a `.txt` file
-8. In the platform, click **📋 Updated Gate Rules** → upload the `.txt` file
-9. The platform automatically updates all checklist items, adds comment badges, and signs off completed stages
+1. Send the Gate Items CSV (from Prompt 01 Part 2, saved as `GateReview.csv`) to the Services Coordinator
+2. Coordinator fills in the REVIEW column (YES / NO / N/A) and COMMENT column, then signs off
+3. Coordinator returns the completed Excel to you
+4. **Attach the completed Excel to this AI session**
+5. Run this prompt — the AI outputs a JSON block
+6. Save the entire AI response as a `.txt` file
+7. In the platform, click **📋 Updated Gate Rules** → upload the `.txt` file
+8. The platform adds approved items, marks superseded/supplemented hub defaults, and signs off completed stages
 
 ---
 
