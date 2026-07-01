@@ -1,6 +1,6 @@
 <svg viewBox="0 0 1100 520" xmlns="http://www.w3.org/2000/svg" role="img" font-family="system-ui, sans-serif">
   <title>BIM Clash Coordination Workflow</title>
-  <desc>Swimlane diagram showing Digital Engineering Team and Pre Construction Team responsibilities</desc>
+  <desc>Swimlane diagram showing Digital Engineering Team and Pre Construction Team responsibilities — v2.6 one-file, one-button flow</desc>
 
   <!-- Background -->
   <rect width="1100" height="520" fill="#f8fafc"/>
@@ -31,60 +31,54 @@
   <!-- Header bar -->
   <rect x="0" y="0" width="1100" height="60" fill="#1e3a5f"/>
   <text x="550" y="23" text-anchor="middle" font-size="15" font-weight="700" fill="white">BIM Clash Coordination Workflow</text>
-  <text x="550" y="43" text-anchor="middle" font-size="11" fill="#93c5fd">Stage-gated T1&#x2013;T4 clash detection &#xB7; NZS4219:2009 &#xB7; Revizto</text>
+  <text x="550" y="43" text-anchor="middle" font-size="11" fill="#93c5fd">Stage-gated T1&#x2013;T4 clash detection &#xB7; NZS4219:2009 &#xB7; Revizto &#xB7; one-file / one-button (v2.6)</text>
 
   <!-- ===== DE TEAM BOXES ===== -->
 
-  <!-- Step 1: Upload Matrix -->
-  <rect x="155" y="90" width="135" height="72" rx="6" fill="#e0f2fe" stroke="#0ea5e9" stroke-width="1.5"/>
-  <text x="222" y="111" text-anchor="middle" font-size="10" font-weight="700" fill="#0369a1">&#x2460; Upload</text>
-  <text x="222" y="125" text-anchor="middle" font-size="10" fill="#0369a1">Company Clash</text>
-  <text x="222" y="139" text-anchor="middle" font-size="10" fill="#0369a1">Matrix</text>
-  <text x="222" y="155" text-anchor="middle" font-size="9" fill="#64748b">Platform loads T1&#x2013;T4</text>
+  <!-- Step 1: Run Prompt 01 -->
+  <rect x="155" y="88" width="155" height="76" rx="6" fill="#e0f2fe" stroke="#0ea5e9" stroke-width="1.5"/>
+  <text x="232" y="108" text-anchor="middle" font-size="10" font-weight="700" fill="#0369a1">&#x2460; Run Prompt 01</text>
+  <text x="232" y="122" text-anchor="middle" font-size="9.5" fill="#0369a1">Attach design report</text>
+  <text x="232" y="135" text-anchor="middle" font-size="9.5" fill="#0369a1">AI maps gate items to</text>
+  <text x="232" y="148" text-anchor="middle" font-size="9.5" fill="#0369a1">G05 categories (T1-14)</text>
+  <text x="232" y="160" text-anchor="middle" font-size="8.5" fill="#64748b">Selection A/B + cell</text>
 
-  <!-- Step 2: Run Prompt 01 -->
-  <rect x="315" y="90" width="135" height="72" rx="6" fill="#e0f2fe" stroke="#0ea5e9" stroke-width="1.5"/>
-  <text x="382" y="111" text-anchor="middle" font-size="10" font-weight="700" fill="#0369a1">&#x2461; Run Prompt 01</text>
-  <text x="382" y="125" text-anchor="middle" font-size="10" fill="#0369a1">Attach design report</text>
-  <text x="382" y="139" text-anchor="middle" font-size="10" fill="#0369a1">AI outputs</text>
-  <text x="382" y="155" text-anchor="middle" font-size="9" fill="#64748b">Gate Items CSV</text>
+  <!-- Step 2: Paste into matrix tab -->
+  <rect x="340" y="88" width="155" height="76" rx="6" fill="#e0f2fe" stroke="#0ea5e9" stroke-width="1.5"/>
+  <text x="417" y="108" text-anchor="middle" font-size="10" font-weight="700" fill="#0369a1">&#x2461; Paste into Matrix</text>
+  <text x="417" y="122" text-anchor="middle" font-size="9.5" fill="#0369a1">&#x3C;Project&#x3E;_Gate Mapping</text>
+  <text x="417" y="135" text-anchor="middle" font-size="9.5" fill="#0369a1">tab in the G05 matrix</text>
+  <text x="417" y="148" text-anchor="middle" font-size="8.5" fill="#64748b">rows start at row 3</text>
 
-  <!-- Step 4: Attach Reviewed Excel -->
-  <rect x="635" y="90" width="135" height="72" rx="6" fill="#e0f2fe" stroke="#0ea5e9" stroke-width="1.5"/>
-  <text x="702" y="108" text-anchor="middle" font-size="10" font-weight="700" fill="#0369a1">&#x2463; Attach Reviewed</text>
-  <text x="702" y="122" text-anchor="middle" font-size="10" fill="#0369a1">Excel to same</text>
-  <text x="702" y="136" text-anchor="middle" font-size="10" fill="#0369a1">AI session</text>
-  <text x="702" y="152" text-anchor="middle" font-size="9" fill="#64748b">AI outputs JSON</text>
+  <!-- Step 4: Upload once -->
+  <rect x="700" y="88" width="165" height="76" rx="6" fill="#e0f2fe" stroke="#0ea5e9" stroke-width="1.5"/>
+  <text x="782" y="106" text-anchor="middle" font-size="10" font-weight="700" fill="#0369a1">&#x2463; Upload Project Matrix</text>
+  <text x="782" y="120" text-anchor="middle" font-size="10" font-weight="700" fill="#0369a1">&amp; Update Gate Rules</text>
+  <text x="782" y="134" text-anchor="middle" font-size="9.5" fill="#0369a1">ONE button &#x2014; loads</text>
+  <text x="782" y="147" text-anchor="middle" font-size="9.5" fill="#0369a1">tasks + YES gate rules</text>
+  <text x="782" y="159" text-anchor="middle" font-size="8.5" fill="#64748b">matrix carries both</text>
 
-  <!-- Step 5: Upload JSON -->
-  <rect x="795" y="90" width="135" height="72" rx="6" fill="#e0f2fe" stroke="#0ea5e9" stroke-width="1.5"/>
-  <text x="862" y="108" text-anchor="middle" font-size="10" font-weight="700" fill="#0369a1">&#x2464; Upload JSON</text>
-  <text x="862" y="122" text-anchor="middle" font-size="10" fill="#0369a1">&#x1F4CB; Updated Gate</text>
-  <text x="862" y="136" text-anchor="middle" font-size="10" fill="#0369a1">Rules</text>
-  <text x="862" y="152" text-anchor="middle" font-size="9" fill="#64748b">Gate checklist updated</text>
-
-  <!-- Step 6: Work through gates -->
-  <rect x="955" y="90" width="135" height="72" rx="6" fill="#dcfce7" stroke="#059669" stroke-width="1.5"/>
-  <text x="1022" y="108" text-anchor="middle" font-size="10" font-weight="700" fill="#065f46">&#x2465; Work T1&#x2192;T4</text>
-  <text x="1022" y="122" text-anchor="middle" font-size="10" fill="#065f46">Complete gate</text>
-  <text x="1022" y="136" text-anchor="middle" font-size="10" fill="#065f46">checklists</text>
-  <text x="1022" y="152" text-anchor="middle" font-size="9" fill="#64748b">Export CSV &#x2192; Revizto</text>
+  <!-- Step 5: Work through gates -->
+  <rect x="905" y="88" width="155" height="76" rx="6" fill="#dcfce7" stroke="#059669" stroke-width="1.5"/>
+  <text x="982" y="108" text-anchor="middle" font-size="10" font-weight="700" fill="#065f46">&#x2464; Work T1&#x2192;T4</text>
+  <text x="982" y="123" text-anchor="middle" font-size="9.5" fill="#065f46">Complete gate</text>
+  <text x="982" y="136" text-anchor="middle" font-size="9.5" fill="#065f46">checklists</text>
+  <text x="982" y="152" text-anchor="middle" font-size="8.5" fill="#64748b">Export CSV &#x2192; Revizto</text>
 
   <!-- ===== PRE-CON BOXES ===== -->
 
-  <!-- Step 3: Receive & Review -->
-  <rect x="315" y="300" width="135" height="72" rx="6" fill="#fef3c7" stroke="#f59e0b" stroke-width="1.5"/>
-  <text x="382" y="318" text-anchor="middle" font-size="10" font-weight="700" fill="#92400e">&#x2462; Receive &amp; Review</text>
-  <text x="382" y="332" text-anchor="middle" font-size="10" fill="#92400e">Gate Items Excel</text>
-  <text x="382" y="346" text-anchor="middle" font-size="10" fill="#92400e">Fill YES/NO/N/A</text>
-  <text x="382" y="362" text-anchor="middle" font-size="9" fill="#64748b">Add comments + sign off</text>
+  <!-- Step 3: Review in the matrix tab -->
+  <rect x="340" y="300" width="155" height="76" rx="6" fill="#fef3c7" stroke="#f59e0b" stroke-width="1.5"/>
+  <text x="417" y="320" text-anchor="middle" font-size="10" font-weight="700" fill="#92400e">&#x2462; Review in Matrix tab</text>
+  <text x="417" y="334" text-anchor="middle" font-size="9.5" fill="#92400e">Set Review = Yes/No</text>
+  <text x="417" y="347" text-anchor="middle" font-size="9.5" fill="#92400e">per row + comments</text>
+  <text x="417" y="360" text-anchor="middle" font-size="8.5" fill="#64748b">sign off in-workbook</text>
 
   <!-- Return box -->
-  <rect x="475" y="300" width="135" height="72" rx="6" fill="#fef3c7" stroke="#f59e0b" stroke-width="1.5"/>
-  <text x="542" y="318" text-anchor="middle" font-size="10" font-weight="700" fill="#92400e">Return</text>
-  <text x="542" y="332" text-anchor="middle" font-size="10" fill="#92400e">Completed</text>
-  <text x="542" y="346" text-anchor="middle" font-size="10" fill="#92400e">Excel</text>
-  <text x="542" y="362" text-anchor="middle" font-size="9" fill="#64748b">to DE Team</text>
+  <rect x="540" y="300" width="150" height="76" rx="6" fill="#fef3c7" stroke="#f59e0b" stroke-width="1.5"/>
+  <text x="615" y="326" text-anchor="middle" font-size="10" font-weight="700" fill="#92400e">Return workbook</text>
+  <text x="615" y="342" text-anchor="middle" font-size="9.5" fill="#92400e">completed matrix</text>
+  <text x="615" y="358" text-anchor="middle" font-size="8.5" fill="#64748b">to DE Team</text>
 
   <!-- ===== ARROWS ===== -->
   <defs>
@@ -100,32 +94,29 @@
   </defs>
 
   <!-- 1 -> 2 (DE horizontal) -->
-  <line x1="290" y1="126" x2="315" y2="126" stroke="#0369a1" stroke-width="1.5" marker-end="url(#arrBlue)"/>
+  <line x1="310" y1="126" x2="340" y2="126" stroke="#0369a1" stroke-width="1.5" marker-end="url(#arrBlue)"/>
 
   <!-- 2 -> Pre-Con Step 3 (handoff down) -->
-  <line x1="382" y1="162" x2="382" y2="300" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arrAmber)"/>
+  <line x1="417" y1="164" x2="417" y2="300" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arrAmber)"/>
 
   <!-- Pre-Con: 3 -> Return -->
-  <line x1="450" y1="336" x2="475" y2="336" stroke="#92400e" stroke-width="1.5" marker-end="url(#arrAmber)"/>
+  <line x1="495" y1="338" x2="540" y2="338" stroke="#92400e" stroke-width="1.5" marker-end="url(#arrAmber)"/>
 
   <!-- Return -> Step 4 (handoff up, angled) -->
-  <polyline points="542,300 542,210 635,126" fill="none" stroke="#0369a1" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arrBlue)"/>
+  <polyline points="615,300 615,210 782,164" fill="none" stroke="#0369a1" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arrBlue)"/>
 
   <!-- 4 -> 5 (DE horizontal) -->
-  <line x1="770" y1="126" x2="795" y2="126" stroke="#0369a1" stroke-width="1.5" marker-end="url(#arrBlue)"/>
-
-  <!-- 5 -> 6 (DE horizontal) -->
-  <line x1="930" y1="126" x2="955" y2="126" stroke="#059669" stroke-width="1.5" marker-end="url(#arrGreen)"/>
+  <line x1="865" y1="126" x2="905" y2="126" stroke="#059669" stroke-width="1.5" marker-end="url(#arrGreen)"/>
 
   <!-- Handoff labels -->
-  <rect x="343" y="216" width="90" height="18" rx="3" fill="#fef3c7" stroke="#f59e0b" stroke-width="0.5"/>
-  <text x="388" y="228" text-anchor="middle" font-size="9" fill="#92400e">Send CSV/Excel &#x2193;</text>
+  <rect x="360" y="216" width="118" height="18" rx="3" fill="#fef3c7" stroke="#f59e0b" stroke-width="0.5"/>
+  <text x="419" y="228" text-anchor="middle" font-size="9" fill="#92400e">Send matrix workbook &#x2193;</text>
 
-  <rect x="548" y="226" width="96" height="18" rx="3" fill="#dbeafe" stroke="#0ea5e9" stroke-width="0.5"/>
-  <text x="596" y="238" text-anchor="middle" font-size="9" fill="#0369a1">Return reviewed &#x2191;</text>
+  <rect x="628" y="228" width="118" height="18" rx="3" fill="#dbeafe" stroke="#0ea5e9" stroke-width="0.5"/>
+  <text x="687" y="240" text-anchor="middle" font-size="9" fill="#0369a1">Return reviewed &#x2191;</text>
 
   <!-- ===== FOOTER ===== -->
   <rect x="0" y="480" width="1100" height="40" fill="#f1f5f9"/>
-  <text x="550" y="497" text-anchor="middle" font-size="10" fill="#64748b">Platform: Clash_Coordination_Platform.html &#xB7; Prompts: 01_ProjectReport_ClashGate_Analysis.md</text>
-  <text x="550" y="513" text-anchor="middle" font-size="10" fill="#64748b">AI: Claude / Copilot / ChatGPT &#xB7; Output: JSON &#x2192; Updated Gate Rules &#xB7; v2.0</text>
+  <text x="550" y="497" text-anchor="middle" font-size="10" fill="#64748b">Platform: Clash_Coordination_Platform.html &#xB7; Prompt: 01_ProjectReport_ClashGate_Analysis.md</text>
+  <text x="550" y="513" text-anchor="middle" font-size="10" fill="#64748b">AI: Claude / Copilot / ChatGPT &#xB7; One file &#x2192; Upload Project Matrix &amp; Update Gate Rules &#xB7; v2.6</text>
 </svg>
