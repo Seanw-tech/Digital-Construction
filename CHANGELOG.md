@@ -2,6 +2,16 @@
 
 ---
 
+## v2.7 — 2026-07-01
+
+### Prompt 01 v2.4 — standalone CSV retired
+- The `<ProjectName>_Gate Mapping` tab is now the single source of truth for gate rows — **no standalone CSV/`.csv` file is produced or needed**
+- "How to use", Part 2 and Part 3 rewritten: in Cowork the AI writes rows directly into the tab; chat-only tools paste the rows block into the tab; either way only the matrix `.xlsx` moves forward
+- Removed the legacy `GateReview.csv` save-and-reattach instruction; the JSON fallback now reads the reviewed matrix tab directly
+- Housekeeping: any per-project CSV exports (e.g. Building 9) removed — the embedded tab + one-button `Upload Project Matrix and Update Gate Rules` is the only load path
+
+---
+
 ## v2.6 — 2026-07-01
 
 ### Matrix — Gate Mapping tab (G05 v2)
