@@ -284,7 +284,7 @@ footer{padding:8px 28px;border-top:1px solid #e2e8f0;text-align:center;font-size
     <span class="badge-live">LIVE</span>
     <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0">
       <input type="file" id="matrixUpload" accept=".xlsx" style="display:none" onchange="loadMatrixFromExcel(this)">
-      <input type="file" id="claudeUpload" accept=".txt,.json" style="display:none" onchange="loadClaudeOutput(this)">
+      <input type="file" id="claudeUpload" accept=".txt,.json,.csv,.xlsx,.xls" style="display:none" onchange="loadClaudeOutput(this)">
       <div style="display:flex;gap:6px;flex-wrap:nowrap;align-items:center">
         <button class="btn-io" onclick="exportSession()">⬆ Export Session</button>
         <label class="btn-io" style="cursor:pointer">
@@ -490,8 +490,8 @@ footer{padding:8px 28px;border-top:1px solid #e2e8f0;text-align:center;font-size
       <div class="card-header">
         <span class="card-title">📤 Revizto Clash Task Output</span>
         <div style="display:flex;gap:6px;align-items:center">
-          <button onclick="document.getElementById('matrixUpload').click()" style="background:#eff6ff;border:1px solid #93c5fd;color:#1d4ed8;padding:5px 10px;border-radius:6px;font-size:.75rem;font-weight:700;cursor:pointer;white-space:nowrap">📂 Upload Matrix</button>
-          <button onclick="document.getElementById('claudeUpload').click()" style="background:#f0fdf4;border:1px solid #86efac;color:#166534;padding:5px 10px;border-radius:6px;font-size:.75rem;font-weight:700;cursor:pointer;white-space:nowrap">📋 Updated Gate Rules</button>
+          <button onclick="document.getElementById('matrixUpload').click()" style="background:#eff6ff;border:1px solid #93c5fd;color:#1d4ed8;padding:5px 10px;border-radius:6px;font-size:.75rem;font-weight:700;cursor:pointer;white-space:nowrap">📂 Upload Project Matrix and Update Gate Rules</button>
+          
         </div>
       </div>
       <div class="toolbar">
@@ -596,7 +596,7 @@ footer{padding:8px 28px;border-top:1px solid #e2e8f0;text-align:center;font-size
       <div id="signoff-panel-T2" class="signoff-panel"><div class="signoff-pending-msg">Complete all checklist items to enable sign-off</div></div>
     </div>
     <div class="card">
-      <div class="card-header"><span class="card-title">📤 Revizto Clash Task Output</span><div style="display:flex;gap:6px;align-items:center"><button onclick="document.getElementById('matrixUpload').click()" style="background:#eff6ff;border:1px solid #93c5fd;color:#1d4ed8;padding:5px 10px;border-radius:6px;font-size:.75rem;font-weight:700;cursor:pointer;white-space:nowrap">📂 Upload Matrix</button><button onclick="document.getElementById('claudeUpload').click()" style="background:#f0fdf4;border:1px solid #86efac;color:#166534;padding:5px 10px;border-radius:6px;font-size:.75rem;font-weight:700;cursor:pointer;white-space:nowrap">📋 Updated Gate Rules</button></div></div>
+      <div class="card-header"><span class="card-title">📤 Revizto Clash Task Output</span><div style="display:flex;gap:6px;align-items:center"><button onclick="document.getElementById('matrixUpload').click()" style="background:#eff6ff;border:1px solid #93c5fd;color:#1d4ed8;padding:5px 10px;border-radius:6px;font-size:.75rem;font-weight:700;cursor:pointer;white-space:nowrap">📂 Upload Project Matrix and Update Gate Rules</button></div></div>
       <div class="toolbar">
         <input class="search-input" placeholder="🔍 Search tasks..." oninput="filterTable('T2',this.value)">
         <select class="filter" onchange="filterByDisc('T2',this.value)">
@@ -697,7 +697,7 @@ footer{padding:8px 28px;border-top:1px solid #e2e8f0;text-align:center;font-size
       <div id="signoff-panel-T3" class="signoff-panel"><div class="signoff-pending-msg">Complete all checklist items to enable sign-off</div></div>
     </div>
     <div class="card">
-      <div class="card-header"><span class="card-title">📤 Revizto Clash Task Output</span><div style="display:flex;gap:6px;align-items:center"><button onclick="document.getElementById('matrixUpload').click()" style="background:#eff6ff;border:1px solid #93c5fd;color:#1d4ed8;padding:5px 10px;border-radius:6px;font-size:.75rem;font-weight:700;cursor:pointer;white-space:nowrap">📂 Upload Matrix</button><button onclick="document.getElementById('claudeUpload').click()" style="background:#f0fdf4;border:1px solid #86efac;color:#166534;padding:5px 10px;border-radius:6px;font-size:.75rem;font-weight:700;cursor:pointer;white-space:nowrap">📋 Updated Gate Rules</button></div></div>
+      <div class="card-header"><span class="card-title">📤 Revizto Clash Task Output</span><div style="display:flex;gap:6px;align-items:center"><button onclick="document.getElementById('matrixUpload').click()" style="background:#eff6ff;border:1px solid #93c5fd;color:#1d4ed8;padding:5px 10px;border-radius:6px;font-size:.75rem;font-weight:700;cursor:pointer;white-space:nowrap">📂 Upload Project Matrix and Update Gate Rules</button></div></div>
       <div class="toolbar">
         <input class="search-input" placeholder="🔍 Search tasks..." oninput="filterTable('T3',this.value)">
         <select class="filter" onchange="filterByDisc('T3',this.value)">
@@ -786,7 +786,7 @@ footer{padding:8px 28px;border-top:1px solid #e2e8f0;text-align:center;font-size
       <div id="signoff-panel-T4" class="signoff-panel"><div class="signoff-pending-msg">Complete all checklist items to enable sign-off</div></div>
     </div>
     <div class="card">
-      <div class="card-header"><span class="card-title">📤 Revizto Clash Task Output</span><div style="display:flex;gap:6px;align-items:center"><button onclick="document.getElementById('matrixUpload').click()" style="background:#eff6ff;border:1px solid #93c5fd;color:#1d4ed8;padding:5px 10px;border-radius:6px;font-size:.75rem;font-weight:700;cursor:pointer;white-space:nowrap">📂 Upload Matrix</button><button onclick="document.getElementById('claudeUpload').click()" style="background:#f0fdf4;border:1px solid #86efac;color:#166534;padding:5px 10px;border-radius:6px;font-size:.75rem;font-weight:700;cursor:pointer;white-space:nowrap">📋 Updated Gate Rules</button></div></div>
+      <div class="card-header"><span class="card-title">📤 Revizto Clash Task Output</span><div style="display:flex;gap:6px;align-items:center"><button onclick="document.getElementById('matrixUpload').click()" style="background:#eff6ff;border:1px solid #93c5fd;color:#1d4ed8;padding:5px 10px;border-radius:6px;font-size:.75rem;font-weight:700;cursor:pointer;white-space:nowrap">📂 Upload Project Matrix and Update Gate Rules</button></div></div>
       <div class="toolbar">
         <input class="search-input" placeholder="🔍 Search tasks..." oninput="filterTable('T4',this.value)">
         <select class="filter" onchange="filterByDisc('T4',this.value)">
@@ -1695,6 +1695,14 @@ function loadMatrixFromExcel(input) {
       saveState();
       ['T1','T2','T3','T4'].forEach(s => renderTable(s));
       renderGapMatrix();
+      // One-file/two-jobs: also import embedded "…Gate Mapping" sheet (YES rows) if present
+      try {
+        const gm = wb.SheetNames.find(n => n.toLowerCase().includes("gate mapping"));
+        if(gm){
+          const grows = XLSX.utils.sheet_to_json(wb.Sheets[gm], {header:1, defval:""});
+          processReviewedCSVRows(grows, file.name + " · " + gm);
+        }
+      } catch(gErr){ console.warn("Gate-mapping import skipped:", gErr.message); }
       setTimeout(hideToast, 3000);
     } catch(err) {
       hideToast();
@@ -1705,9 +1713,116 @@ function loadMatrixFromExcel(input) {
   reader.readAsArrayBuffer(file);
 }
 
+// ── Direct CSV/Excel import (no AI conversion needed) ─────────────────────
+// Processes the coordinator-reviewed gate items CSV/Excel directly.
+// Expects columns: Stage, Disc, Proposed Gate Item, Status,
+//   Replaces Hub Default, H (mm), V (mm), Source, REVIEW (YES/NO/N/A), COMMENT
+function processReviewedCSVRows(rows, filename) {
+  if(!rows || rows.length < 2) throw new Error('File appears empty or has no data rows.');
+
+  // Find the header row by scanning for a "review" column
+  let headerIdx = -1, colMap = {};
+  for(let i = 0; i < Math.min(rows.length, 6); i++) {
+    const cells = rows[i].map(c => String(c || '').toLowerCase().trim());
+    if(cells.some(c => c.includes('review')) &&
+       cells.some(c => c === 'gate item' || c === 'proposed gate item' || c.includes('proposed gate') || c === 'item' || c === 'stage')) {
+      headerIdx = i;
+      cells.forEach((h, j) => {
+        if(h === 'stage')                                  colMap.stage    = j;
+        else if(h === 'disc' || h === 'discipline')        colMap.disc     = j;
+        else if(h.includes('proposed gate') || h === 'gate item' || h === 'item') colMap.item = j;
+        else if(h === 'status')                            colMap.status   = j;
+        else if(h.includes('replaces') || h.includes('relates')) colMap.replaces = j;
+        else if(h === 'h (mm)' || h === 'h(mm)' || h === 'h mm' || h === 'h') colMap.h = j;
+        else if(h === 'v (mm)' || h === 'v(mm)' || h === 'v mm' || h === 'v') colMap.v = j;
+        else if(h === 'source')                            colMap.source   = j;
+        else if(h.includes('review'))                      colMap.review   = j;
+        else if(h.includes('comment'))                     colMap.comment  = j;
+      });
+      break;
+    }
+  }
+
+  if(headerIdx === -1 || colMap.review === undefined) throw new Error(
+    'Could not find the REVIEW column.\n\n' +
+    'Make sure you are uploading the coordinator-reviewed CSV or Excel file ' +
+    '(the file with a REVIEW (YES/NO/N/A) column filled in by the coordinator).'
+  );
+  if(colMap.item === undefined) throw new Error(
+    'Could not find the Gate Item column.\n\nExpected column header: "Proposed Gate Item"'
+  );
+
+  let gateCount = 0;
+  rows.slice(headerIdx + 1).forEach(row => {
+    const review = String(row[colMap.review] || '').toUpperCase().trim();
+    if(review !== 'YES') return; // skip NO, N/A, and blank rows
+
+    const itemText = String(row[colMap.item] || '').trim();
+    if(!itemText) return;
+
+    const stage    = String(row[colMap.stage]   || 'T1').toUpperCase().trim();
+    const disc     = String(row[colMap.disc]    || 'GEN').toUpperCase().trim();
+    const status   = String(row[colMap.status]  || 'NEW').toUpperCase().trim();
+    const source   = colMap.source   !== undefined ? String(row[colMap.source]   || '').trim() : '';
+    const replRaw  = colMap.replaces !== undefined ? String(row[colMap.replaces] || '').trim() : '';
+    const replaces = (replRaw === '-' || replRaw === '') ? null : replRaw;
+    const hRaw     = colMap.h !== undefined ? row[colMap.h] : '';
+    const vRaw     = colMap.v !== undefined ? row[colMap.v] : '';
+    const h        = (hRaw !== '' && hRaw !== null && !isNaN(parseInt(hRaw))) ? parseInt(hRaw) : null;
+    const v        = (vRaw !== '' && vRaw !== null && !isNaN(parseInt(vRaw))) ? parseInt(vRaw) : null;
+
+    const item = { stage, discipline: disc, item: itemText, clearanceH: h, clearanceV: v,
+                   source, clashPair: '', status, id: null };
+    projectGateItems.push(item);
+    injectGateItems([item]);
+    markReplacedDefaults(status, replaces);
+    gateCount++;
+  });
+
+  saveState();
+  const label = filename.substring(0, 35);
+  document.getElementById('claudeStatus').textContent = '✅ ' + label + ' — ' + gateCount + ' item' + (gateCount !== 1 ? 's' : '') + ' imported';
+  showToast(gateCount + ' gate item' + (gateCount !== 1 ? 's' : '') + ' added from coordinator review', 4000);
+  return gateCount;
+}
+
 function loadClaudeOutput(input) {
   const file = input.files[0];
+  input.value = ''; // reset so same file can be re-uploaded
   if(!file) return;
+  const ext = file.name.split('.').pop().toLowerCase();
+
+  // ── CSV: read as text and parse via SheetJS ──────────────────────────────
+  if(ext === 'csv') {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      try {
+        const wb = XLSX.read(e.target.result, {type:'string'});
+        const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], {header:1, defval:''});
+        const n = processReviewedCSVRows(rows, file.name);
+        if(n === 0) showToast('No YES rows found — check the REVIEW column is filled in', 5000);
+      } catch(err) { alert('Error reading CSV:\n' + err.message); }
+    };
+    reader.readAsText(file);
+    return;
+  }
+
+  // ── Excel: read as ArrayBuffer and parse via SheetJS ─────────────────────
+  if(ext === 'xlsx' || ext === 'xls') {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      try {
+        const wb = XLSX.read(e.target.result, {type:'array'});
+        const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], {header:1, defval:''});
+        const n = processReviewedCSVRows(rows, file.name);
+        if(n === 0) showToast('No YES rows found — check the REVIEW column is filled in', 5000);
+      } catch(err) { alert('Error reading Excel:\n' + err.message); }
+    };
+    reader.readAsArrayBuffer(file);
+    return;
+  }
+
+  // ── TXT / JSON: existing AI output parsing ────────────────────────────────
   const reader = new FileReader();
   reader.onload = function(e) {
     try {
