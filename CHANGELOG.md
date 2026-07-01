@@ -2,6 +2,46 @@
 
 ---
 
+## v2.6 — 2026-07-01
+
+### Matrix — Gate Mapping tab (G05 v2)
+- Template matrix now ships with a blank, parser-ready `ProjectName_Gate Mapping` tab (rename per project)
+- Columns: Gate ID, Stage, Disc, Status, Proposed Gate Item, Selection A/B (row/col category), Matrix Cell, Rec. Priority, Rec. Clearance, H (mm), V (mm), Clash Pair, Source, Review (Y/N) dropdown, Comment
+- Gate items map onto **existing** Item Categories only (per Hub default T1-14) — no new categories
+- Coordinator review (Review = Yes/No) happens in-workbook; the tab doubles as the sign-off sheet
+
+### Platform — One-button upload
+- **Merged the two upload buttons into one:** `📂 Upload Project Matrix and Update Gate Rules` (across all T1–T4 tabs)
+- The matrix-upload handler now also scans the workbook for a `…Gate Mapping` sheet and imports its Review = YES rows via `processReviewedCSVRows` — one file, both jobs
+- Legacy `claudeUpload` input retained (hidden) for backward-compatible standalone CSV/Excel import
+- Conditional formatting (288 rule-sets) on `Clash Matrix (Update to suit)` preserved via targeted XML editing
+
+### Prompts / README / Template / Diagram
+- **Prompt 01 v2.3:** Step 4 now maps each item onto existing G05 Item Categories (Selection A/B + Matrix Cell, per T1-14); Part 2 CSV header matches the `<ProjectName>_Gate Mapping` tab so rows paste straight in; downstream steps point to the one-button upload; JSON path demoted to alternative/legacy
+- **Prompt 02:** New "Gate Mapping tab" setup step added
+- **README v2.6:** Step 3 + 4c rewritten around the single-button, one-file workflow; Platform Features table updated
+- **Project notes template:** Matrix G05 v2 / Toolkit v2.6; Gate Rules section references the new tab + one-button workflow
+- **Clash_Coordination_Workflow.svg:** redrawn to the v2.6 flow — Prompt 01 → paste into matrix tab → coordinator reviews in-tab → single "Upload Project Matrix & Update Gate Rules"
+
+---
+
+## v2.5 — 2026-06-25
+
+### Platform — Direct CSV/Excel Import
+- **Updated Gate Rules** button now accepts `.csv`, `.xlsx`, and `.xls` in addition to `.txt`/`.json`
+- When a CSV or Excel is uploaded, the platform reads the coordinator's reviewed file directly — no AI conversion step, no JSON, no schema variation between chatbots (Claude/ChatGPT/Copilot)
+- Reads columns by name (case-insensitive): Stage, Disc, Proposed Gate Item, Status, Replaces Hub Default, H (mm), V (mm), Source, REVIEW, COMMENT
+- Injects all rows where REVIEW = YES; skips NO and N/A rows
+- `markReplacedDefaults` called automatically from column data — superseded/supplemented hub defaults still flagged
+- File input reset after upload so same file can be re-uploaded
+- Clear error message shown if REVIEW column is not found (wrong file type uploaded)
+
+### Prompts / README
+- **Prompt 01 v2.3:** Step 3 updated — direct platform upload is now the recommended path; AI JSON conversion (Part 3) is an alternative for sign-off detail capture
+- **README:** Step 4c rewritten to lead with the direct upload path
+
+---
+
 ## v2.4 — 2026-06-25
 
 ### Audit fixes
