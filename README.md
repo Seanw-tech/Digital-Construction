@@ -1,6 +1,6 @@
 # BIM Clash Coordination Toolkit
 
-**Owner:** Sean Wang — BIM Manager | **Version:** 2.4 | **Last updated:** 2026-06-25
+**Owner:** Sean Wang — BIM Manager | **Version:** 2.6 | **Last updated:** 2026-07-01
 
 Stage-gated clash detection and digital coordination toolkit. Built around NZS4219:2009, Revizto Clash Automation, and a T1–T4 coordination framework.
 
@@ -33,7 +33,7 @@ Copy `Projects/_Template/` and rename it to your project code (e.g. `Projects/AB
 Open `Platform/Clash_Coordination_Platform.html` in Chrome. Enter the Project Name and BIM Lead.
 
 **Step 3 — Upload your Clash Matrix**
-Click **📂 Upload Updated Matrix** → select your company clash matrix. The platform reads the `Rawdata (Do not edit)` sheet and loads all T1–T4 tasks automatically.
+Click **📂 Upload Project Matrix and Update Gate Rules** → select your company clash matrix. The platform reads the `Rawdata (Do not edit)` sheet and loads all T1–T4 tasks automatically. If the workbook also contains a `<ProjectName>_Gate Mapping` tab, its coordinator-approved (Review = YES) gate items are imported in the **same** upload — one file, both jobs.
 
 **Step 4 — Analyse design report → coordinator review → update gate checklist**
 
@@ -45,12 +45,10 @@ Open a new Claude, Copilot, or ChatGPT session. Click the Prompt 01 link below, 
 **4b — Services Coordinator review**
 Send `GateReview.csv` (or the Excel) to your Services Coordinator. The coordinator fills in YES / NO / N/A for each proposed gate item, adds comments for rejected items, and signs off. The completed Excel is returned to you.
 
-**4c — Attach the reviewed Excel to the same AI session**
-No new session needed. In the **same session** where you ran Prompt 01, attach the completed Excel from the coordinator. The AI automatically reads the review responses and outputs a JSON block — no prompt copy-paste required.
+**4c — Add the gate items to the matrix, get them reviewed, upload once**
+Paste the reviewed gate items into a new tab in your G05 matrix named `<ProjectName>_Gate Mapping` (headers: Gate ID, Stage, Disc, Status, Proposed Gate Item, Selection A/B, Matrix Cell, Rec. Priority/Clearance, H (mm), V (mm), Clash Pair, Source, Review (Y/N), Comment — a ready-made blank tab ships in the template matrix). The Services Coordinator sets **Review = Yes/No** per row directly in that tab. You then click **📂 Upload Project Matrix and Update Gate Rules** once — the platform loads the matrix **and** injects every Review = YES gate item in a single step. Superseded and supplemented hub defaults are still auto-flagged.
 
-Save the entire AI response as a `.txt` file → platform: **📋 Updated Gate Rules** → upload. The platform adds all approved items to the gate checklist and auto-signs off completed stages.
-
-> **Prompt 02** is a fallback — only needed if the original AI session was closed before you could attach the reviewed Excel.
+> **Alternative (separate review file):** you can still send a standalone `GateReview.csv`/Excel for review; a hidden legacy import path accepts it. The AI-JSON route (save as `.txt`) remains available for capturing sign-off detail; if the original session was closed, use `02_ChecklistReview_Import.md` (Prompt 02) in a new session.
 
 **Step 5 — Work through the gates**
 For each stage T1 → T4: complete the Pre-Clash Gate Checklist → gate unlocks → **⬇ Export CSV** → run Revizto clash detection → log run in the Run Log tab.
@@ -70,8 +68,7 @@ Click **⬆ Export Session** to save everything to JSON. On the other PC click *
 | Gate Status | Auto shows 🔒 Locked / ⚠️ Partial / ✅ Open based on checklist progress |
 | ✏️ Edit Task | Override clearance code, H/V values, Revizto priority, add a reason note |
 | 📐 Rules & Standards | NZS4219:2009 seismic table, clearance codes, gap matrix, project notes |
-| 📂 Upload Updated Matrix | Upload updated company clash matrix → platform rebuilds all tasks (edits preserved) |
-| 📋 Updated Gate Rules | Upload `.txt` from AI → adds gate items, ticks checkboxes, auto-signs off stages |
+| 📂 Upload Project Matrix and Update Gate Rules | One upload does both: rebuilds all T1–T4 tasks from the matrix (edits preserved) **and** imports Review = YES rows from the workbook's `<ProjectName>_Gate Mapping` tab — adds gate items, ticks checkboxes, auto-flags superseded/supplemented defaults |
 
 | 🌙 / ☀️ Theme toggle | Light/dark mode — preference saved |
 | ⬆ Export Session / ⬇ Import Session | Portable JSON snapshot — restore any project on any PC |
