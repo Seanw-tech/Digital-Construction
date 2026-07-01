@@ -1,8 +1,8 @@
 # Prompt: Project Report → Updated Gate Rules Analysis
 
-**Version:** 2.3 (updated 2026-07-01 · aligned to Toolkit v2.6)
+**Version:** 2.4 (updated 2026-07-01 · aligned to Toolkit v2.7)
 
-**How to use:** Copy the full prompt block below. Paste it into a new Claude, Copilot, or ChatGPT session. Attach your project report (PDF, Word, or paste the text). The AI will compare the report against the Hub default checklist, filter duplicates and overlaps, and return only what needs to change — clearly showing what's retained, added, consolidated, or replaced. In v2.6 the output rows also map each item onto the existing G05 Item Categories so they paste straight into the `<ProjectName>_Gate Mapping` tab of your matrix, which the coordinator reviews and you upload with a single button.
+**How to use:** Copy the full prompt block below. Paste it into a new Claude, Copilot, or ChatGPT session. Attach your project report (PDF, Word, or paste the text). The AI will compare the report against the Hub default checklist, filter duplicates and overlaps, and return only what needs to change — clearly showing what's retained, added, consolidated, or replaced. The output rows map each item onto the existing G05 Item Categories and go straight into the `<ProjectName>_Gate Mapping` tab of your matrix — **that tab is the single source of truth. No standalone CSV file is produced or needed.** In Cowork, the AI writes the rows directly into the tab; in a chat-only tool, paste the rows block into the tab. The coordinator reviews in-tab (Review = YES/NO) and you load everything with one button.
 
 Works with: Mechanical Services Report, Hydraulic Design Report, Acoustic Report, Fire Engineering Report, Structural Report, BEP, Coordination Drawings Package, Specification Sections.
 
@@ -225,11 +225,11 @@ Write 3–5 sentences summarising the most significant coordination risks this r
 
 ---
 
-## PART 2 — GATE MAPPING ROWS (paste into the `<ProjectName>_Gate Mapping` tab)
+## PART 2 — GATE MAPPING ROWS (write straight into the `<ProjectName>_Gate Mapping` tab)
 
-After Part 1, output the rows as CSV using the exact header below. This matches the `<ProjectName>_Gate Mapping` tab in the G05 matrix, so the BIM Manager pastes it straight into that tab starting at row 3 — no separate review file needed. The coordinator then fills the `Review (Y/N)` column in the tab; leave `Review (Y/N)` and `Comment` blank here.
+After Part 1, produce the rows that populate the `<ProjectName>_Gate Mapping` tab of the G05 matrix, from row 3 down. **The tab is the deliverable — do not save a standalone CSV/`.csv` file.** In Cowork, write the rows directly into that tab in the workbook. In a chat-only tool, output the block below once so the BIM Manager can paste it into the tab. Either way the matrix `.xlsx` is the only artifact that moves forward; the coordinator fills the `Review (Y/N)` column in the tab (leave `Review (Y/N)` and `Comment` blank when generating).
 
-Output the CSV with this exact header row, followed by one data row per NEW, SUPPLEMENTED, or SUPERSEDED item:
+Use this exact header row, followed by one data row per NEW, SUPPLEMENTED, or SUPERSEDED item:
 
 ```
 Gate ID,Stage,Disc,Status,Proposed Gate Item,Selection A (row category),Selection B (col category),Matrix Cell,Rec. Priority,Rec. Clearance,H (mm),V (mm),Clash Pair,Source,Review (Y/N),Comment
@@ -246,22 +246,22 @@ CSV rules:
 - H and V are in millimetres; leave blank if not specified
 - If any field contains a comma, wrap it in double quotes
 - `Review (Y/N)` and `Comment` are intentionally blank — the coordinator fills them in the matrix tab
-- Output the CSV block with no extra text above or below it so it can be copied cleanly
+- When output as a block (chat-only tools), give it with no extra text above or below so it pastes cleanly into the tab — but never save it as a separate `.csv` file; the matrix tab holds the rows
 
 ---
 
 ## PART 3 — (ALTERNATIVE / LEGACY) AWAIT COORDINATOR REVIEW THEN CONVERT TO JSON
 
-> Primary path in v2.6 is Part 2: paste the rows into the `<ProjectName>_Gate Mapping` tab and upload the matrix once. Part 3 (JSON) remains only for cases where you need the AI to process sign-off detail, or a chatbot that cannot output the matrix tab cleanly.
+> Primary path is Part 2: the rows live in the `<ProjectName>_Gate Mapping` tab and you upload the matrix once. Part 3 (JSON) remains only for cases where you need the AI to process sign-off detail, or a chatbot that cannot write the matrix tab cleanly. The retired standalone-CSV file path (`GateReview.csv`) is no longer used — the reviewed matrix tab is read directly.
 
-After outputting the CSV, add this message:
+After the rows are in the tab, add this message:
 
 ---
-Gate mapping rows exported as CSV above.
+Gate mapping rows are in the `<ProjectName>_Gate Mapping` tab.
 
-**Next step (recommended):** Paste these rows into the `<ProjectName>_Gate Mapping` tab of your G05 matrix (row 3 onward). The coordinator sets `Review (Y/N)` per row in that tab and returns the workbook; you then click **📂 Upload Project Matrix and Update Gate Rules** once to load the matrix and the approved gate rules together.
+**Next step (recommended):** The coordinator sets `Review (Y/N)` per row in that tab and returns the workbook; you then click **📂 Upload Project Matrix and Update Gate Rules** once to load the matrix and the approved gate rules together — one file, no separate CSV.
 
-**Alternative:** save the CSV as `GateReview.csv`, have the coordinator fill REVIEW, then re-attach it here and I will convert it to JSON for platform import.
+**Legacy fallback (only if the one-button upload is unavailable):** re-attach the reviewed matrix `.xlsx` here and I will convert the Review = YES rows to platform JSON.
 ---
 
 When the user attaches the completed Excel in this session, process it as follows — do not wait for further instructions:
