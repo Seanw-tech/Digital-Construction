@@ -38,17 +38,21 @@ Click **📂 Upload Project Matrix and Update Gate Rules** → select your compa
 **Step 4 — Analyse design report → coordinator review → update gate checklist**
 
 **4a — Run Prompt 01 with your design report**
-Open a new Claude, Copilot, or ChatGPT session. Click the Prompt 01 link below, click **Raw**, select all, copy, paste in, then attach your design report (PDF or Word). The AI analyses the report against the hub default gate checklist and outputs a **Gate Items Review Table as CSV** — copy the CSV text, save as `GateReview.csv`, and open in Excel.
+In a new Claude, Copilot, or ChatGPT session, open the Prompt 01 link below → **Raw** → select all → copy → paste in, then attach your design report (PDF or Word). The AI checks the report against the hub default gate checklist and returns a **Gate Items Review Table as CSV**. Save it as `GateReview.csv` and open in Excel.
 
 > 📋 **[Prompt 01 — Analyse design report → gate items CSV for coordinator review](Prompts/01_ProjectReport_ClashGate_Analysis.md)**
 
 **4b — Services Coordinator review**
-Send `GateReview.csv` (or the Excel) to your Services Coordinator. The coordinator fills in YES / NO / N/A for each proposed gate item, adds comments for rejected items, and signs off. The completed Excel is returned to you.
+Send `GateReview.csv` (or the Excel) to your Services Coordinator. They mark each proposed item YES / NO / N/A, comment on any rejections, sign off, and return the file.
 
-**4c — Add the gate items to the matrix, get them reviewed, upload once**
-Paste the reviewed gate items into a new tab in your G05 matrix named `<ProjectName>_Gate Mapping` (headers: Gate ID, Stage, Disc, Status, Proposed Gate Item, Selection A/B, Matrix Cell, Rec. Priority/Clearance, H (mm), V (mm), Clash Pair, Source, Review (Y/N), Comment — a ready-made blank tab ships in the template matrix). The Services Coordinator sets **Review = Yes/No** per row directly in that tab. You then click **📂 Upload Project Matrix and Update Gate Rules** once — the platform loads the matrix **and** injects every Review = YES gate item in a single step. Superseded and supplemented hub defaults are still auto-flagged.
+**4c — Add gate items to the matrix, review, upload once**
+Paste the reviewed items into a new tab in your G05 matrix named `<ProjectName>_Gate Mapping` (a ready-made blank tab ships in the template matrix). Columns:
 
-> **Alternative (separate review file):** you can still send a standalone `GateReview.csv`/Excel for review; a hidden legacy import path accepts it. The AI-JSON route (save as `.txt`) remains available for capturing sign-off detail; if the original session was closed, use `02_ChecklistReview_Import.md` (Prompt 02) in a new session.
+> Gate ID · Stage · Disc · Status · Proposed Gate Item · Selection A/B · Matrix Cell · Rec. Priority/Clearance · H (mm) · V (mm) · Clash Pair · Source · Review (Y/N) · Comment
+
+The Services Coordinator sets **Review = Yes/No** on each row. Then click **📂 Upload Project Matrix and Update Gate Rules** once — the platform loads the matrix **and** injects every Review = YES item in a single step. Superseded and supplemented hub defaults are still auto-flagged.
+
+> **Alternative (separate review file):** you can still send a standalone `GateReview.csv` / Excel for review — a hidden legacy import path accepts it. The AI-JSON route (save as `.txt`) remains available for capturing sign-off detail; if the original session was closed, use Prompt 02 (`02_ChecklistReview_Import.md`) in a new session.
 
 **Step 5 — Work through the gates**
 For each stage T1 → T4: complete the Pre-Clash Gate Checklist → gate unlocks → **⬇ Export CSV** → run Revizto clash detection → log run in the Run Log tab.
