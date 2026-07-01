@@ -1,8 +1,8 @@
 # Prompt: Project Report → Updated Gate Rules Analysis
 
-**Version:** 2.2 (updated 2026-06-25)
+**Version:** 2.3 (updated 2026-07-01 · aligned to Toolkit v2.6)
 
-**How to use:** Copy the full prompt block below. Paste it into a new Claude, Copilot, or ChatGPT session. Attach your project report (PDF, Word, or paste the text). The AI will compare the report against the Hub default checklist, filter duplicates and overlaps, and return only what needs to change — clearly showing what's retained, added, consolidated, or replaced.
+**How to use:** Copy the full prompt block below. Paste it into a new Claude, Copilot, or ChatGPT session. Attach your project report (PDF, Word, or paste the text). The AI will compare the report against the Hub default checklist, filter duplicates and overlaps, and return only what needs to change — clearly showing what's retained, added, consolidated, or replaced. In v2.6 the output rows also map each item onto the existing G05 Item Categories so they paste straight into the `<ProjectName>_Gate Mapping` tab of your matrix, which the coordinator reviews and you upload with a single button.
 
 Works with: Mechanical Services Report, Hydraulic Design Report, Acoustic Report, Fire Engineering Report, Structural Report, BEP, Coordination Drawings Package, Specification Sections.
 
@@ -152,13 +152,17 @@ For each extracted item, compare it against the Hub default list above. Apply th
 **Step 3 — Filter output**
 Only include SUPERSEDED, SUPPLEMENTED, and NEW items in the output tables and JSON. Do not list RETAINED items in the output tables — they are already in the platform.
 
-**Step 4 — Assign attributes**
+**Step 4 — Assign attributes & map to the G05 matrix**
 For each output item:
 - Assign the correct stage (T1/T2/T3/T4)
 - Assign the correct discipline code (ARCH, STR, HYD, MEC, ELE, FIR, GEN)
 - State the minimum clearance if specified — H (mm) and V (mm) separately. Use null if not specified. Use 0 for hard physical clash (HC).
 - Identify the most relevant clash pair (format: DISC vs DISC)
+- **Map to the G05 Clash Matrix (per Hub default T1-14):** choose Selection A (row category) and Selection B (column category) from the EXISTING Item Categories only — never invent a new category. Give the Matrix Cell (the row×column intersection, e.g. `V28`) where known. Assign a Rec. Priority (T1–T5) and a Rec. Clearance code (HC / C50 / C100V / C150V / CXXXV).
 - Cite the source clause or page number
+
+**Existing G05 Item Categories — use these exact names for Selection A/B:**
+ARC_Columns*, ARC_Ceiling, ARC_Doors*, ARC_Gen Model & Casework*, ARC_Roof, ARC_Fire & Acoustic Wall, ARC_Windows, ARC_Services Walkway, ARC_Accessible Path, SRV_Access Panel, ARC_Lighting Fixtures, ARC_Plumbing Fixtures, ARC_SOG Floor Insulation, STR_Seismic Elements, STR_Conc work Excl Floor Slab, STR_Steelwork (Bracing and Columns), STR Floor, HYD_Uninsulated Pipes and Acc, HYD_Pipe Insulation, HYD_Uninsulated Hot and Cold Pipes and Acc, HYD_Hot and Cold Insulation, HYD_Plumbing Fixture, MEC_Air Terminals, MEC_Uninsulated Duct and Acc, MEC_Duct Insulation, MEC_Pipe Insulation, MEC_Uninsulated Pipes and Acc, MEC_Uninulated Flexi duct, MEC_Equipment, ELE_Cable Tray and Fittings, ELE_Conduit*, ELE_Electrical Equip., ELE_Small Devices, ELE_Services Lighting Fixtures, FIR_Fire Pipes, FIR_Sprinklers Heads, FIR_Heat or Smoke Detectors. Items that are process/documentation rather than a spatial clash (e.g. responsibility, as-built) get Rec. Priority T5 and may leave the Matrix Cell blank.
 
 **Step 5 — Flag ambiguities**
 If a report clause is ambiguous, note it explicitly rather than assuming. If a project-specific rule conflicts with NZS4219:2009 or standard practice, flag it.
@@ -221,37 +225,43 @@ Write 3–5 sentences summarising the most significant coordination risks this r
 
 ---
 
-## PART 2 — GATE ITEMS REVIEW TABLE (CSV for coordinator sign-off)
+## PART 2 — GATE MAPPING ROWS (paste into the `<ProjectName>_Gate Mapping` tab)
 
-After Part 1, output the review table as CSV so the BIM Manager can save it directly as a `.csv` file and open it in Excel. The coordinator fills in the REVIEW and COMMENT columns and returns the completed Excel.
+After Part 1, output the rows as CSV using the exact header below. This matches the `<ProjectName>_Gate Mapping` tab in the G05 matrix, so the BIM Manager pastes it straight into that tab starting at row 3 — no separate review file needed. The coordinator then fills the `Review (Y/N)` column in the tab; leave `Review (Y/N)` and `Comment` blank here.
 
 Output the CSV with this exact header row, followed by one data row per NEW, SUPPLEMENTED, or SUPERSEDED item:
 
 ```
-#,Stage,Disc,Proposed Gate Item,Status,Replaces Hub Default,H (mm),V (mm),Source,REVIEW (YES/NO/N/A),COMMENT
-1,T1,STR,[item text],NEW,-,[H or blank],[V or blank],[Section X.X],,
-2,T2,MEC,[item text],SUPPLEMENTED,T2-08,150,200,[Section X.X],,
+Gate ID,Stage,Disc,Status,Proposed Gate Item,Selection A (row category),Selection B (col category),Matrix Cell,Rec. Priority,Rec. Clearance,H (mm),V (mm),Clash Pair,Source,Review (Y/N),Comment
+GR-T1-01,T1,STR,NEW,[item text],STR_Seismic Elements,HYD_Uninsulated Hot and Cold Pipes and Acc,V28,T3,CXXXV,,,HYD vs STR,[Section X.X],,
+GR-T2-03,T2,MEC,SUPPLEMENTED,[item text],ARC_Fire & Acoustic Wall,MEC_Uninsulated Duct and Acc,Z12,T2,C50,250,250,MEC vs FIR,[Section X.X],,
 ```
 
 CSV rules:
-- # is a sequential row number starting from 1
+- Gate ID format `GR-<stage>-<nn>` (e.g. GR-T2-03)
 - Status is one of: NEW, SUPERSEDED, SUPPLEMENTED
-- Replaces Hub Default is the Hub default ID (e.g. T2-08) for SUPERSEDED/SUPPLEMENTED items, or - for NEW
+- Selection A / Selection B must be exact existing Item Category names (see Step 4 list) — existing categories only
+- Matrix Cell is the row×column intersection (e.g. V28) if known, else leave blank
+- Rec. Priority is T1–T5; Rec. Clearance is HC / C50 / C100V / C150V / CXXXV, or `-`
 - H and V are in millimetres; leave blank if not specified
 - If any field contains a comma, wrap it in double quotes
-- REVIEW and COMMENT columns are intentionally blank — the coordinator fills them in
+- `Review (Y/N)` and `Comment` are intentionally blank — the coordinator fills them in the matrix tab
 - Output the CSV block with no extra text above or below it so it can be copied cleanly
 
 ---
 
-## PART 3 — AWAIT COORDINATOR REVIEW THEN CONVERT TO JSON
+## PART 3 — (ALTERNATIVE / LEGACY) AWAIT COORDINATOR REVIEW THEN CONVERT TO JSON
+
+> Primary path in v2.6 is Part 2: paste the rows into the `<ProjectName>_Gate Mapping` tab and upload the matrix once. Part 3 (JSON) remains only for cases where you need the AI to process sign-off detail, or a chatbot that cannot output the matrix tab cleanly.
 
 After outputting the CSV, add this message:
 
 ---
-Gate Items Review Table exported as CSV above.
+Gate mapping rows exported as CSV above.
 
-**Next step:** Send the coordinator the CSV (save as `GateReview.csv`, open in Excel). Once they return the completed Excel with REVIEW and COMMENT columns filled in, attach it to this session and I will automatically convert it to JSON for platform import.
+**Next step (recommended):** Paste these rows into the `<ProjectName>_Gate Mapping` tab of your G05 matrix (row 3 onward). The coordinator sets `Review (Y/N)` per row in that tab and returns the workbook; you then click **📂 Upload Project Matrix and Update Gate Rules** once to load the matrix and the approved gate rules together.
+
+**Alternative:** save the CSV as `GateReview.csv`, have the coordinator fill REVIEW, then re-attach it here and I will convert it to JSON for platform import.
 ---
 
 When the user attaches the completed Excel in this session, process it as follows — do not wait for further instructions:
@@ -307,19 +317,18 @@ JSON rules:
 ## What to Do with the Output
 
 **Step 1 — Review Part 1**
-Check the Rule Status Summary. Note any SUPERSEDED Hub defaults — these will be visually marked in the platform once you upload the JSON.
+Check the Rule Status Summary. Note any SUPERSEDED Hub defaults — these are flagged automatically in the platform once the gate items load.
 
-**Step 2 — Send the CSV to the coordinator**
-Save the Part 2 CSV as `GateReview.csv` and open it in Excel. Send it to the Services Coordinator. The coordinator fills in YES / NO / N/A for each proposed item, adds comments, and signs off. The completed Excel is returned to you.
+**Step 2 — Paste the Part 2 rows into the matrix**
+Copy the Part 2 CSV block into the `<ProjectName>_Gate Mapping` tab of your G05 matrix, starting at row 3 (rename the blank `ProjectName_Gate Mapping` tab that ships in the template matrix). Selection A/B map onto existing Item Categories only. Send the workbook to the Services Coordinator.
 
-**Step 3 — Attach the reviewed Excel to THIS session**
-No new session needed. In the **same session** where you ran this prompt, attach the completed Excel from the coordinator. The AI automatically reads the review responses (Part 3) and outputs a JSON block — no prompt copy-paste required.
+**Step 3 — Coordinator reviews in the tab**
+The coordinator sets `Review (Y/N)` per row directly in the tab, adds comments, and returns the workbook — the tab doubles as the sign-off sheet.
 
-Save the entire AI response as a `.txt` file → platform: **📋 Updated Gate Rules** → upload. The platform adds all approved items to the gate checklist, marks superseded/supplemented hub defaults, and auto-signs off completed stages.
+**Step 4 — Upload once (recommended)**
+In the platform, click **📂 Upload Project Matrix and Update Gate Rules** → select the workbook. One upload rebuilds all T1–T4 tasks from the matrix **and** injects every `Review = YES` gate item from the Gate Mapping tab. No separate file, no JSON, no chatbot schema variation.
 
-> **Fallback:** If you need to process the reviewed Excel in a new session, use `02_ChecklistReview_Import.md` (Prompt 02).
-
-If items don't load: ask the AI: *"Please recheck the JSON block and output a corrected version with no trailing commas and all string values in double quotes."*
+> **Alternatives / fallback:** a standalone reviewed `GateReview.csv` still works via the hidden legacy import; the AI-JSON route (Part 3, saved as `.txt`) remains for sign-off detail; and if this session was closed, use `02_ChecklistReview_Import.md` (Prompt 02) in a new session.
 
 ---
 
